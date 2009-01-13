@@ -1,0 +1,27 @@
+menu "RealView platform type"
+	depends on ARCH_REALVIEW
+
+config MACH_REALVIEW_EB
+	bool "Support RealView/EB platform"
+	select ARM_GIC
+	help
+	  Include support for the ARM(R) RealView Emulation Baseboard platform.
+
+config REALVIEW_EB_ARM11MP
+	bool "Support ARM11MPCore tile"
+	depends on MACH_REALVIEW_EB
+	select CACHE_L2X0
+	help
+	  Enable support for the ARM11MPCore tile on the Realview platform.
+
+config REALVIEW_EB_ARM11MP_REVB
+	bool "Support ARM11MPCore RevB tile"
+	depends on REALVIEW_EB_ARM11MP
+	default n
+	help
+	  Enable support for the ARM11MPCore RevB tile on the Realview
+	  platform. Since there are device address differences, a
+	  kernel built with this option enabled is not compatible with
+	  other revisions of the ARM11MPCore tile.
+
+endmenu
