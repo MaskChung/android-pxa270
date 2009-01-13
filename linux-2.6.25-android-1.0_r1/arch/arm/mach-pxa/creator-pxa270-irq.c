@@ -432,7 +432,7 @@ void
 creator_pxa270_init_irq (void)
 {        
         int irqno;	              
-printk(KERN_ALERT " ------ into creator_pxa270_init_irq\n");        
+//printk(KERN_ALERT " ------ into creator_pxa270_init_irq\n");        
         /* setup extra creat_pxa270 irqs */
         /* set_irq_type has to be called before an irq can be requested */
         pxa27x_init_irq();

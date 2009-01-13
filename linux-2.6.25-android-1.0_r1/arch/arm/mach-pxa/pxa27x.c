@@ -46,7 +46,7 @@ unsigned int pxa27x_get_clk_frequency_khz(int info)
 	unsigned int l, L, m, M, n2, N, S;
        	int cccr_a, t, ht, b;
 
-printk(KERN_ALERT " -------- into pxa27x_get_clk_frequency_khz: info = %d\n",info);
+//printk(KERN_ALERT " -------- into pxa27x_get_clk_frequency_khz: info = %d\n",info);
 	ccsr = CCSR;
 	cccr_a = CCCR & (1 << 25);
 
@@ -376,11 +376,11 @@ void __init pxa_set_i2c_power_info(struct i2c_pxa_platform_data *info)
 static struct platform_device *devices[] __initdata = {
 	&pxa_device_udc,
 	&pxa_device_ffuart,
-	/*
+	
 	&pxa_device_btuart,
 	&pxa_device_stuart,
 	&pxa_device_i2s,
-	*/
+	
 	&pxa_device_rtc,
 	&pxa27x_device_i2c_power,
 	/*

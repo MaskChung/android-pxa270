@@ -72,7 +72,8 @@ static char g_options[PXAFB_OPTIONS_SIZE] __devinitdata = "";
 
 #ifdef MODULE
 #define PXAFB_OPTIONS_SIZE 256
-static char g_lcdtype_options[PXAFB_OPTIONS_SIZE] __initdata = "";
+static char g_lcdtype_options[PXAFB_OPTIONS_SIZE] __devinitdata = "";
+//static char g_lcdtype_options[PXAFB_OPTIONS_SIZE] __initdata = "";
 
 
 
@@ -1548,7 +1549,7 @@ static FB_PLATFORM_DATA_T fb_platform_name[] = {
     { NULL, NULL }         
 };	
 
-int __devinit pxafb_setup(char *options)
+static int __devinit pxafb_setup(char *options)
 {
        int i;
        

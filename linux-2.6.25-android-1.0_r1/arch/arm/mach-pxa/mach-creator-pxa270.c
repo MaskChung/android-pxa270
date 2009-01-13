@@ -567,7 +567,7 @@ static struct map_desc creator_pxa270_io_desc[] __initdata = {
 static void __init 
 creator_pxa270_map_io (void)
 {
-printk(KERN_ALERT " ---------- into creator_pxa270_map_io\n");
+//printk(KERN_ALERT " ---------- into creator_pxa270_map_io\n");
        pxa_map_io();
        iotable_init(creator_pxa270_io_desc, ARRAY_SIZE(creator_pxa270_io_desc));
 
