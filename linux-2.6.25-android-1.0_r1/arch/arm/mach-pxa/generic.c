@@ -42,7 +42,6 @@
  */
 unsigned int get_clk_frequency_khz(int info)
 {
-//printk(KERN_ALERT " ------ into get_clk_frequency_khz: info = %d\n",info);
 	if (cpu_is_pxa21x() || cpu_is_pxa25x())
 		return pxa25x_get_clk_frequency_khz(info);
 	else if (cpu_is_pxa27x())
@@ -132,7 +131,6 @@ static struct map_desc standard_io_desc[] __initdata = {
 
 void __init pxa_map_io(void)
 {
-//printk(KERN_ALERT " ----- into pxa_map_io\n");
 	iotable_init(standard_io_desc, ARRAY_SIZE(standard_io_desc));
 	get_clk_frequency_khz(1);
 }

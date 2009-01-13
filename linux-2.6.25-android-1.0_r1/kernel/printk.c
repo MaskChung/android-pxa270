@@ -132,7 +132,6 @@ static int __init log_buf_len_setup(char *str)
 {
 	unsigned size = memparse(str, &str);
 	unsigned long flags;
-//printk(KERN_ALERT " ----- into log_buf_len_setup\n");
 	if (size)
 		size = roundup_pow_of_two(size);
 	if (size > log_buf_len) {
@@ -240,7 +239,6 @@ int log_buf_copy(char *dest, int idx, int len)
 	int ret, max;
 	bool took_lock = false;
 
-//printk(KERN_ALERT " ----- into log_buf_copy\n");
 	if (!oops_in_progress) {
 		spin_lock_irq(&logbuf_lock);
 		took_lock = true;
@@ -439,7 +437,6 @@ static void __call_console_drivers(unsigned start, unsigned end)
 {
 	struct console *con;
 
-//printk(KERN_ALERT "----- into __call_console_drivers\n");
 	for (con = console_drivers; con; con = con->next) {
 		if ((con->flags & CON_ENABLED) && con->write &&
 				(cpu_online(smp_processor_id()) ||
@@ -466,7 +463,6 @@ early_param("ignore_loglevel", ignore_loglevel_setup);
 static void _call_console_drivers(unsigned start,
 				unsigned end, int msg_log_level)
 {
-printk(KERN_ALERT "----- into _call_console_drivers\n");
 	if ((msg_log_level < console_loglevel || ignore_loglevel) &&
 			console_drivers && start != end) {
 		if ((start & LOG_BUF_MASK) > (end & LOG_BUF_MASK)) {
@@ -490,7 +486,6 @@ static void call_console_drivers(unsigned start, unsigned end)
 	unsigned cur_index, start_print;
 	static int msg_level = -1;
 
-//printk(KERN_ALERT "----- into call_console_drivers\n");
 	BUG_ON(((int)(start - end)) > 0);
 
 	cur_index = start;
@@ -820,7 +815,6 @@ static int __init console_setup(char *str)
 	char *s, *options;
 	int idx;
 
-//printk(KERN_ALERT "----- into console_setup\n");
 	/*
 	 * Decode str into name, index, options.
 	 */

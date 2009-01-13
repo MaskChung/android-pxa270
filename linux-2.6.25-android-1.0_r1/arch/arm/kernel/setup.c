@@ -792,10 +792,8 @@ void __init setup_arch(char **cmdline_p)
 	char *from = default_command_line;
 
 	setup_processor();
-//printk(KERN_ALERT " ------- machine_arch_type = %d\n",machine_arch_type);
 	mdesc = setup_machine(machine_arch_type);
 	machine_name = mdesc->name;
-//printk(KERN_ALERT " ------- machine_name = %s\n",machine_name);
 
 	if (mdesc->soft_reboot)
 		reboot_setup("s");

@@ -583,9 +583,7 @@ asmlinkage void __init start_kernel(void)
 	 * we've done PCI setups etc, and console_init() must be aware of
 	 * this. But we do want output early, in case something goes wrong.
 	 */
-//printk(KERN_ALERT " ------- before console_init\n");
 	console_init();
-//printk(KERN_ALERT " ------- after console_init\n");
 	if (panic_later)
 		panic(panic_later, panic_param);
 
