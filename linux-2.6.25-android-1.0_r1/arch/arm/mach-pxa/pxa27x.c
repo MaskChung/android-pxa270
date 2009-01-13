@@ -46,7 +46,6 @@ unsigned int pxa27x_get_clk_frequency_khz(int info)
 	unsigned int l, L, m, M, n2, N, S;
        	int cccr_a, t, ht, b;
 
-//printk(KERN_ALERT " -------- into pxa27x_get_clk_frequency_khz: info = %d\n",info);
 	ccsr = CCSR;
 	cccr_a = CCCR & (1 << 25);
 
