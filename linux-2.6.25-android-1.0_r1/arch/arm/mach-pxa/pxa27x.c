@@ -375,18 +375,14 @@ void __init pxa_set_i2c_power_info(struct i2c_pxa_platform_data *info)
 static struct platform_device *devices[] __initdata = {
 	&pxa_device_udc,
 	&pxa_device_ffuart,
-	
 	&pxa_device_btuart,
 	&pxa_device_stuart,
 	&pxa_device_i2s,
-	
 	&pxa_device_rtc,
 	&pxa27x_device_i2c_power,
-	/*
 	&pxa27x_device_ssp1,
 	&pxa27x_device_ssp2,
 	&pxa27x_device_ssp3,
-	*/
 };
 
 static struct sys_device pxa27x_sysdev[] = {
