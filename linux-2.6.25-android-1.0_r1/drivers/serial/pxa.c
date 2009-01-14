@@ -691,15 +691,6 @@ static struct console serial_pxa_console = {
 	.data		= &serial_pxa_reg,
 };
 
-static int __init
-serial_pxa_console_init(void)
-{
-	register_console(&serial_pxa_console);
-	return 0;
-}
-
-console_initcall(serial_pxa_console_init);
-
 #define PXA_CONSOLE	&serial_pxa_console
 #else
 #define PXA_CONSOLE	NULL
