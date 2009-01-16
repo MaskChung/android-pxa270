@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see scripts/kbuild/config-language.txt.
+#
+
+mainmenu "Android Configuration"
+
+menu "Toolchain"
+config ARM_TOOLCHAIN
+	string "ARM EABI Toolchain(2008q3-41)"
+	default "scripts/toolchain/arm-2008q3-41-arm-none-linux-gnueabi/bin"
+endmenu
+
+menu "Kernel Version"
+config KERNEL_SRC
+	string "Android 1.0 SDK, Release 1"
+	default "linux-2.6.25-android-1.0_r1"
+endmenu
+
+menu "BusyBox Version"
+config BUSYBOX_SRC
+	string "BusyBox 1.13.2"
+	default "busybox-1.13.2"
+endmenu
+
+menu "Root File System"
+config ROOTFS
+	string "Android R1 Root File System"
+	default "r1_rootfs.tar"
+endmenu
