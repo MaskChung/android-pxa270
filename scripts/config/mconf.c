@@ -940,7 +940,7 @@ int main(int ac, char **av)
 
 	sym = sym_lookup("VERSION", 0);
 	sym_calc_value(sym);
-	snprintf(menu_backtitle, 128, "Android Configuration");
+	snprintf(menu_backtitle, 128, "EPS Android Configuration");
 
 	mode = getenv("MENUCONFIG_MODE");
 	if (mode) {
@@ -960,17 +960,17 @@ int main(int ac, char **av)
 	init_dialog();
 	do {
 		stat = dialog_yesno(NULL,
-				    "Do you wish to save your new Android configuration?", 5, 60);
+				    "Do you wish to save your new EPS Android configuration?", 5, 60);
 	} while (stat < 0);
 	end_dialog();
 
 	if (stat == 0) {
 		conf_write(NULL);
 		printf("\n\n"
-			"*** End of Android configuration.\n"
+			"*** End of EPS Android configuration.\n"
 			"*** Check the top-level Makefile for additional configuration options.\n\n");
 	} else
-		printf("\n\nYour Android configuration changes were NOT saved.\n\n");
+		printf("\n\nYour EPS Android configuration changes were NOT saved.\n\n");
 
 	return 0;
 }

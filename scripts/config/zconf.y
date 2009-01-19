@@ -487,7 +487,7 @@ void conf_parse(const char *name)
 	sym_init();
 	menu_init();
 	modules_sym = sym_lookup("MODULES", 0);
-	rootmenu.prompt = menu_add_prop(P_MENU, "Android Configuration", NULL, NULL);
+	rootmenu.prompt = menu_add_prop(P_MENU, "EPS Android Configuration", NULL, NULL);
 
 	//zconfdebug = 1;
 	zconfparse();

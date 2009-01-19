@@ -21,7 +21,6 @@ KBUILD_CFLAGS	+=$(call cc-option,-marm,)
 # Do not use arch/arm/defconfig - it's always outdated.
 # Select a platform tht is kept up-to-date
 KBUILD_DEFCONFIG := creator_android_pxa270_defconfig
-#KBUILD_DEFCONFIG := creator_pxa270_defconfig
 
 # defines filename extension depending memory manement type.
 ifeq ($(CONFIG_MMU),)
