@@ -6,7 +6,7 @@
 mainmenu "Android Configuration"
 
 menu "Toolchain"
-config ARM_TOOLCHAIN
+config TOOLCHAIN_DIR
 	string "ARM EABI Toolchain(2008q3-41)"
 	default "scripts/toolchain/arm-2008q3-41-arm-none-linux-gnueabi/bin"
 endmenu
@@ -27,4 +27,14 @@ menu "Root File System"
 config ROOTFS
 	string "Android R1 Root File System"
 	default "r1_rootfs.tar"
+endmenu
+
+menu "HOST TFTP Server"
+config HOST_TFTP
+	bool "Enable HOST TFTP Server"
+	default n
+config TFTP_DIR
+	string "HOST TFTP PATH" 
+	depends on HOST_TFTP
+	default "/home/tftp"
 endmenu
