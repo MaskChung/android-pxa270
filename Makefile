@@ -9,15 +9,11 @@ export PATH			:= $(patsubst "%",%,$(TOOLCHAIN_DIR)):$(shell echo $$PATH)
 export CONFIG_DIR		:= $(PRJROOT)/config
 export KERNEL_SRC_DIR		:= $(PRJROOT)/$(patsubst "%",%,$(KERNEL_SRC))
 export ROOTFS_DIR		:= $(PRJROOT)/rootfs
-export BUSYBOX_SRC_DIR		:= $(PRJROOT)/$(BUSYBOX_SRC)
-#export BUSYBOX_SRC		:= $(PRJROOT)/busybox-1.13.2
+export BUSYBOX_SRC_DIR		:= $(PRJROOT)/$(patsubst "%",%,$(BUSYBOX_SRC))
 export TARGET_DIR		:= $(PRJROOT)/target
-#export UTILS_DIR		:= $(PRJROOT)/utils
 
 export TARGET_ROOTFS_DIR	:= $(TARGET_DIR)/rootfs
-#export TARGET_MOD_DIR		:= $(TARGET_ROOTFS_DIR)/lib/modules/2.6.25
-#include config/setenv.mk
-export TFTP_DIR			:=/home/tftp
+
 
 modules:=kernel busybox rootfs
 
@@ -54,7 +50,7 @@ install_kernel:
 	$(PRJROOT)/scripts/bin/mkimage -A arm -O linux -T kernel -C gzip -a 0xa0008000 -e 0xa0008000 -n "EPS-Android" -d $(TARGET_DIR)/zImage.gz $(TARGET_DIR)/uImage
 	rm -f $(TARGET_DIR)/zImage.gz
 ifeq "$(HOST_TFTP)" "y"
-	sudo cp -f $(TARGET_DIR)/uImage $(TFTP_DIR)
+	cp -f $(TARGET_DIR)/uImage $(TFTP_DIR)
 endif
 
 clean_kernel:
@@ -62,7 +58,7 @@ clean_kernel:
 
 .PHONY: build_busybox install_busybox clean_busybox
 build_busybox:
-	if [ ! -e $(BUSYBOX_SRC_DIR)/.config ] ; then \
+	@if [ ! -e $(BUSYBOX_SRC_DIR)/.config ] ; then \
 		cp $(CONFIG_DIR)/busybox_config $(BUSYBOX_SRC_DIR)/.config; \
 		cd $(BUSYBOX_SRC_DIR) && $(MAKE) oldconfig; \
 	fi
