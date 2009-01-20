@@ -4,18 +4,23 @@ export PRJROOT:=$(PWD)
 include $(PRJROOT)/Rules.mak
 -include $(PRJROOT)/.config
 
-TOOLCHAIN_DIR			:= $(PRJROOT)/$(patsubst "%",%,$(TOOLCHAIN_DIR))
-export PATH			:= $(patsubst "%",%,$(TOOLCHAIN_DIR)):$(shell echo $$PATH)
+#TOOLCHAIN			:= $(PRJROOT)/$(patsubst "%",%,$(TOOLCHAIN))
+#TOOLCHAIN_DIR			:= $(PRJROOT)/$(patsubst "%",%,$(TOOLCHAIN_DIR))
+#export PATH			:= $(patsubst "%",%,$(TOOLCHAIN_DIR)):$(shell echo $$PATH)
+TOOLCHAIN_DIR			:= $(PRJROOT)/scripts/toolchain
+TOOLCHAIN			:= $(TOOLCHAIN_DIR)/$(patsubst "%",%,$(TOOLCHAIN))
+export PATH			:= $(TOOLCHAIN_DIR)/bin:$(shell echo $$PATH)
 export CONFIG_DIR		:= $(PRJROOT)/config
 export KERNEL_SRC_DIR		:= $(PRJROOT)/$(patsubst "%",%,$(KERNEL_SRC))
 export ROOTFS_DIR		:= $(PRJROOT)/rootfs
+export ROOTFS			:= $(ROOTFS_DIR)/$(patsubst "%",%,$(ROOTFS))
 export BUSYBOX_SRC_DIR		:= $(PRJROOT)/$(patsubst "%",%,$(BUSYBOX_SRC))
 export TARGET_DIR		:= $(PRJROOT)/target
 
 export TARGET_ROOTFS_DIR	:= $(TARGET_DIR)/rootfs
 
 
-modules:=kernel busybox rootfs
+modules:=toolchain kernel rootfs busybox
 
 .PHONY: all ckeck_dir build_all install_all clean_all distclean menuconfig
 all: check_dir
@@ -23,6 +28,7 @@ all: check_dir
 	$(MAKE) install_all
 
 check_dir:
+	@test -d $(TOOLCHAIN_DIR)/bin || $(MAKE) build_toolchain
 	@test -d $(TARGET_ROOTFS_DIR) || mkdir -p $(TARGET_ROOTFS_DIR)
 
 build_all: $(addprefix build_,$(modules))
@@ -34,6 +40,16 @@ clean_all: $(addprefix clean_,$(modules))
 distclean:
 	rm -rf $(TARGET_ROOTFS_DIR)
 	$(MAKE) clean_all
+
+.PHONY: build_toolchain install_toolchain clean_toolchain
+build_toolchain:
+	@if [ ! -e $(TOOLCHAIN_DIR)/bin ] ; then \
+		tar jxvf $(TOOLCHAIN) -C $(TOOLCHAIN_DIR); \
+	fi
+
+install_toolchain:
+clean_toolchain:
+	-find $(TOOLCHAIN_DIR)/* -maxdepth 0 -type d -exec rm -rf {} \;
 
 .PHONY: build_kernel install_kernel clean_kernel
 build_kernel:
@@ -72,16 +88,15 @@ clean_busybox:
 
 .PHONY: build_rootfs install_rootfs clean_rootfs
 build_rootfs:
-	cd $(ROOTFS_DIR) && $(MAKE)
-	#cd $(ROOTFS_DIR) && fakeroot $(MAKE)
+	cd $(ROOTFS_DIR) && fakeroot $(MAKE)
 
 install_rootfs:
-	cd $(ROOTFS_DIR) && fakeroot $(MAKE) install
-	#cd $(ROOTFS_DIR) && $(MAKE) install
+	cd $(ROOTFS_DIR) && $(MAKE) install
+	#cd $(ROOTFS_DIR) && fakeroot $(MAKE) install
 
 clean_rootfs:
-	rm -rf $(TARGET_ROOTFS_DIR)
-	cd $(ROOTFS_DIR) && $(MAKE) clean
+	fakeroot rm -rf $(TARGET_ROOTFS_DIR)
+	cd $(ROOTFS_DIR) && fakeroot $(MAKE) distclean
 
 menuconfig:
 	@if [ ! -e scripts/config/mconf ] ; then \
