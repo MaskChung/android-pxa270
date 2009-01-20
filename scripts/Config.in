@@ -6,9 +6,9 @@
 mainmenu "Android Configuration"
 
 menu "Toolchain"
-config TOOLCHAIN_DIR
-	string "ARM EABI Toolchain(2008q3-41)"
-	default "scripts/toolchain/arm-2008q3-41-arm-none-linux-gnueabi/bin"
+config TOOLCHAIN
+	string "Using which toolchain"
+	default "arm-2008q3-41-arm-none-linux-gnueabi-i686-pc-linux-gnu.tar.bz2"
 endmenu
 
 menu "Kernel Version"
@@ -26,7 +26,8 @@ endmenu
 menu "Root File System"
 config ROOTFS
 	string "Android R1 Root File System"
-	default "r1_rootfs.tar"
+	default "tiny_rootfs.tgz"
+	#default "r1_rootfs.tar"
 endmenu
 
 menu "HOST TFTP Server"
@@ -37,4 +38,14 @@ config TFTP_DIR
 	string "HOST TFTP PATH" 
 	depends on HOST_TFTP
 	default "/home/tftp"
+endmenu
+
+menu "NFS ROOT"
+config NFS_ROOT
+	bool "Using NFS ROOT"
+	default n
+config NFS_ROOT_DIR
+	string "NFS ROOT PATH"
+	depends on NFS_ROOT
+	default "/home/nfs_export/"
 endmenu
