@@ -4,9 +4,6 @@ export PRJROOT:=$(PWD)
 include $(PRJROOT)/Rules.mak
 -include $(PRJROOT)/.config
 
-#TOOLCHAIN			:= $(PRJROOT)/$(patsubst "%",%,$(TOOLCHAIN))
-#TOOLCHAIN_DIR			:= $(PRJROOT)/$(patsubst "%",%,$(TOOLCHAIN_DIR))
-#export PATH			:= $(patsubst "%",%,$(TOOLCHAIN_DIR)):$(shell echo $$PATH)
 TOOLCHAIN_DIR			:= $(PRJROOT)/scripts/toolchain
 TOOLCHAIN			:= $(TOOLCHAIN_DIR)/$(patsubst "%",%,$(TOOLCHAIN))
 export PATH			:= $(TOOLCHAIN_DIR)/bin:$(shell echo $$PATH)
@@ -88,7 +85,7 @@ clean_busybox:
 
 .PHONY: build_rootfs install_rootfs clean_rootfs
 build_rootfs:
-	cd $(ROOTFS_DIR) && fakeroot $(MAKE)
+#	cd $(ROOTFS_DIR) && fakeroot $(MAKE)
 
 install_rootfs:
 	cd $(ROOTFS_DIR) && $(MAKE) install
