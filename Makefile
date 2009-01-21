@@ -17,7 +17,7 @@ export TARGET_DIR		:= $(PRJROOT)/target
 export TARGET_ROOTFS_DIR	:= $(TARGET_DIR)/rootfs
 
 
-modules:=toolchain kernel rootfs busybox
+modules:=rootfs toolchain kernel busybox
 
 .PHONY: all ckeck_dir build_all install_all clean_all distclean menuconfig
 all: check_dir
@@ -25,8 +25,9 @@ all: check_dir
 	$(MAKE) install_all
 
 check_dir:
-	@test -d $(TOOLCHAIN_DIR)/bin || $(MAKE) build_toolchain
+	@test -d $(TARGET_DIR) || mkdir -p $(TARGET_DIR)
 	@test -d $(TARGET_ROOTFS_DIR) || mkdir -p $(TARGET_ROOTFS_DIR)
+	@test -d $(TOOLCHAIN_DIR)/bin || $(MAKE) build_toolchain
 
 build_all: $(addprefix build_,$(modules))
 
@@ -35,7 +36,7 @@ install_all: $(addprefix install_,$(modules))
 clean_all: $(addprefix clean_,$(modules))
 
 distclean:
-	rm -rf $(TARGET_ROOTFS_DIR)
+	rm -rf $(TARGET_DIR)
 	$(MAKE) clean_all
 
 .PHONY: build_toolchain install_toolchain clean_toolchain
@@ -92,8 +93,7 @@ install_rootfs:
 	#cd $(ROOTFS_DIR) && fakeroot $(MAKE) install
 
 clean_rootfs:
-	fakeroot rm -rf $(TARGET_ROOTFS_DIR)
-	cd $(ROOTFS_DIR) && fakeroot $(MAKE) distclean
+#	cd $(ROOTFS_DIR) && fakeroot $(MAKE) distclean
 
 menuconfig:
 	@if [ ! -e scripts/config/mconf ] ; then \
