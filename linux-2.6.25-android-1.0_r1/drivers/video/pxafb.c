@@ -1581,7 +1581,7 @@ static int __devinit pxafb_init(void)
 		return -ENODEV;
 	pxafb_setup(option);
 #else
-    pxafb_setup(g_lcdtype_options);
+	pxafb_setup(g_lcdtype_options);
 #endif
 	return platform_driver_register(&pxafb_driver);
 }
