@@ -7,43 +7,61 @@ include $(PRJROOT)/Rules.mak
 TOOLCHAIN_DIR			:= $(PRJROOT)/scripts/toolchain
 TOOLCHAIN			:= $(TOOLCHAIN_DIR)/$(patsubst "%",%,$(TOOLCHAIN))
 export PATH			:= $(TOOLCHAIN_DIR)/bin:$(shell echo $$PATH)
-export CONFIG_DIR		:= $(PRJROOT)/config
-export KERNEL_SRC_DIR		:= $(PRJROOT)/$(patsubst "%",%,$(KERNEL_SRC))
-export ROOTFS_DIR		:= $(PRJROOT)/rootfs
+CONFIG_DIR		:= $(PRJROOT)/config
+#export CONFIG_DIR		:= $(PRJROOT)/config
+KERNEL_SRC_DIR		:= $(PRJROOT)/$(patsubst "%",%,$(KERNEL_SRC))
+#export KERNEL_SRC_DIR		:= $(PRJROOT)/$(patsubst "%",%,$(KERNEL_SRC))
+ROOTFS_DIR		:= $(PRJROOT)/rootfs
+#export ROOTFS_DIR		:= $(PRJROOT)/rootfs
 export ROOTFS			:= $(ROOTFS_DIR)/$(patsubst "%",%,$(ROOTFS))
-export BUSYBOX_SRC_DIR		:= $(PRJROOT)/$(patsubst "%",%,$(BUSYBOX_SRC))
+BUSYBOX_SRC_DIR		:= $(PRJROOT)/$(patsubst "%",%,$(BUSYBOX_SRC))
+#export BUSYBOX_SRC_DIR		:= $(PRJROOT)/$(patsubst "%",%,$(BUSYBOX_SRC))
 export TARGET_DIR		:= $(PRJROOT)/target
 
 export TARGET_ROOTFS_DIR	:= $(TARGET_DIR)/rootfs
+export TARGET_BIN_DIR		:= $(TARGET_DIR)/bin
 
+BUILT_VERSION			:= $(TARGET_BIN_DIR)/built_version
 
-modules:=rootfs toolchain kernel busybox
+modules:=rootfs toolchain kernel busybox version
 
-.PHONY: all ckeck_dir build_all install_all clean_all distclean menuconfig
+# ---- may be change build_all to build, clean_all -> clean
+#.PHONY: all ckeck_dir build_all install_all clean_all distclean menuconfig
+.PHONY: all ckeck_dir build install clean distclean menuconfig
+.PHONY: jffs2 yaffs2
 all: check_dir
-	$(MAKE) build_all
-	$(MAKE) install_all
+	$(MAKE) build
+	$(MAKE) install
+	$(MAKE) jffs2
 
 check_dir:
 	@test -d $(TARGET_DIR) || mkdir -p $(TARGET_DIR)
 	@test -d $(TARGET_ROOTFS_DIR) || mkdir -p $(TARGET_ROOTFS_DIR)
+	@test -d $(TARGET_BIN_DIR) || mkdir -p $(TARGET_BIN_DIR)
 	@test -d $(TOOLCHAIN_DIR)/bin || $(MAKE) build_toolchain
 
-build_all: $(addprefix build_,$(modules))
+build: $(addprefix build_,$(modules))
 
-install_all: $(addprefix install_,$(modules))
+install: $(addprefix install_,$(modules))
 
-clean_all: $(addprefix clean_,$(modules))
-
+clean: distclean
 distclean:
+	$(addprefix clean_,$(modules))
 	rm -rf $(TARGET_DIR)
 	$(MAKE) clean_all
 
 .PHONY: build_toolchain install_toolchain clean_toolchain
+# --- not yet done
+# use file ??? | awk '{print $$2}' | -d ??? | tar xvf ...
+# #file tiny_rootfs.tgz | awk '{print $2 " -d -c -v tiny_rootfs.tgz"}' | sh - | tar xvf -
+#@echo "$(shell svn info $(PRJROOT) | grep -i "revision" | awk '{print $$2}')" >> $(BUILT_VERSION)
 build_toolchain:
-	@if [ ! -e $(TOOLCHAIN_DIR)/bin ] ; then \
-		tar jxvf $(TOOLCHAIN) -C $(TOOLCHAIN_DIR); \
+	if [ ! -e $(TOOLCHAIN_DIR)/bin ] ; then \
+		file -b $(TOOLCHAIN) | awk '{print $$1 " -d -c -v $(TOOLCHAIN)"}' | sh - | tar xvf - -C $(TOOLCHAIN_DIR); \
 	fi
+	#@if [ ! -e $(TOOLCHAIN_DIR)/bin ] ; then \
+#		tar jxvf $(TOOLCHAIN) -C $(TOOLCHAIN_DIR); \
+#	fi
 
 install_toolchain:
 clean_toolchain:
@@ -86,14 +104,15 @@ clean_busybox:
 
 .PHONY: build_rootfs install_rootfs clean_rootfs
 build_rootfs:
-#	cd $(ROOTFS_DIR) && fakeroot $(MAKE)
+	cd $(ROOTFS_DIR) && $(MAKE)
 
 install_rootfs:
+	rm -rf $(TARGET_ROOTFS_DIR)/*
 	cd $(ROOTFS_DIR) && $(MAKE) install
-	#cd $(ROOTFS_DIR) && fakeroot $(MAKE) install
+	#rsync -r --exclude='.svn' $(PRJROOT)/rootfs/rootfs.overwrite/* $(TARGET_ROOTFS_DIR)
 
 clean_rootfs:
-#	cd $(ROOTFS_DIR) && fakeroot $(MAKE) distclean
+	cd $(ROOTFS_DIR) && $(MAKE) distclean
 
 menuconfig:
 	@if [ ! -e scripts/config/mconf ] ; then \
@@ -128,3 +147,36 @@ help:
 	@for i in $(modules); do\
 		echo "    $$i"; \
 	done
+
+.PHONY: build_version install_version clean_version
+build_version:
+	@if [ ! -d $(TARGET_BIN_DIR) ] ; then \
+		mkdir -p $(TARGET_BIN_DIR); \
+	fi
+	@echo "EPS Android Build" > $(BUILT_VERSION)
+	@echo "---" >> $(BUILT_VERSION)
+	@echo -n "Built date: " >> $(BUILT_VERSION)
+	@echo "$(shell date --rfc-3339=second)" >> $(BUILT_VERSION)
+	@echo "Builder: $(USER)" >> $(BUILT_VERSION)
+	@echo -n "SVN revision: " >> $(BUILT_VERSION)
+	@echo "$(shell svn info $(PRJROOT) | grep -i "revision" | awk '{print $$2}')" >> $(BUILT_VERSION)
+	@echo "---" >> $(BUILT_VERSION)
+
+install_version:
+	@if [ ! -d $(TARGET_ROOTFS_DIR)/etc ] ; then \
+		mkdir -p $(TARGET_ROOTFS_DIR)/etc; \
+	fi
+	cp $(BUILT_VERSION) $(TARGET_ROOTFS_DIR)/etc
+
+clean_version:
+	-rm -f $(BUILT_VERSION)
+
+strip_rootfs:
+	-find $(TARGET_ROOTFS_DIR) -type l -prune -o -name "*.ko" -prune -o -print -exec $(STRIP) {} \;
+	-find $(TARGET_ROOTFS_DIR) -name "*.ko" -exec $(STRIP) -g -S -d --strip-debug {} \;
+
+jffs2: strip_rootfs
+	$(PRJROOT)/scripts/bin/mkfs.jffs2 -v -e 131072 --pad=0xf00000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
+
+yaffs2: strip_rootfs
+	$(PRJROOT)/scripts/bin/mkyaffs2image $(TARGET_ROOTFS_DIR) $(TARGET_BIN_DIR)/rootfs.yaffs2

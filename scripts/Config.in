@@ -25,9 +25,15 @@ endmenu
 
 menu "Root File System"
 config ROOTFS
-	string "Android R1 Root File System"
+	string "Base Root File System"
 	default "tiny_rootfs.tgz"
-	#default "r1_rootfs.tar"
+config ANDROID_ROOTFS
+	bool "Android Root File System"
+	default n
+config ANDROID_ROOTFS_FILE
+	string "Using which Version of Android Root File System"
+	depends on ANDROID_ROOTFS
+	default "r1_rootfs.tar"
 endmenu
 
 menu "HOST TFTP Server"
@@ -40,12 +46,13 @@ config TFTP_DIR
 	default "/home/tftp"
 endmenu
 
+### not yet complete , check it again
 menu "NFS ROOT"
 config NFS_ROOT
-	bool "Using NFS ROOT"
+	bool "Using NFS ROOT(you should have root privilege)"
 	default n
 config NFS_ROOT_DIR
-	string "NFS ROOT PATH"
+	string "NFS ROOT PATH(you should have right to access)"
 	depends on NFS_ROOT
 	default "/home/nfs_export/"
 endmenu
