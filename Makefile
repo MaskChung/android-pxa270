@@ -7,15 +7,11 @@ include $(PRJROOT)/Rules.mak
 TOOLCHAIN_DIR			:= $(PRJROOT)/scripts/toolchain
 TOOLCHAIN			:= $(TOOLCHAIN_DIR)/$(patsubst "%",%,$(TOOLCHAIN))
 export PATH			:= $(TOOLCHAIN_DIR)/bin:$(shell echo $$PATH)
-CONFIG_DIR		:= $(PRJROOT)/config
-#export CONFIG_DIR		:= $(PRJROOT)/config
-KERNEL_SRC_DIR		:= $(PRJROOT)/$(patsubst "%",%,$(KERNEL_SRC))
-#export KERNEL_SRC_DIR		:= $(PRJROOT)/$(patsubst "%",%,$(KERNEL_SRC))
-ROOTFS_DIR		:= $(PRJROOT)/rootfs
-#export ROOTFS_DIR		:= $(PRJROOT)/rootfs
+CONFIG_DIR			:= $(PRJROOT)/config
+KERNEL_SRC_DIR			:= $(PRJROOT)/$(patsubst "%",%,$(KERNEL_SRC))
+ROOTFS_DIR			:= $(PRJROOT)/rootfs
 export ROOTFS			:= $(ROOTFS_DIR)/$(patsubst "%",%,$(ROOTFS))
-BUSYBOX_SRC_DIR		:= $(PRJROOT)/$(patsubst "%",%,$(BUSYBOX_SRC))
-#export BUSYBOX_SRC_DIR		:= $(PRJROOT)/$(patsubst "%",%,$(BUSYBOX_SRC))
+BUSYBOX_SRC_DIR			:= $(PRJROOT)/$(patsubst "%",%,$(BUSYBOX_SRC))
 export TARGET_DIR		:= $(PRJROOT)/target
 
 export TARGET_ROOTFS_DIR	:= $(TARGET_DIR)/rootfs
@@ -25,8 +21,6 @@ BUILT_VERSION			:= $(TARGET_BIN_DIR)/built_version
 
 modules:=rootfs toolchain kernel busybox version
 
-# ---- may be change build_all to build, clean_all -> clean
-#.PHONY: all ckeck_dir build_all install_all clean_all distclean menuconfig
 .PHONY: all ckeck_dir build install clean distclean menuconfig
 .PHONY: jffs2 yaffs2
 all: check_dir
@@ -45,23 +39,14 @@ build: $(addprefix build_,$(modules))
 install: $(addprefix install_,$(modules))
 
 clean: distclean
-distclean:
-	$(addprefix clean_,$(modules))
+distclean: $(addprefix clean_,$(modules))
 	rm -rf $(TARGET_DIR)
-	$(MAKE) clean_all
 
 .PHONY: build_toolchain install_toolchain clean_toolchain
-# --- not yet done
-# use file ??? | awk '{print $$2}' | -d ??? | tar xvf ...
-# #file tiny_rootfs.tgz | awk '{print $2 " -d -c -v tiny_rootfs.tgz"}' | sh - | tar xvf -
-#@echo "$(shell svn info $(PRJROOT) | grep -i "revision" | awk '{print $$2}')" >> $(BUILT_VERSION)
 build_toolchain:
-	if [ ! -e $(TOOLCHAIN_DIR)/bin ] ; then \
+	@if [ ! -e $(TOOLCHAIN_DIR)/bin ] ; then \
 		file -b $(TOOLCHAIN) | awk '{print $$1 " -d -c -v $(TOOLCHAIN)"}' | sh - | tar xvf - -C $(TOOLCHAIN_DIR); \
 	fi
-	#@if [ ! -e $(TOOLCHAIN_DIR)/bin ] ; then \
-#		tar jxvf $(TOOLCHAIN) -C $(TOOLCHAIN_DIR); \
-#	fi
 
 install_toolchain:
 clean_toolchain:
@@ -76,13 +61,13 @@ build_kernel:
 
 install_kernel:
 	cd $(KERNEL_SRC_DIR) && $(MAKE) INSTALL_MOD_PATH=$(TARGET_ROOTFS_DIR) modules_install 
-	cp -f $(KERNEL_SRC_DIR)/arch/$(ARCH)/boot/zImage $(TARGET_DIR)
-	gzip -9 -f $(TARGET_DIR)/zImage
-	rm -f $(TARGET_DIR)/uImage
-	$(PRJROOT)/scripts/bin/mkimage -A arm -O linux -T kernel -C gzip -a 0xa0008000 -e 0xa0008000 -n "EPS-Android" -d $(TARGET_DIR)/zImage.gz $(TARGET_DIR)/uImage
-	rm -f $(TARGET_DIR)/zImage.gz
+	cp -f $(KERNEL_SRC_DIR)/arch/$(ARCH)/boot/zImage $(TARGET_BIN_DIR)
+	gzip -9 -f $(TARGET_BIN_DIR)/zImage
+	rm -f $(TARGET_BIN_DIR)/uImage
+	$(PRJROOT)/scripts/bin/mkimage -A arm -O linux -T kernel -C gzip -a 0xa0008000 -e 0xa0008000 -n "EPS-Android" -d $(TARGET_BIN_DIR)/zImage.gz $(TARGET_BIN_DIR)/uImage
+	rm -f $(TARGET_BIN_DIR)/zImage.gz
 ifeq "$(HOST_TFTP)" "y"
-	cp -f $(TARGET_DIR)/uImage $(TFTP_DIR)
+	cp -f $(TARGET_BIN_DIR)/uImage $(TFTP_DIR)
 endif
 
 clean_kernel:
@@ -118,6 +103,7 @@ menuconfig:
 	@if [ ! -e scripts/config/mconf ] ; then \
 		cd scripts/config/ && $(MAKE); \
 	fi
+	#@./scripts/kconfig/mconf ./scripts/Config.in
 	@./scripts/config/mconf ./scripts/Config.in
 
 # compound rules
@@ -131,22 +117,26 @@ update_%:
 
 .PHONY: help
 help:
-	@echo "EPS Android build script"
+	@echo ""
+	@echo "*** EPS Android build script ***"
+	@echo ""
 	@echo "Usage: make [targets]"
+	@echo ""
 	@echo "Available targets:"
-	@echo "    all              build all modules"
-	@echo "    menuconfig       select components from menu"
-	@echo "    clean            clean all generated files"
-	@echo "    distclean        clean all generated files and target root filesystem"
-	@echo "    build_<module>   build module" 
-	@echo "    clean_<module>   clean all generated files"
-	@echo "    install_<module> install module files"
-	@echo "    rebuild_<module> run clean_<module> and build_<module>"
-	@echo "    update_<module>  run build_<module> and install_<module>"
+	@echo "  all              - build all modules + whole target system"
+	@echo "  menuconfig       - update current config utilising a menu based program"
+	@echo "  clean            - clean all generated files + whole target system"
+	@echo "  build_<module>   - build <module>" 
+	@echo "  clean_<module>   - clean <module> generated files"
+	@echo "  install_<module> - install <module> files"
+	@echo "  rebuild_<module> - run clean_<module> and build_<module>"
+	@echo "  update_<module>  - run build_<module> and install_<module>"
+	@echo ""
 	@echo "Module list:"
 	@for i in $(modules); do\
-		echo "    $$i"; \
+		echo "  $$i"; \
 	done
+	@echo ""
 
 .PHONY: build_version install_version clean_version
 build_version:
@@ -159,7 +149,7 @@ build_version:
 	@echo "$(shell date --rfc-3339=second)" >> $(BUILT_VERSION)
 	@echo "Builder: $(USER)" >> $(BUILT_VERSION)
 	@echo -n "SVN revision: " >> $(BUILT_VERSION)
-	@echo "$(shell svn info $(PRJROOT) | grep -i "revision" | awk '{print $$2}')" >> $(BUILT_VERSION)
+	@echo "$(shell LANG=C ; svn info $(PRJROOT) | grep -i "revision" | awk '{print $$2}')" >> $(BUILT_VERSION)
 	@echo "---" >> $(BUILT_VERSION)
 
 install_version:
