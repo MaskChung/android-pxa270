@@ -10,7 +10,7 @@ export PATH			:= $(TOOLCHAIN_DIR)/bin:$(shell echo $$PATH)
 CONFIG_DIR			:= $(PRJROOT)/config
 KERNEL_SRC_DIR			:= $(PRJROOT)/$(patsubst "%",%,$(KERNEL_SRC))
 ROOTFS_DIR			:= $(PRJROOT)/rootfs
-export ROOTFS			:= $(ROOTFS_DIR)/$(patsubst "%",%,$(ROOTFS))
+export BASE_ROOTFS		:= $(ROOTFS_DIR)/$(patsubst "%",%,$(BASE_ROOTFS))
 BUSYBOX_SRC_DIR			:= $(PRJROOT)/$(patsubst "%",%,$(BUSYBOX_SRC))
 export TARGET_DIR		:= $(PRJROOT)/target
 
@@ -83,6 +83,9 @@ build_busybox:
 
 install_busybox:
 	cd $(BUSYBOX_SRC_DIR) && $(MAKE) install
+	@if [ -e $(TARGET_ROOTFS_DIR)/bin/busybox ] ; then \
+		chmod u+s $(TARGET_ROOTFS_DIR)/bin/busybox; \
+	fi
 
 clean_busybox:
 	cd $(BUSYBOX_SRC_DIR) && $(MAKE) distclean
@@ -170,3 +173,4 @@ jffs2: strip_rootfs
 
 yaffs2: strip_rootfs
 	$(PRJROOT)/scripts/bin/mkyaffs2image $(TARGET_ROOTFS_DIR) $(TARGET_BIN_DIR)/rootfs.yaffs2
+

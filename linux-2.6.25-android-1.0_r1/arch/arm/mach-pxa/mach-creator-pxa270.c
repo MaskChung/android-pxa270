@@ -469,10 +469,12 @@ static struct platform_device *devices[] __initdata = {
 	&creator_pxa270_smc91x_device,
 	&creator_pxa270_mst_audio_device,
 	&creator_pxa270_cfi_flash_device,
+	/*
 	&pxafb_device_mtlcd_0283224,
 	&pxafb_device_mtlcd_0353224,
 	&pxafb_device_mtlcd_1046448,
 	&pxafb_device_mtlcd_0353224A,	
+	*/
 };
 
 
