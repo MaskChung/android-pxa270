@@ -3,7 +3,7 @@
 # see scripts/kbuild/config-language.txt.
 #
 
-mainmenu "Android Configuration"
+mainmenu "EPS Android Configuration"
 
 menu "Toolchain"
 config TOOLCHAIN
@@ -24,16 +24,16 @@ config BUSYBOX_SRC
 endmenu
 
 menu "Root File System"
-config ROOTFS
+config BASE_ROOTFS
 	string "Base Root File System"
 	default "tiny_rootfs.tgz"
-config ANDROID_ROOTFS
+config ANDROID
 	bool "Android Root File System"
 	default n
-config ANDROID_ROOTFS_FILE
+config ANDROID_ROOTFS
 	string "Using which Version of Android Root File System"
 	depends on ANDROID_ROOTFS
-	default "r1_rootfs.tar"
+	default "r1_rootfs.tgz"
 endmenu
 
 menu "HOST TFTP Server"
@@ -41,7 +41,7 @@ config HOST_TFTP
 	bool "Enable HOST TFTP Server"
 	default n
 config TFTP_DIR
-	string "HOST TFTP PATH" 
+	string "HOST TFTP PATH(You must have access right)" 
 	depends on HOST_TFTP
 	default "/home/tftp"
 endmenu
@@ -49,10 +49,10 @@ endmenu
 ### not yet complete , check it again
 menu "NFS ROOT"
 config NFS_ROOT
-	bool "Using NFS ROOT(you should have root privilege)"
+	bool "Using NFS ROOT"
 	default n
 config NFS_ROOT_DIR
-	string "NFS ROOT PATH(you should have right to access)"
+	string "NFS ROOT PATH(You must have 'root' privilege)"
 	depends on NFS_ROOT
 	default "/home/nfs_export/"
 endmenu

@@ -76,7 +76,7 @@ static char g_lcdtype_options[PXAFB_OPTIONS_SIZE] __devinitdata = "";
 //static char g_lcdtype_options[PXAFB_OPTIONS_SIZE] __initdata = "";
 
 
-
+#endif
 static void __init lcd_demo (struct pxafb_info *fbi)
 {
         // Test LCD Initialization. by displaying R.G.B and White.
@@ -104,7 +104,7 @@ static void __init lcd_demo (struct pxafb_info *fbi)
            }               
        }                
 }
-#endif
+//#endif
 
 
 static inline void pxafb_schedule_work(struct pxafb_info *fbi, u_int state)
@@ -156,18 +156,21 @@ pxafb_setpalettereg(u_int regno, u_int red, u_int green, u_int blue,
 
 	switch (fbi->lccr4 & LCCR4_PAL_FOR_MASK) {
 	case LCCR4_PAL_FOR_0:
+		printk(KERN_ALERT "%s:%d LCCR4_PAL_FOR_0\n",__func__,__LINE__);
 		val  = ((red   >>  0) & 0xf800);
 		val |= ((green >>  5) & 0x07e0);
 		val |= ((blue  >> 11) & 0x001f);
 		fbi->palette_cpu[regno] = val;
 		break;
 	case LCCR4_PAL_FOR_1:
+		printk(KERN_ALERT "%s:%d LCCR4_PAL_FOR_1\n",__func__,__LINE__);
 		val  = ((red   << 8) & 0x00f80000);
 		val |= ((green >> 0) & 0x0000fc00);
 		val |= ((blue  >> 8) & 0x000000f8);
 		((u32*)(fbi->palette_cpu))[regno] = val;
 		break;
 	case LCCR4_PAL_FOR_2:
+		printk(KERN_ALERT "%s:%d LCCR4_PAL_FOR_2\n",__func__,__LINE__);
 		val  = ((red   << 8) & 0x00fc0000);
 		val |= ((green >> 0) & 0x0000fc00);
 		val |= ((blue  >> 8) & 0x000000fc);
@@ -1423,28 +1426,28 @@ static int __init pxafb_probe(struct platform_device *dev)
 	 * a warning is given. */
 
         if (inf->lccr0 & LCCR0_INVALID_CONFIG_MASK)
-                dev_warn(&dev->dev, "machine LCCR0 setting contains illegal bits: %08x\n",
+                dev_alert(&dev->dev, "machine LCCR0 setting contains illegal bits: %08x\n",
                         inf->lccr0 & LCCR0_INVALID_CONFIG_MASK);
         if (inf->lccr3 & LCCR3_INVALID_CONFIG_MASK)
-                dev_warn(&dev->dev, "machine LCCR3 setting contains illegal bits: %08x\n",
+                dev_alert(&dev->dev, "machine LCCR3 setting contains illegal bits: %08x\n",
                         inf->lccr3 & LCCR3_INVALID_CONFIG_MASK);
         if (inf->lccr0 & LCCR0_DPD &&
 	    ((inf->lccr0 & LCCR0_PAS) != LCCR0_Pas ||
 	     (inf->lccr0 & LCCR0_SDS) != LCCR0_Sngl ||
 	     (inf->lccr0 & LCCR0_CMS) != LCCR0_Mono))
-                dev_warn(&dev->dev, "Double Pixel Data (DPD) mode is only valid in passive mono"
+                dev_alert(&dev->dev, "Double Pixel Data (DPD) mode is only valid in passive mono"
 			 " single panel mode\n");
         if ((inf->lccr0 & LCCR0_PAS) == LCCR0_Act &&
 	    (inf->lccr0 & LCCR0_SDS) == LCCR0_Dual)
-                dev_warn(&dev->dev, "Dual panel only valid in passive mode\n");
+                dev_alert(&dev->dev, "Dual panel only valid in passive mode\n");
         if ((inf->lccr0 & LCCR0_PAS) == LCCR0_Pas &&
              (inf->modes->upper_margin || inf->modes->lower_margin))
-                dev_warn(&dev->dev, "Upper and lower margins must be 0 in passive mode\n");
+                dev_alert(&dev->dev, "Upper and lower margins must be 0 in passive mode\n");
 #endif
 
 	dev_dbg(&dev->dev, "got a %dx%dx%d LCD\n",inf->modes->xres, inf->modes->yres, inf->modes->bpp);
 	if (inf->modes->xres == 0 || inf->modes->yres == 0 || inf->modes->bpp == 0) {
-		dev_err(&dev->dev, "Invalid resolution or bit depth\n");
+		dev_alert(&dev->dev, "Invalid resolution or bit depth\n");
 		ret = -EINVAL;
 		goto failed;
 	}
@@ -1452,7 +1455,7 @@ static int __init pxafb_probe(struct platform_device *dev)
 	pxafb_lcd_power = inf->pxafb_lcd_power;
 	fbi = pxafb_init_fbinfo(&dev->dev);
 	if (!fbi) {
-		dev_err(&dev->dev, "Failed to initialize framebuffer device\n");
+		dev_alert(&dev->dev, "Failed to initialize framebuffer device\n");
 		ret = -ENOMEM; // only reason for pxafb_init_fbinfo to fail is kmalloc
 		goto failed;
 	}
@@ -1460,14 +1463,14 @@ static int __init pxafb_probe(struct platform_device *dev)
 	/* Initialize video memory */
 	ret = pxafb_map_video_memory(fbi);
 	if (ret) {
-		dev_err(&dev->dev, "Failed to allocate video RAM: %d\n", ret);
+		dev_alert(&dev->dev, "Failed to allocate video RAM: %d\n", ret);
 		ret = -ENOMEM;
 		goto failed;
 	}
 
 	ret = request_irq(IRQ_LCD, pxafb_handle_irq, IRQF_DISABLED, "LCD", fbi);
 	if (ret) {
-		dev_err(&dev->dev, "request_irq failed: %d\n", ret);
+		dev_alert(&dev->dev, "request_irq failed: %d\n", ret);
 		ret = -EBUSY;
 		goto failed;
 	}
@@ -1483,7 +1486,7 @@ static int __init pxafb_probe(struct platform_device *dev)
 
 	ret = register_framebuffer(&fbi->fb);
 	if (ret < 0) {
-		dev_err(&dev->dev, "Failed to register framebuffer device: %d\n", ret);
+		dev_alert(&dev->dev, "Failed to register framebuffer device: %d\n", ret);
 		goto failed;
 	}
 
@@ -1503,9 +1506,9 @@ static int __init pxafb_probe(struct platform_device *dev)
 	 */
 	set_ctrlr_state(fbi, C_ENABLE);
 
-#ifdef MODULE	
-    lcd_demo(fbi);
-#endif
+//#ifdef MODULE	
+    //lcd_demo(fbi);
+//#endif
 
 	return 0;
 
