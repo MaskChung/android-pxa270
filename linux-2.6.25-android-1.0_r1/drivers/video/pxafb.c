@@ -90,11 +90,12 @@ static void __init lcd_demo (struct pxafb_info *fbi)
 	*/
         width = fbi->fb.var.xres;
         height = fbi->fb.var.yres ;
-    
+   /* 
 	    for (y=0 ; y < height/2; y++){	
 		    for(x=0; x < width; x++){		
 		        color =  (x < width/2) ? 0xffff : 0xf800 ;
-                (*(unsigned short*)(famebuffer + (((y*width)+ x)<<1))) = color;
+                (*(unsigned short*)(famebuffer + (((y*width)+ x)))) = color;
+                //(*(unsigned short*)(famebuffer + (((y*width)+ x)<<1))) = color;
             }                 
         }
        for(y=height/2 ; y < height; y++){	
@@ -103,6 +104,13 @@ static void __init lcd_demo (struct pxafb_info *fbi)
                (*(unsigned short*)(famebuffer + (((y*width)+ x)<<1))) = color;			
            }               
        }                
+       */
+   y=0;
+   color = 0xffff;
+   for(x=0;x<width;++x)
+   {
+	(*((unsigned char*)(famebuffer+x))) = color;
+   }
 }
 //#endif
 
@@ -311,7 +319,8 @@ static void pxafb_setmode(struct fb_var_screeninfo *var, struct pxafb_mode_info 
 	var->sync		= mode->sync;
 	var->grayscale		= mode->cmap_greyscale;
 	var->xres_virtual 	= var->xres;
-	var->yres_virtual	= var->yres;
+	var->yres_virtual	= var->yres * 2;
+	//var->yres_virtual	= var->yres;
 }
 
 /*
@@ -1206,7 +1215,8 @@ static struct pxafb_info * __init pxafb_init_fbinfo(struct device *dev)
 	fbi->fb.fix.type	= FB_TYPE_PACKED_PIXELS;
 	fbi->fb.fix.type_aux	= 0;
 	fbi->fb.fix.xpanstep	= 0;
-	fbi->fb.fix.ypanstep	= 0;
+//	fbi->fb.fix.ypanstep	= 0;
+	fbi->fb.fix.ypanstep	= 1;
 	fbi->fb.fix.ywrapstep	= 0;
 	fbi->fb.fix.accel	= FB_ACCEL_NONE;
 
@@ -1238,6 +1248,7 @@ static struct pxafb_info * __init pxafb_init_fbinfo(struct device *dev)
 
 	for (i = 0; i < inf->num_modes; i++) {
 		smemlen = mode[i].xres * mode[i].yres * mode[i].bpp / 8;
+		smemlen *= 2;
 		if (smemlen > fbi->fb.fix.smem_len)
 			fbi->fb.fix.smem_len = smemlen;
 	}
@@ -1507,7 +1518,7 @@ static int __init pxafb_probe(struct platform_device *dev)
 	set_ctrlr_state(fbi, C_ENABLE);
 
 //#ifdef MODULE	
-    //lcd_demo(fbi);
+    lcd_demo(fbi);
 //#endif
 
 	return 0;
