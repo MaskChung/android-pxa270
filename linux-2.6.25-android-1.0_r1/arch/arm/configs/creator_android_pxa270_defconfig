@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Linux kernel version: 2.6.25
-# Tue Feb  3 23:08:40 2009
+# Thu Feb  5 23:42:01 2009
 #
 CONFIG_ARM=y
 CONFIG_SYS_SUPPORTS_APM_EMULATION=y
@@ -904,8 +904,8 @@ CONFIG_FB_DEFERRED_IO=y
 # CONFIG_FB_S1D13XXX is not set
 CONFIG_FB_PXA=y
 # CONFIG_MTLCD_0283224 is not set
-# CONFIG_MTLCD_0353224 is not set
-CONFIG_MTLCD_0353224A=y
+CONFIG_MTLCD_0353224=y
+# CONFIG_MTLCD_0353224A is not set
 # CONFIG_MTLCD_1046448 is not set
 # CONFIG_FB_PXA_PARAMETERS is not set
 # CONFIG_FB_MBX is not set

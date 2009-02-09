@@ -70,51 +70,6 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state);
 static char g_options[PXAFB_OPTIONS_SIZE] __devinitdata = "";
 #endif
 
-#ifdef MODULE
-#define PXAFB_OPTIONS_SIZE 256
-static char g_lcdtype_options[PXAFB_OPTIONS_SIZE] __devinitdata = "";
-//static char g_lcdtype_options[PXAFB_OPTIONS_SIZE] __initdata = "";
-
-
-#endif
-static void __init lcd_demo (struct pxafb_info *fbi)
-{
-        // Test LCD Initialization. by displaying R.G.B and White.
-        unsigned char *famebuffer = fbi->fb.screen_base ;    
-        int x, y;
-        int width, height;
-        unsigned short color ;
-   /* 
-        width = fbi->max_xres;
-        height = fbi->max_yres ;
-	*/
-        width = fbi->fb.var.xres;
-        height = fbi->fb.var.yres ;
-   /* 
-	    for (y=0 ; y < height/2; y++){	
-		    for(x=0; x < width; x++){		
-		        color =  (x < width/2) ? 0xffff : 0xf800 ;
-                (*(unsigned short*)(famebuffer + (((y*width)+ x)))) = color;
-                //(*(unsigned short*)(famebuffer + (((y*width)+ x)<<1))) = color;
-            }                 
-        }
-       for(y=height/2 ; y < height; y++){	
-           for(x=0; x < width; x++){	
-               color =  (x < width/2) ? 0x07e0 : 0x001f;	
-               (*(unsigned short*)(famebuffer + (((y*width)+ x)<<1))) = color;			
-           }               
-       }                
-       */
-   y=0;
-   color = 0xffff;
-   for(x=0;x<width;++x)
-   {
-	(*((unsigned char*)(famebuffer+x))) = color;
-   }
-}
-//#endif
-
-
 static inline void pxafb_schedule_work(struct pxafb_info *fbi, u_int state)
 {
 	unsigned long flags;
@@ -320,7 +275,6 @@ static void pxafb_setmode(struct fb_var_screeninfo *var, struct pxafb_mode_info 
 	var->grayscale		= mode->cmap_greyscale;
 	var->xres_virtual 	= var->xres;
 	var->yres_virtual	= var->yres * 2;
-	//var->yres_virtual	= var->yres;
 }
 
 /*
@@ -1456,6 +1410,7 @@ static int __init pxafb_probe(struct platform_device *dev)
                 dev_alert(&dev->dev, "Upper and lower margins must be 0 in passive mode\n");
 #endif
 
+	printk("%s: got a %dx%dx%d LCD\n",dev->name ,inf->modes->xres, inf->modes->yres, inf->modes->bpp);
 	dev_dbg(&dev->dev, "got a %dx%dx%d LCD\n",inf->modes->xres, inf->modes->yres, inf->modes->bpp);
 	if (inf->modes->xres == 0 || inf->modes->yres == 0 || inf->modes->bpp == 0) {
 		dev_alert(&dev->dev, "Invalid resolution or bit depth\n");
@@ -1517,10 +1472,6 @@ static int __init pxafb_probe(struct platform_device *dev)
 	 */
 	set_ctrlr_state(fbi, C_ENABLE);
 
-//#ifdef MODULE	
-    lcd_demo(fbi);
-//#endif
-
 	return 0;
 
 failed:
@@ -1550,40 +1501,10 @@ static int __devinit pxafb_setup(char *options)
 	return 0;
 }
 #else
-typedef struct FB_PLATFORM_DATA
-{
-    char *lcdtype;
-    char *fb_name;	
-} FB_PLATFORM_DATA_T ;	
-static FB_PLATFORM_DATA_T fb_platform_name[] = {
-    { "MTLCD-0283224",  "pxa2xx-fb-0283224"  },    
-    { "MTLCD-0353224",  "pxa2xx-fb-0353224"  },  
-    { "MTLCD-0353224A", "pxa2xx-fb-0353224A" },  
-    { "MTLCD-1046448",  "pxa2xx-fb-1046448"  },     
-    { NULL, NULL }         
-};	
-
-static int __devinit pxafb_setup(char *options)
-{
-       int i;
-       
-       for (i=0; fb_platform_name[i].lcdtype; i++){
-           if (strcmp(options, fb_platform_name[i].lcdtype) == 0){
-               pxafb_driver.driver.name = fb_platform_name[i].fb_name;	
-	           printk("module lcdtype=%s\n", options);                
-	           return (0);
-           }           		
-       }       	       
-       return (-1);               
-}
-
-
 # ifdef CONFIG_FB_PXA_PARAMETERS
 module_param_string(options, g_options, sizeof(g_options), 0);
 MODULE_PARM_DESC(options, "LCD parameters (see Documentation/fb/pxafb.txt)");
 # endif
-module_param_string(lcdtype, g_lcdtype_options, sizeof(g_lcdtype_options), 0);
-MODULE_PARM_DESC(lcdtype, "LCD Type(MTLCD-0283224, MTLCD-0353224, MTLCD-0353224A, MTLCD-1046448)");
 #endif
 
 static int __devinit pxafb_init(void)
@@ -1594,8 +1515,6 @@ static int __devinit pxafb_init(void)
 	if (fb_get_options("pxafb", &option))
 		return -ENODEV;
 	pxafb_setup(option);
-#else
-	pxafb_setup(g_lcdtype_options);
 #endif
 	return platform_driver_register(&pxafb_driver);
 }

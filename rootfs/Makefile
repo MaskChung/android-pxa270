@@ -14,6 +14,7 @@ ifeq "$(ANDROID)" "y"
 	mv $(__TARGET_DIR)/system ../
 endif
 	cp -af overwrite/* $(__TARGET_DIR)
+	echo "/root/mkdevs.sh" >> $(__TARGET_DIR)/etc/init.d/rc.local
 
 	#rsync -r --exclude='.svn' $(PRJROOT)/rootfs/rootfs.overwrite/* $(TARGET_ROOTFS_DIR)
 

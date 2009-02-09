@@ -58,6 +58,7 @@ Include files
 #include <asm/arch/pxafb.h>
 #include <asm/arch/mmc.h>
 #include <asm/arch/creator-regs.h>
+#include <asm/arch/ohci.h>
 
 
 #include "generic.h"
@@ -145,36 +146,22 @@ static u64 fb_dma_mask = ~(u64)0;
  **/
 static struct pxafb_mode_info LTS280Q1_modes[] = {
 	[0] = {
-	.pixclock		= 156250,
-	.xres			= 240,
-	.yres			= 320,
-	.bpp			= 16,
-	.hsync_len		= 60,
-	.left_margin	= 10,
-	.right_margin	= 10,
-	.vsync_len		= 13,
-	.upper_margin	= 0,
-	.lower_margin	= 0,
-	.sync			= 0,
-
+		.pixclock		= 156250,
+		.xres			= 240,
+		.yres			= 320,
+		.bpp			= 16,
+		.hsync_len		= 60,
+		.left_margin	= 10,
+		.right_margin	= 10,
+		.vsync_len		= 13,
+		.upper_margin	= 0,
+		.lower_margin	= 0,
+		.sync			= 0,
 	},
 };
 static struct pxafb_mach_info LTS280Q1  = {
 	.modes = LTS280Q1_modes,
 	.num_modes = 1,
-/*
-	.pixclock		= 156250,
-	.xres			= 240,
-	.yres			= 320,
-	.bpp			= 16,
-	.hsync_len		= 60,
-	.left_margin	= 10,
-	.right_margin	= 10,
-	.vsync_len		= 13,
-	.upper_margin	= 0,
-	.lower_margin	= 0,
-	.sync			= 0,
-	*/
 	.lccr0			= LCCR0_Act,
 	.lccr3			= LCCR3_PCP,
 	.pxafb_lcd_power = create_pxa270_TFTLCD_power,
@@ -182,38 +169,23 @@ static struct pxafb_mach_info LTS280Q1  = {
 
 
 static struct pxafb_mode_info TD035STEB1_modes []  = {
-[0] = {
-	.pixclock		= 156250,
-	.xres			= 240,
-	.yres			= 320,
-	.bpp			= 16,
-	.hsync_len		= 60,
-	.left_margin	= 12,
-	.right_margin	= 12,
-	.vsync_len		= 13,
-	.upper_margin	= 0,
-	.lower_margin	= 0,
-	.sync			= 0,
-
-},
+	[0] = {
+		.pixclock		= 156250,
+		.xres			= 240,
+		.yres			= 320,
+		.bpp			= 16,
+		.hsync_len		= 60,
+		.left_margin	= 12,
+		.right_margin	= 12,
+		.vsync_len		= 13,
+		.upper_margin	= 0,
+		.lower_margin	= 0,
+		.sync			= 0,
+	},
 };
-
 static struct pxafb_mach_info TD035STEB1  = {
 	.modes = TD035STEB1_modes,
 	.num_modes = 1,
-/*
-	.pixclock		= 156250,
-	.xres			= 240,
-	.yres			= 320,
-	.bpp			= 16,
-	.hsync_len		= 60,
-	.left_margin	= 12,
-	.right_margin	= 12,
-	.vsync_len		= 13,
-	.upper_margin	= 0,
-	.lower_margin	= 0,
-	.sync			= 0,
-	*/
 	.lccr0			= LCCR0_Act,
 	.lccr3			= LCCR3_PCP,
 	.pxafb_lcd_power = create_pxa270_TFTLCD_power,
@@ -221,37 +193,23 @@ static struct pxafb_mach_info TD035STEB1  = {
 
 
 static struct pxafb_mode_info HX8218A_modes [] = {
-[0] = {
-	.pixclock		= 156250,
-	.xres			= 320,
-	.yres			= 240,
-	.bpp			= 16,
-	.hsync_len		= 30,
-	.left_margin	=  2,
-	.right_margin	=  2,
-	.vsync_len		=  3,
-	.upper_margin	= 1,
-	.lower_margin	= 1,
-	.sync			= 0,
+	[0] = {
+		.pixclock		= 156250,
+		.xres			= 320,
+		.yres			= 240,
+		.bpp			= 16,
+		.hsync_len		= 30,
+		.left_margin	=  2,
+		.right_margin	=  2,
+		.vsync_len		=  3,
+		.upper_margin	= 1,
+		.lower_margin	= 1,
+		.sync			= 0,
 	},
 };
-
 static struct pxafb_mach_info HX8218A  = {
 	.modes = HX8218A_modes,
 	.num_modes = 1,
-	/*
-	.pixclock		= 156250,
-	.xres			= 320,
-	.yres			= 240,
-	.bpp			= 16,
-	.hsync_len		= 30,
-	.left_margin	=  2,
-	.right_margin	=  2,
-	.vsync_len		=  3,
-	.upper_margin	= 1,
-	.lower_margin	= 1,
-	.sync			= 0,
-	*/
 	.lccr0			= LCCR0_Act,
 	.lccr3			= 0,
 	.pxafb_lcd_power = create_pxa270_TFTLCD_power,
@@ -259,81 +217,26 @@ static struct pxafb_mach_info HX8218A  = {
 
 
 static struct pxafb_mode_info NL6448BC33_modes [] = {
-[0] = {
-	.pixclock		= 39682,
-	.xres			= 640,
-	.yres			= 480,
-	.bpp			= 16,
-	.hsync_len		= 60,
-	.left_margin	= 10,
-	.right_margin	= 10,
-	.vsync_len		= 13,
-	.upper_margin	= 0,
-	.lower_margin	= 0,
-	.sync			= 0,
+	[0] = {
+		.pixclock		= 39682,
+		.xres			= 640,
+		.yres			= 480,
+		.bpp			= 16,
+		.hsync_len		= 60,
+		.left_margin	= 10,
+		.right_margin	= 10,
+		.vsync_len		= 13,
+		.upper_margin	= 0,
+		.lower_margin	= 0,
+		.sync			= 0,
 	},
 };
-
 static struct pxafb_mach_info NL6448BC33  = {
 	.modes = NL6448BC33_modes,
 	.num_modes = 1,
-/*
-	.pixclock		= 39682,
-	.xres			= 640,
-	.yres			= 480,
-	.bpp			= 16,
-	.hsync_len		= 60,
-	.left_margin	= 10,
-	.right_margin	= 10,
-	.vsync_len		= 13,
-	.upper_margin	= 0,
-	.lower_margin	= 0,
-	.sync			= 0,
-	*/
 	.lccr0			= LCCR0_Act,
 	.lccr3			= LCCR3_PCP,
 	.pxafb_lcd_power = create_pxa270_TFTLCD_power,
-};
-
-
-static struct platform_device pxafb_device_mtlcd_0283224  = {
-	.name		= "pxa2xx-fb-0283224",
-	.id		= -1,
-	.dev		= {
- 		.platform_data	= &LTS280Q1,
-		.dma_mask	= &fb_dma_mask,
-		.coherent_dma_mask = 0xffffffff,
-	},
-};
-
-static struct platform_device pxafb_device_mtlcd_0353224 = {
-	.name		= "pxa2xx-fb-0353224",
-	.id		= -1,
-	.dev		= {
- 		.platform_data	= &TD035STEB1,
-		.dma_mask	= &fb_dma_mask,
-		.coherent_dma_mask = 0xffffffff,
-	},
-};
-
-static struct platform_device pxafb_device_mtlcd_1046448 = {
-	.name		= "pxa2xx-fb-1046448A",
-	.id		= -1,
-	.dev		= {
- 		.platform_data	= &NL6448BC33,
-		.dma_mask	= &fb_dma_mask,
-		.coherent_dma_mask = 0xffffffff,
-	},
-};
-
-static struct platform_device pxafb_device_mtlcd_0353224A = {
-	.name		= "pxa2xx-fb-0353224A",
-	.id		= -1,
-	.dev		= {
- 		.platform_data	= &HX8218A,
-		.dma_mask	= &fb_dma_mask,
-		.coherent_dma_mask = 0xffffffff,
-	},
 };
 
 
@@ -351,7 +254,6 @@ static struct resource creator_pxa270_smc91x_resources[] = {
 };
 
 
-
 static struct platform_device creator_pxa270_smc91x_device = {
 	.name		= "smc91x",
 	.id		= 0,
@@ -360,14 +262,12 @@ static struct platform_device creator_pxa270_smc91x_device = {
 };
 
 
-
 static struct pxamci_platform_data creator_pxa270_mci_platform_data ;
 /*
  * MMC/SD Device
  *
  */
-static int 
-creator_pxa270_mci_init (struct device *dev, irqreturn_t (*detect_int)(int, void *), void *data)
+static int creator_pxa270_mci_init (struct device *dev, irqreturn_t (*detect_int)(int, void *), void *data)
 //creator_pxa270_mci_init (struct device *dev, irqreturn_t (*detect_int)(int, void *, struct pt_regs *), void *data)
 {
        int err;
@@ -394,13 +294,10 @@ creator_pxa270_mci_init (struct device *dev, irqreturn_t (*detect_int)(int, void
 }
 
 
-
-static void 
-creator_pxa270_mci_exit (struct device *dev, void *data)
+static void creator_pxa270_mci_exit (struct device *dev, void *data)
 {
 	    free_irq(CREATOR_MMC_CD_IRQ, data);
 }
-
 
 
 static struct pxamci_platform_data creator_pxa270_mci_platform_data = {
@@ -408,7 +305,6 @@ static struct pxamci_platform_data creator_pxa270_mci_platform_data = {
 	.init 		= creator_pxa270_mci_init,
 	.exit       = creator_pxa270_mci_exit,	
 };
-
 
 
 static struct mtd_partition creator_pxa270_partitions[] = {
@@ -436,7 +332,6 @@ static struct mtd_partition creator_pxa270_partitions[] = {
 };
 
 
-
 static struct flash_platform_data creator_pxa270_flash_data = {
 	.map_name	= "cfi_probe",
 	.width		= 2,
@@ -445,13 +340,11 @@ static struct flash_platform_data creator_pxa270_flash_data = {
 };
 
 
-
 static struct resource creator_pxa270_flash_resource = {
 	.start		= PXA_CS0_PHYS,
 	.end		= PXA_CS0_PHYS + SZ_32M - 1,
 	.flags		= IORESOURCE_MEM,
 };
-
 
 
 static struct platform_device creator_pxa270_cfi_flash_device = {
@@ -469,18 +362,30 @@ static struct platform_device *devices[] __initdata = {
 	&creator_pxa270_smc91x_device,
 	&creator_pxa270_mst_audio_device,
 	&creator_pxa270_cfi_flash_device,
-	/*
-	&pxafb_device_mtlcd_0283224,
-	&pxafb_device_mtlcd_0353224,
-	&pxafb_device_mtlcd_1046448,
-	&pxafb_device_mtlcd_0353224A,	
-	*/
 };
 
 
+static int creator_pxa270_ohci_init(struct device *dev)
+{
+	/* setup Port1 GPIO pin. */
+	pxa_gpio_mode( 88 | GPIO_ALT_FN_1_IN);	/* USBHPWR1 */
+	pxa_gpio_mode( 89 | GPIO_ALT_FN_2_OUT);	/* USBHPEN1 */
 
-static void __init 
-creator_pxa270_init (void)
+	/* Set the Power Control Polarity Low and Power Sense
+	   Polarity Low to active low. */
+	UHCHR = (UHCHR | UHCHR_PCPL | UHCHR_PSPL) &
+		~(UHCHR_SSEP1 | UHCHR_SSEP2 | UHCHR_SSEP3 | UHCHR_SSE);
+
+	return 0;
+}
+
+static struct pxaohci_platform_data creator_pxa270_ohci_platform_data = {
+	.port_mode	= PMM_PERPORT_MODE,
+	.init		= creator_pxa270_ohci_init,
+};
+
+
+static void __init creator_pxa270_init (void)
 {
        /* reset UCB1400 */
        GPSR3 &= ~(1u << (113-96));
@@ -488,7 +393,6 @@ creator_pxa270_init (void)
        udelay(12);
 
        pxa_set_mci_info(&creator_pxa270_mci_platform_data);
-       
        
 #ifdef  CONFIG_MTLCD_0283224
        set_pxa_fb_info(&LTS280Q1);          
@@ -505,13 +409,13 @@ creator_pxa270_init (void)
 #ifdef  CONFIG_MTLCD_1046448
        set_pxa_fb_info(&NL6448BC33);          
 #endif
-	   (void) platform_add_devices(devices, ARRAY_SIZE(devices));            
+       platform_add_devices(devices, ARRAY_SIZE(devices));            
+       pxa_set_ohci_info(&creator_pxa270_ohci_platform_data);
 }
 
 
 
-static void __init
-fixup_creator_pxa270 (struct machine_desc *desc, struct tag *tags, char **cmdline, struct meminfo *mi)
+static void __init fixup_creator_pxa270 (struct machine_desc *desc, struct tag *tags, char **cmdline, struct meminfo *mi)
 {
        SET_BANK (0, 0xa0000000, 64*1024*1024);
        mi->nr_banks      = 1;
@@ -522,8 +426,8 @@ fixup_creator_pxa270 (struct machine_desc *desc, struct tag *tags, char **cmdlin
 #endif	
 
 #ifdef CONFIG_BLK_DEV_INITRD
-		initrd_start = __phys_to_virt(RAMDISK_DN_ADDR);
-		initrd_end = initrd_start + CONFIG_BLK_DEV_RAM_SIZE;
+       initrd_start = __phys_to_virt(RAMDISK_DN_ADDR);
+       initrd_end = initrd_start + CONFIG_BLK_DEV_RAM_SIZE;
 #endif			
 }
 
@@ -566,8 +470,7 @@ static struct map_desc creator_pxa270_io_desc[] __initdata = {
                            
 
 
-static void __init 
-creator_pxa270_map_io (void)
+static void __init creator_pxa270_map_io (void)
 {
        pxa_map_io();
        iotable_init(creator_pxa270_io_desc, ARRAY_SIZE(creator_pxa270_io_desc));
