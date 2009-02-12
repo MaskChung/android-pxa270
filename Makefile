@@ -19,6 +19,10 @@ export TARGET_BIN_DIR		:= $(TARGET_DIR)/bin
 
 BUILT_VERSION			:= $(TARGET_BIN_DIR)/built_version
 
+export ANDROID
+export ANDROID_ROOTFS		:= $(patsubst "%",%,$(ANDROID_ROOTFS))
+#export TARGET_ANDROID_ROOTFS_DIR	:= $(TARGET_DIR)/android_rootfs
+
 modules:=rootfs toolchain kernel busybox version
 
 .PHONY: all ckeck_dir build install clean distclean menuconfig
@@ -26,7 +30,7 @@ modules:=rootfs toolchain kernel busybox version
 all: check_dir
 	$(MAKE) build
 	$(MAKE) install
-	$(MAKE) jffs2
+#	$(MAKE) jffs2
 
 check_dir:
 	@test -d $(TARGET_DIR) || mkdir -p $(TARGET_DIR)
@@ -97,6 +101,8 @@ build_rootfs:
 install_rootfs:
 	rm -rf $(TARGET_ROOTFS_DIR)/*
 	cd $(ROOTFS_DIR) && $(MAKE) install
+	$(MAKE) build_version
+	$(MAKE) install_version
 	#rsync -r --exclude='.svn' $(PRJROOT)/rootfs/rootfs.overwrite/* $(TARGET_ROOTFS_DIR)
 
 clean_rootfs:
@@ -169,7 +175,8 @@ strip_rootfs:
 	-find $(TARGET_ROOTFS_DIR) -name "*.ko" -exec $(STRIP) -g -S -d --strip-debug {} \;
 
 jffs2: strip_rootfs
-	$(PRJROOT)/scripts/bin/mkfs.jffs2 -v -e 131072 --pad=0xf00000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
+	#$(PRJROOT)/scripts/bin/mkfs.jffs2 -e 131072 --pad=0xf00000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
+	$(PRJROOT)/scripts/bin/mkfs.jffs2 -v -e 131072 --pad=0x1B80000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
 
 yaffs2: strip_rootfs
 	$(PRJROOT)/scripts/bin/mkyaffs2image $(TARGET_ROOTFS_DIR) $(TARGET_BIN_DIR)/rootfs.yaffs2
