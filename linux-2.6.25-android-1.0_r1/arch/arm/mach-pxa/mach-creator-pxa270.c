@@ -327,7 +327,8 @@ static struct mtd_partition creator_pxa270_partitions[] = {
 		name:		"Filesystem",
 		offset:		0x00480000,
 //      size:		MTDPART_SIZ_FULL,
-  		size:		0x00F00000,		 /* 15M for rootfs */	
+  		//size:		0x00F00000,		 /* 15M for rootfs */	
+  		size:		0x01B80000,		 /* 27.5M for rootfs */	
 	}
 };
 
