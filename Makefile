@@ -175,9 +175,15 @@ strip_rootfs:
 	-find $(TARGET_ROOTFS_DIR) -name "*.ko" -exec $(STRIP) -g -S -d --strip-debug {} \;
 
 jffs2: strip_rootfs
+	if [ ! -e scripts/bin/mtd/util/mkfs.jffs2 ] ; then \
+		cd scripts/bin && $(MAKE) mkfs.jffs2; \
+	fi
 	#$(PRJROOT)/scripts/bin/mkfs.jffs2 -e 131072 --pad=0xf00000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
 	$(PRJROOT)/scripts/bin/mkfs.jffs2 -v -e 131072 --pad=0x1B80000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
 
 yaffs2: strip_rootfs
-	$(PRJROOT)/scripts/bin/mkyaffs2image $(TARGET_ROOTFS_DIR) $(TARGET_BIN_DIR)/rootfs.yaffs2
+	if [ ! -e scripts/bin/yaffs2/utils/mkyaffs2image ] ; then \
+		cd scripts/bin && $(MAKE) mkyaffs2image; \
+	fi
+	./scripts/bin/yaffs2/utils/mkyaffs2image $(TARGET_ROOTFS_DIR) $(TARGET_BIN_DIR)/rootfs.yaffs2
 

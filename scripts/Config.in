@@ -32,8 +32,8 @@ config ANDROID
 	default n
 config ANDROID_ROOTFS
 	string "Using which Version of Android Root File System"
-	depends on ANDROID_ROOTFS
-	default "r1_rootfs.tgz"
+	depends on ANDROID
+	default "r1_rootfs.tar.gz"
 endmenu
 
 menu "HOST TFTP Server"
