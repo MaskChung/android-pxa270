@@ -1,0 +1,10 @@
+Bios Extension Flash Boot
+
+This code implements a small IPL structured as a bios extension that can be
+placed in the upper address space an be executed by a system bios to perform a
+kernel load directly from flash.
+
+The loader portions were taken from the etherboot package and the flash
+stuff from the MTD layer. All the code is covered by the GNU General Public
+License version 2 or greater.
+

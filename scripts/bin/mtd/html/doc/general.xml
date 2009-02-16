@@ -1,0 +1,124 @@
+<PAGE>
+	<VAR match="VAR_ORIGIN" replace="../" />
+	<VAR match="VAR_CVSID" replace="$Id: general.xml,v 1.2 2005/11/03 01:54:13 jwboyer Exp $"/>
+	<INCLUDE file="../inc/header.tmpl" />
+
+	<VAR match="VAR_SEL_DOC" replace="selected" />
+	<VAR match="VAR_SEL_GENERAL" replace="selected" />
+	<PARSE file="../menu1.xml" />
+
+	<INCLUDE file="../inc/content.tmpl" />
+
+    <h2><a name="documentation">Documentation</a></h2>
+    <p>Various pieces of documentation are available. Some of them
+    are really out of date and have been moved to the <a href="../archive/index.html">
+    Archive Section</a></p>
+    <p>Up to date documents available:</p>
+    <div>
+    <ul>
+    <li>General information on this page</li>
+    <li><a href="nand.html">NAND Flash</a>technical paper</li>
+    <li><a href="../tech/mtdnand/index.html">NAND Flash API</a> documentation</li>
+    <li><a href="jffs2.html">JFFS2</a>documentation section</li>
+    <li><a href="jffs3.html">JFFS3</a>documentation section</li>
+	<li><a href="logfs.html">logfs</a>documentation section</li>
+    </ul>
+    </div>	
+
+    <hr size="2" />
+    
+    <h2>MTD <i>User</i> modules</h2>
+    <div>	
+    <p>These are the modules which provide interfaces that can be used
+      directly from userspace. The user modules currently planned include:
+    </p>
+    <ul>
+      <li><b>Raw character access:</b><br />
+	A character device which allows direct access to the underlying 
+	memory. Useful for creating filesystems on the devices, before 
+	using some of the translation drivers below, or for raw storage 
+	on infrequently-changed flash, or RAM devices.
+      </li>
+      <li><b><a name="mtdblock">Raw block access</a></b><br />
+	A block device driver which allows you to pretend that the flash
+	is a normal device with sensible sector size. It actually works
+	by caching a whole flash erase block in RAM, modifying it as
+	requested, then erasing the whole block and writing back the modified
+	data.<br />
+	This allows you to use normal filesystems on flash parts. Obviously
+	it's not particularly robust when you are writing to it - you lose
+	a whole erase block's worth of data if your read/modify/erase/rewrite
+	cycle actually goes read/modify/erase/poweroff. But for development,
+	and for setting up filesystems which are actually going to be
+	mounted read-only in production units, it should be fine.
+	<br />
+	There is also a read-only version of this driver which doesn't have
+	the capacity to do the caching and erase/writeback, mainly for use
+	with uCLinux where the extra RAM requirement was considered too
+	large.
+      </li>
+      <li><b>Flash Translation Layer (FTL)</b></li>
+      <li><b>NFTL</b><br />
+	Block device drivers which implement an FTL/NFTL filesystem on the 
+	underlying memory device. FTL is fully functional. NFTL is currently
+	working for both reading and writing, but could probably do with 
+	some more field testing before being used on production systems. 
+      </li>
+      <li><b>Journalling Flash File System, v2</b><br />
+	This provides a filesystem directly on the 
+	flash, rather than emulating a block device. For more information,
+	see <a href="http://sources.redhat.com/jffs2/">sources.redhat.com</a>.
+      </li>
+    </ul>
+    </div>	
+    
+    <hr size="2" />
+    
+    <h2>MTD hardware device drivers</h2>
+    <p>These provide physical access to memory devices, and are not used 
+      directly - they are accessed through the <i>user</i> modules above.</p>
+    <div>	
+    <ul>
+      <li><b>On-board memory</b><br />
+	Many PC chipsets are incapable of correctly caching system memory
+	above 64M or 512M. A driver exists which allows you to use this
+	memory with the linux-mtd system.
+      </li>
+      <li><b>PCMCIA devices</b><br />
+	PCMCIA flash (not CompactFlash but <em>real</em> flash) cards are
+	now supported by the <tt>pcmciamtd</tt> driver in CVS.
+      </li>	
+      <li><b>Common Flash Interface (
+        <a href="http://www.pentium.com/design/flcomp/technote/cfi_1_1.htm">CFI</a>)
+	  onboard NOR flash</b><br />
+	This is a common solution and is well-tested and supported, most
+	often using JFFS2 or cramfs file systems.
+      </li>
+      <li><b>Onboard NAND flash</b><br />
+	NAND flash is rapidly overtaking NOR flash due to its larger size 
+	and lower cost; MTD support for NAND flash has production
+	quality.
+      </li>
+      <li><b>M-Systems' DiskOnChip 2000 and Millennium</b><br />
+	The DiskOnChip 2000, Millennium and Millennium Plus devices should
+	be fully supported, using their native NFTL and INFTL 'translation
+	layers'. Support for JFFS2 on DiskOnChip 2000 and Millennium is 
+	also operational although lacking proper support for bad block 
+	handling.
+     </li>
+    </ul>
+    </div>	
+    <p>
+      <b>CompactFlash</b> - 
+      <a href="http://www.compactflash.org/">http://www.compactflash.org/</a><br />
+	CompactFlash emulates an IDE disk, either through the PCMCIA-ATA 
+	standard, or by connecting directly to an IDE interface.
+	<br />As such, it has no business being on this page, as to the best of
+	my knowledge it doesn't have any alternative method of accessing the 
+	flash - you <i>have</i> to use the IDE emulation - I mention it here
+	for completeness.
+     </p>
+
+	
+	<INCLUDE file="../inc/footer.tmpl" />
+</PAGE>

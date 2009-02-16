@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+  <head>
+    <title>MTD internal API documentation - overview</title>
+  </head>
+
+  <body bgcolor="white">
+    <h1 align="center">MTD internal API documentation - overview</h1>
+
+    <H2>Structure</H2>
+
+    <P>The MTD system is divided into two types of module: 
+      <I>&quot;users&quot;</I> and <I>&quot;drivers&quot;.</I></P>
+    
+    <P><I>Drivers</I> are the modules which provide raw read/write/erase 
+      access to physical memory devices.</P>
+    
+    <P><I>Users</I> are the modules which use MTD drivers and provide a
+      higher-level interface to user-space.</P>
+
+
+    <P>We currently have four 'user' 
+      modules available: FTL, NFTL, JFFS and MTDBLOCK. FTL and NFTL both 
+      provide a pseudo-block device on which a 'normal' filesystem is
+      placed. JFFS is a filesystem which runs directly on the flash, and 
+      MTDBLOCK performs no translation - just provides a block device
+      interface directly to the underlying MTD driver.
+    </P>
+
+    <P>Just because I use the word 'module', it doesn't mean that these
+      have to be loadable modules. You can link them statically into your
+      kernel.</P>
+
+    <H2>Writing a driver module</H2>
+    
+    <P>Instructions for writing a driver are very simple:</P>
+    
+    <UL>
+      <LI>Allocate and populate a <A HREF="mtd_info.html"><TT>struct 
+	    mtd_info</TT></A> with information
+	about your device, and pointers to your access routines.</LI>
+      <LI>Register it by calling <A HREF="core.html#add_mtd_device">
+	  <TT>add_mtd_device</TT></A></LI>
+    </UL>
+    
+    <P>Oh yes - you have to actually write the access routines too, which
+      have to conform to <A HREF="mtd_info.html#read">the rules</A>.</P>
+
+    <H2>Writing a user module</H2>
+
+    <P>This is only slightly more complex:</P>
+
+    <UL>
+      <LI>Write a pair of <A HREF="core.html#mtd_notifier">
+	  <TT>notifier</TT></A>
+	<TT>add</TT> and <TT>remove</TT> functions, which will be called 
+	whenever a driver is added to, or removed from, the system, 
+	respectively.</LI>
+      <LI>Register them by calling <A HREF="core.html#register_mtd_notifier">
+	  <TT>register_mtd_notifier</TT></A></LI>
+    </UL>
+    
+    <P>This <EM>ought</EM> to call your notifier function immediately for
+      all drivers which are already present in the system. But it doesn't 
+      yet. Currently, drivers scan through calling <TT>get_mtd_device()</TT>
+      to find previously-loaded drivers. This is bad and will be fixed soon.
+    </P>
+
+
+    <address><a href="mailto:dwmw2@infradead.org">David Woodhouse</a></address>
+$Id: overview.html,v 1.1 2005/03/12 13:43:49 gleixner Exp $
+  </body>
+</html>

@@ -1,0 +1,63 @@
+	$Id: README,v 1.3 2000/01/28 13:53:26 dwmw2 Exp $
+
+HOW TO GET GRUB BOOTING FROM DiskOnChip
+---------------------------------------
+
+(0. You'll need the driver modules loaded and the utils built.)
+ 1. Build a recent GRUB (from the FSF, not the old grub-0.5)
+ 2. Copy the 'stage2/pre_stage2' file to this directory.
+ 3. make
+ 4. ../util/doc_loadbios /dev/mtd0 grub_firmware
+
+This assumes that the DiskOnChip is the only (or first) memory device
+for which the driver was loaded - and hence that it's /dev/mtd0
+
+
+HOW IT WORKS
+------------
+
+The DiskOnChip has a built-in ROM which is recognised as a BIOS extension
+by the system BIOS. This is called the 'IPL ROM', and it attempts to load 
+0x2000 bytes of the next stage, called the 'SPL, from the DiskOnChip.
+
+To make life complex, it doesn't just load the first 0x2000 bytes from the
+DiskOnChip - it loads half of the first 0x4000 bytes instead. Of each 512-byte
+block, it loads the first 256 bytes. 
+This is because of the way that NAND flash blocks are divided into two pages,
+and presumably it's done to save code space in the IPL ROM.
+
+As it loads the SPL, it performs a checksum. Iff the checksum of the SPL is
+equal to 0x55, then it will execute the SPL, which it has loaded to the 
+address 0x2000:0000.
+
+The SPL in turn is responsible for loading the rest of the firmware from the 
+DiskOnChip. Normally, this steals some memory for itself, and installs an
+INT 13h (Disk BIOS) handler to emulate disk access.
+
+We change this. Instead of installing an INT 13h handler, we install an
+INT 18h (bootstrap) handler. This is very small, and is held entirely
+within the first 256 bytes of the SPL with the code which installs it. 
+
+The INT 18h handler, when executed, loads GRUB Stage2 from the DiskOnChip
+to the place where GRUB Stage1 would normally load it, and then passes 
+control to it.
+
+Clear as mud? 
+
+
+NOTE: Grub 0.5, which was the latest version for some time before the FSF
+took over, expects stage2 to be loaded to 0x08000, and executed with CS:IP
+0000:8000.
+
+The versions currently in the FSF CVS repository are slightly different. The
+stage2 now has a 512-byte loader prepended to it, so now we need to load it
+as before but execute it starting as 0000:8200.
+
+I've changed the default behaviour of the DiskOnChip Stage1 over to the new 
+address, because I expect any development of DiskOnChip capability in Grub 
+itself to be added to the CVS version, not the old 0.5 version.
+
+If you are using this with the older grub, change the first few lines of the
+Makefile appropriately.
+
+DW 28/1/00

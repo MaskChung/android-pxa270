@@ -1,0 +1,36 @@
+Basic installation
+__________________
+
+There are two ways to build mtd from CVS code
+
+1. Inside the kernel tree
+
+Get the source from CVS. Invoke patchkernel.sh from the top directory.
+You have at least to supply the directory of the kernel you want to
+patch. Command line options for various patch selections are available.
+Invoke the script without arguments for help.
+The script works for kernels >= 2.6 and can be used to prepare 
+pristine kernels and update your already mtd-patched kernel to the
+latest state of the art.
+Depending on your kernel version, which is retrieved from the kernel 
+Makefile, some modifications and a bunch of softlinks are brought into your
+kernel source.
+Go back to your kernel directory and invoke make as usual. No 
+restrictions are given, if you want to have the drivers linked 
+into your kernel or built as modules.
+
+2. Outside the kernel tree
+
+Get the source from CVS. Modify Makefile in the MTD top directory to
+match your kernel directory. This requires a kernel source, which 
+has the approriate config switches and some mtd patches set already 
+(see below). Invoke make from here. This can build module based stuff only.
+
+Don't wack me if it failes. I never did it this way :)
+
+Enjoy.
+
+$Id: INSTALL,v 1.2 2005/03/13 18:14:12 gleixner Exp $
+
+Thomas Gleixner <tglx@linutronix.de>
+

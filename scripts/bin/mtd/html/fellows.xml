@@ -1,0 +1,59 @@
+<PAGE>
+	<VAR match="VAR_ORIGIN" replace="" />
+	<VAR match="VAR_CVSID" replace="$Id: fellows.xml,v 1.2 2005/04/12 12:58:56 havasi Exp $"/>
+	<INCLUDE file="inc/header.tmpl" />
+
+	<VAR match="VAR_SEL_FELLOWS" replace="selected" />
+	<PARSE file="menu1.xml" />
+	
+	<INCLUDE file="inc/content.tmpl" />
+
+    	<h2>People involved</h2>
+	<p>This page presents a brief overview of some of the people involved in MTD development</p>
+	
+	<div><img src="images/dwmw.jpg" align="right" alt="Image of David Woodhose" style="padding-left:10px" />
+	<h3>David Woodhouse</h3>
+	<p>David, also known by his alias &quot;dwmw2&quot;, is the maintainer of MTD. He started MTD
+	from scratch and is involved in almost everything about MTD <br clear="all" /></p></div>
+	
+	<div><img src="images/tglx.jpg" align="right" alt="Image of Thomas Gleixner" style="padding-left:10px" />
+	<h3>Thomas Gleixner</h3>
+	<p>Thomas is working on NAND FLASH support and poking around in MTD in general<br clear="all" /></p></div>
+	
+	<div><img src="images/nico.jpg" align="right" alt="Image of Nicolas Pitre" style="padding-left:10px" />
+	<h3>Nicolas Pitre</h3>
+	<p>Nicolas works on CFI commandset and contributed XIP support<br clear="all" /></p></div>
+	
+	<div><img src="images/joern.jpg" align="right" alt="Image of Joern Engel" style="padding-left:10px" />
+	<h3>Joern Engel</h3>
+	<p>Joern hacks on JFFS2/JFFS3 and various bits of MTD.<br clear="all" /></p></div>
+
+	<div><img src="images/jwb.jpg" align="right" alt="Image of Josh Boyer" style="padding-left:10px" />
+	<h3>Josh Boyer</h3>
+	<p>Josh hacked NOR-ECC support.<br clear="all" /></p></div>
+
+	<div><img src="images/jlavi.jpg" align="right" alt="Image of Jarkko Lavinen" style="padding-left:10px" />
+	<h3>Jarkko Lavinen</h3>
+	<p>Jarkko is the performance janitor of JFFS2<br clear="all" /></p></div>
+
+	<div><img src="images/artem.jpg" align="right" alt="Image of Artem B. Bityuckiy" style="padding-left:10px"  />
+	<h3>Artem B. Bityuckiy</h3>
+	<p>Artem is involved in JFFS2 and started the development of JFFS3 recently<br clear="all" /></p></div>
+
+	<div><img src="images/havasi.jpg" align="right" alt="Image of Ferenc Havasi" style="padding-left:10px"  />
+	<h3>Ferenc Havasi</h3>
+	<p>Ferenc has rewritten the compression code of JFFS2 (not fully finished yet) and made mount time 
+	improvement called summary. It is included in JFFS3 and there is an unofficial patch for JFFS2, too. 
+	He works at the University of Szeged in Hungary, and there is a team behind him: Zoltan Sogor and Patrik Kluba. 
+	<br clear="all" /></p></div>
+
+	<h3>More to come</h3>
+	<p>Unknown, forgotten ...</p>
+	
+	<h3>Credits</h3>
+	<p><b>Vincent Sanders</b> earns a credit for having the nice idea of a picture gallery of 
+	<a href="http://armlinux.simtec.co.uk/whoswho.html">ARM Linux fellows</a>, which I stole
+	frivolously</p>
+	
+	<INCLUDE file="inc/footer.tmpl" />
+</PAGE>

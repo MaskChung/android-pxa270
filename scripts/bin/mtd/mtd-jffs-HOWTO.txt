@@ -1,0 +1,1430 @@
+                      ***  The Linux MTD, JFFS HOWTO ***
+         (work in progress, please contribute if you have anything)
+
+$Id: mtd-jffs-HOWTO.txt,v 1.16 2001/08/13 23:17:55 dwmw2 Exp $
+Last Updated: <see CVS Id above>
+Compiled/Written By: Vipin Malik (vipin@embeddedLinuxWorks.com)
+Other author's contributions as noted in the text.
+
+**ABOUT:
+
+This document will attempt to describe setting up the MTD (Memory
+Technology Devices), DOC, CFI and the JFFS (Journaling Flash File System)
+under Linux versions 2.2.x and 2.4.x
+
+This is work in progress and (hopefully) with the help of others on
+the mtd and jffs mailing lists will become quite a comprehensive
+document.
+
+Please mail any comments/corrections/contributions to
+vipin@embeddedLinuxWorks.com
+Please DO NOT send questions to him directly, rather send them to the
+mailing lists (see below).
+
+**************************** NO WARRANTY *****************************
+
+# This HOWTO is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# If you break something you get to keep both parts! Follow these
+# directions at YOUR OWN RISK.
+# See the GNU General Public License for more details.
+
+**********************************************************************
+
+
+
+
+*** Getting Started:
+
+If you want to seriously design a project with MTD/JFFS please
+subscribe to the respective mailing lists. Both are managed by majordomo.
+
+
+MTD:
+  To subscribe, see http://lists.infradead.org/mailman/listinfo/linux-mtd-cvs
+  or send an email to linux-mtd-request@lists.infradead.org containing the
+  line "subscribe" in the body.
+
+  DO NOT SEND SUBSCRIBE REQUESTS TO THE LIST ITSELF, which is at 
+  linux-mtd@lists.infradead.org.
+
+JFFS:
+  To subscribe, send an email to majordomo@axis.com containing the line
+  "subscribe jffs-dev" in the body. 
+
+  DO NOT SEND SUBSCRIBE REQUESTS TO THE LIST ITSELF, which is at
+  jffs-dev@axis.com.
+
+The home page for the two projects are located at:
+MTD/DOC/
+ http://www.linux-mtd.infradead.org/
+JFFS
+ http://developer.axis.com/software/jffs/ 
+
+The MTD mail archive is at:
+ http://www.linux-mtd.infradead.org/list-archive/
+
+The JFFS mail archive is at:
+ http://mhonarc.axis.se/jffs-dev/threads.html
+
+<blatant plug by author>
+A general, vendor agnostic, non commercial site for Embedded Linux 
+Systems is at:
+
+ http://www.EmbeddedLinuxWorks.com
+
+(Here you will find articles about using IDE flash disks
+in embedded systems, reports of JFFS/JFFS2 power fail reliability
+tests, tips on using JFFS systems in your design, details on how 
+to boot the x86 Linux kernel from FLASH without using a BIOS 
+and (hopefully in due course) a vibrant community of developers 
+discussing issues related to embedded Linux with each other 
+on the message boards ;)
+
+** MTD Flash Device Database: **
+In the above mentioned site, you will also find a MTD Flash device
+database. This database contains a list of flash devices successfully
+working with the MTD drivers. If you manage to get a particular flash
+device (or Disk On Chip etc.) to work with any MTD driver, please take
+a few minutes to enter the relevant info in this database for the
+benefit of future users. Anyone can make an entry or view any info there.
+
+Access the MTD Flash database directly at:
+http://www.embeddedLinuxWorks.com/db.html
+
+** Power fail safe embedded database  **
+There is a seperate project (with its own mailing list) going on to
+develop a zero latency write, power fail safe (small) embedded
+database to use on JFFS2. Read more on why we need such a beast at:
+http://www.embeddedLinuxWorks.com/articles/db_project.html
+
+</blatant plug by author>
+
+
+*** Getting the latest code:
+
+The entire MTD/DOC/JFFS (and some utils) source code may be downloaded
+via anonymous CVS.
+
+Follow the following steps:
+1.Make sure that you are root.
+2. cd /usr/src
+3. cvs -d :pserver:anoncvs@cvs.infradead.org:/home/cvs login
+(password: anoncvs)
+4. cvs -d :pserver:anoncvs@cvs.infradead.org:/home/cvs co mtd
+
+This will create a dir called mtd under /usr/src
+
+You now have two options depending on what series of the Linux Kernel
+you want to work with.
+There is an extra step involved with the 2.2 series kernels as they do
+not have any MTD code in them.
+
+Note: 
+Check under /dev/ If you do not have devices like mtd0,1,2 and
+mtdblock0,1,2 etc. run the MAKEDEV utility found under mtd/util as:
+#sh /usr/src/mtd/util/MAKEDEV
+This will create all the proper devices for you under /dev
+
+
+** With 2.2.x series kernels:
+
+(Note that as far as I can tell, mtd and jffs does not work as modules
+under the 2.2.x series of kernels. If you want to do modules I would
+recommend that you upgrade to the 2.4.x series of kernels).
+
+Get the 2.2.17 or 2.2.18 kernel source code from your favorite source
+(ftp.kernel.org) and install the kernel under /usr/src/linux-2.2.x
+with /usr/src/linux being a symbolic link to your kernel source dir.
+
+Configure the kernel to your desired options (by doing a make config
+(or menuconfig or xconfig), and make sure that the kernel compiles ok.
+
+Download the mtd patch from:
+ftp://ftp.infradead.org/pub/mtd/patches
+
+Move the patch to /usr/src/linux and do
+
+   patch -p1 < <patch file name here>
+
+Make sure that the patch was applied ok without any errors.
+This will add the mtd functionality to your basic kernel and bring the
+mtd code up-to date to the date of the patch.
+
+You have two choices here. You may do a make config and configure in
+mtd stuff with the current code or you may want to get the latest code
+from the cvs patched in.
+
+If you want the latest CVS code patched in follow the 2.4.x directions
+below.
+
+** With 2.4.x series of kernels:
+
+If you want the latest code from CVS (available under /usr/src/mtd)
+do:
+1. cd /usr/src/mtd/patches
+2. sh patchin.sh /usr/src/linux
+
+This will create symbolic links from the
+/usr/src/linux/drivers/mtd/<files here> to
+the respective files in /usr/src/mtd/kernel/<latest files here>
+
+The same happens with /usr/src/linux/fs/jffs and
+/usr/src/linux/include/linux/mtd
+
+Now you have the latest cvs code available with the kernel. You may
+now do a make config (or menuconfig or xconfig) and config the
+mtd/jffs etc. stuff in as described below.
+
+
+
+
+*** Configuring MTD and friends for DOC in the Kernel:
+
+Do not use any mtd modules with the 2.2.x series of kernels. As far as
+I can tell, it does not work even if you can get it to compile ok.
+
+Modules work ok with the 2.4.x series of kernels.
+
+Depending on what you want to target you have some choices here,
+namely:
+
+
+*** 1. Disk On Chip Devices (DOC):
+For these, you need to turn on (or make into modules) the following:
+
+* MTD core support
+
+* Debugging (set the debug level as desired)
+
+* Select the correct DOC driver depending on the DOC that you have.
+  (1000, 2000 or Millennium). Note that the CONFIG_MTD_DOC2000 option is
+  a driver for both the DiskOnChip 2000 and the DiskOnChip Millenium
+  devices. If you have problems with that you could try the alternative
+  DiskOnChip Millennium driver, CONFIG_MTD_DOC2001. To get the DiskOnChip
+  probe code to use the Millennium-specific driver, you need to edit
+  the code in docprobe.c and undefine DOC_SINGLE_DRIVER near the beginning.
+
+* Unless you are doing something out of the ordinary, it shouldn't be 
+  necessary for you to enable the "Advanced detection options for 
+  DiskOnChip" option. 
+
+* If you do so, you can specify the physical address at which to probe
+  for the DiskOnChip. Normally, the probe code will probe at every
+  0x2000 bytes from 0xC8000 to 0xEE000. Changing the
+  CONFIG_MTD_DOCPROBE_ADDRESS option will allow you to specify a
+  single location to be probed. Note that your DiskOnChip is far 
+  more likely to be mapped at 0xD0000 than 0xD000. Use the real physical
+  address, not the segment address.
+
+  If you leave the address blank (or just don't enable the advanced 
+  options), the code will *auto probe*. This works quite well (at 
+  least for me). Try it first.
+
+* Probe High Addresses will probe in the top of the possible memory
+  range rather than in the usual BIOS ROM expansion range from 640K -
+  1 Meg. This has to do with LinuxBIOS. See the mailing list archive for
+  some e-mails regarding this. If you don't know what I am talking
+  about here, leave this option off.
+
+* Probe for 0x55 0xaa BIOS signature. Unless you've got LinuxBIOS on your
+  DiskOnChip Millennium and need it to be detected even though you've 
+  replace the IPL with your chipset setup code, say yes here.
+
+Leave everything else off, till you reach...
+User Modules and Translation layers:
+* Direct char device access - yes
+* NFTL layer support - yes
+* Write support for NFTL(beta) - yes
+
+Note that you don't need 'MTDBLOCK' support. That is something entirely 
+different - a caching block device which works directly on the flash 
+chips without wear levelling.
+
+Save everything, make dep, make bzImage, make modules, make
+modules_install
+
+Note: If you downloaded the 2.4.x series kernels and your original
+installed distribution came with the 2.2.x series of kernels then you
+need to download the latest modutils (from
+ftp.kernel.org/utils/kernel), else make modules_install or depmod -a
+will fail for the new 2.4.x kernels.
+
+Move everything to the right place, install the kernel, run lilo and
+reboot.
+
+If you compiled the mtd stuff into the kernel (see later section if
+you compiled as modules- which is what I prefer as you don't have to
+keep rebooting) then look for the startup messages. In particular pay
+attention to the lines when the MTD DOC header runs. It will say
+something like:
+
+"DiskOnChip found at address 0xD0000 (your address may be different)"
+"nftla1"
+
+The above shows that the DOC was detected fine and one partition was
+found and assigned to /dev/nftla1. If further partitions are detected,
+they will be assigned to /dev/nftla2 etc.
+
+Note that the MTD device is /dev/mtd0 and details are available by
+doing a:
+
+#cat /proc/mtd
+dev:    size   erasesize  name
+mtd0: 02000000 00004000 "DiskOnChip 2000"
+
+/dev/nftla1,2,3  are "regular" block disk partitions and you may
+mke2fs on them to put a ext2 fs on it. Then they may be mounted in the
+regular way.
+
+When the DiskOnChip is detected and instead of nftla1,2,3... you get
+something like:
+
+"Could not find valid boot record"
+"Could not mount NFTL device"
+
+...first make sure you have the latest DiskOnChip and NFTL code from
+the CVS repository. 
+
+If that doesn't help you, especially if the driver has previously
+exhibited strange and buggy behaviour, and if the DOS driver built
+into the device no longer works, then it's possible that you have a
+"hosed" (that's a technical term) disk. You need to "un-hose" it. To
+help you out in that department there is a utility available under
+/usr/src/mtd/util called nftl_format.
+
+DO NOT EVER USE THE nftl_format UTILITY WITHOUT FIRST SEEKING ADVICE
+ON THE MAILING LIST. It will erase all blocks on the device,
+potentially losing the factory-programmed information about bad
+blocks. (Someone really ought to fix it one of these days - ed)
+
+Essentially after your disk have been detected but complains about
+"Could not mount NFTL device", just run
+#./nftl_format /dev/mtd0 (if your device was installed under mtd0, see
+cat /proc/mtd/).
+
+You should unload the nftl driver module before using the nftl_format
+utility, and reload it afterwards. Reformatting the NFTL underneath
+the driver is not a recipe for happiness. If the driver hasn't
+recognised the NFTL format, then it's safe - reboot or reload the
+module after running nftl_format and it should then recognise it
+again.
+
+If your device "erasesize" is 8k (0x2000), then the utility will go
+ahead and format it. Just reboot and this time the drivers will
+complain about an "unknown partition table".
+
+Don't worry. Just do:
+# fdisk /dev/nftla
+
+and create some partitions on them. TaDa! You may now e2fsck and
+others on these partitions. Note that if you don't want more than one
+partition you don't need to muck about with partitions at all - just
+make a filesystem on the whole device /dev/nftla instead of
+partitioning and using /dev/nftla1.
+
+*** IF you compiled the mtd stuff as modules (What I prefer):
+Make sure that you have done a depmod -a after you reboot with the
+new kernel.
+
+Then just
+#modprobe -a doc2000 nftl mtdchar mtdblock
+
+You have now loaded the core stuff. The actual detection takes place
+only when you load the docprobe module. Then do
+#modprobe -a docprobe
+
+You should then see the messages described in the section
+above. Follow the directions and procedures are outlined in the
+section above (where you would have compiled the mtd/DOC stuff into
+the kernel).
+
+
+
+
+
+*** 2. Raw Flash (primarily NOR) chips
+
+This are multiple (or just one) flash IC's that may be soldered on
+your board or you may be designing some in. Unlike the DOC device,
+these are usually linearly memory mapped into the address space
+(though not necessarily, they may also be paged).
+
+MTD can handle x8, x16 or x32 wide memory interfaces, using x8, x16
+(even x32 chips (are they such a thing)?- confirm).
+
+At present CFI stuff seems to work quite well and these are the type
+of chips on my board. Hence I will describe them first. Maybe someone
+with JEDEC chips can describe that.
+
+You must use (for all practical purposes that involve writing) JFFS on
+raw flash MTD devices. This is because JFFS provides a robust writing
+and wear leveling mechanism. See FAQ for more info.
+
+If you only want the file-system to be writable while you're developing,
+but will ship the units read-only, it's acceptable to use the MTDBLOCK 
+device, which performs writes by reading the entire erase block, erasing it,
+changing the range of bytes which were written to, and writes it back to
+the flash. Obviously that's not something you want happening in production,
+but for development it's OK.
+
+
+*** Configuring the kernel with MTD/CFI/JFFS and friends. 
+Turn off all options for MTD except those mentioned here.
+
+* MTD support (the core stuff)
+* Debugging -yes (try level 3 initially)
+* Support for ROM chips in bus mapping -yes
+* CFI (common flash interface) support -yes
+* Specific CFI flash geometry selection -yes
+* <select they FLASH chip geometry that you have on your board>
+* If you have a 32 bit wide flash interface with 8bit chips, then you
+  have 4 way interleaving, etc. Turning on more than one option does
+  not seem to hurt anything
+* CFI support for Intel.Sharp or AMD/Fujitsu as your particular case
+  may be.
+* Physical mapping of flash chips - set your config here or if you
+  have one of the boards listed then select the board as the case may
+  be.
+
+Then under "File systems" select:
+* jffs and 
+* /proc file-system support right under that.
+* Select a jffs debugging verbosity level. Start high then go low.
+
+Save, make dep, make bzImage, make modules, make modules_install, move
+kernel to correct spot, add lilo entries, run lilo (or your fav. boot
+loader) and reboot.
+
+If you have compiled the stuff as modules then do (as root):
+# depmod -a
+# modprobe -a mtdchar mtdblock cfi_cmdset_0002 map_rom cfi_probe
+
+This loads the core modules for cfi flash. Now we probe for the actual
+flash by doing:
+#modprobe -a physmap
+
+Look at the console window (Note if you are telnet'd into the machine,
+then the console may be outputting on tty0 which may be the terminal
+connected to the graphics card). Being able to see the console is very
+important. You may also view kernel console messages at
+/var/log/messages (this depends on the distribution you are
+using. This is true for Red Hat).
+
+Don't be fooled by the message:
+"physmap flash device:xxxxx at yyyyyyy"
+
+This is just reporting what parameters you have compiled into the
+system (see above under "Physical mapping of flash chips".
+
+If your flash is really detected then it will print something like:
+"Physically mapped flash: Found bla-bla-bla at location 0".
+
+If no device is found, then physmap will refuse to load as a module!
+This is not a problem with compiling it as a module or with physmap or
+modprobe itself. Unfortunately this is the hard part. You have to dive
+into the routine "do_cfi_probe()" called from physmap.c.
+
+Caution! physmap.c uses ioremap() to map the physical memory into an
+area of logical memory. If your processor has a cache in it, then
+modify physmem to use ioremap_nocache(), else you will tear your hair
+out as your flash chips will never be detected.
+
+This routine is called cfi_probe() and is in the file "cfi_probe.c"
+under mtd/kernel/
+
+Sprinkle the file with printk's to see why your chips were not
+detected. If your chips are detected, then when you load physmap (by
+doing a "modprobe physmap", you will see something like:
+
+"Physically mapped flash: Found bla-bla-bla at location"
+
+Now, the chips have been registered under mtd and you should see them
+by doing a:
+#cat /proc/mtd
+
+
+
+*** Putting a jffs file system on the flash devices:
+
+Now that you have successfully managed to detect your flash devices,
+you need to put a jffs on them. Unlike mke2fs there is no utility that
+will directly create a jffs file-system onto the
+/dev/mtd0,1,2... device.
+
+You have to use a utility called mkfs.jffs available under mtd/util
+
+Get a directory ready with the stuff that you want to put under
+jffs. Let's assume that it's called /home/jffsstuff
+
+Then just do:
+#/usr/src/mtd/util/mkfs.jffs -d /home/jffsstuff -o /tmp/jffs.image
+
+This makes a jffs image file. Then do (if your flash chips are erased,
+else see below):
+#cp  /tmp/jffs.image /dev/mtd0,1,2... (as the case may be, most
+likely /dev/mtd0).
+
+You may also mount an erased mtdblock device directly without putting
+a file system on it. This will let you fill the device interactively
+under your shell control (you know- copy stuff to the mounted dir).
+
+If your flash chips are not erased or you have been messing around
+with them earlier, your cannot just copy the new image on top of the
+older one. Bad things may happen. Use the program mtd/util/erase to
+erase your device.
+
+#/usr/src/mtd/util/erase /dev/mtd0,1,2,3 <offset> <erase-size>
+where 
+offset: try 0 if you don't know (start of mtd device), else must be in
+decimal bytes, but must start at an integral erase sector boundary.
+
+
+erase-size: How many "erase sectors" worth do you want to erase.
+Your max erase size for your flash is:
+ (total-size/your mtd device erase size- look under `cat /proc/mtd`)
+
+
+Watch the messages on your console (assuming you have verbose turned
+on when you configured your kernel). You should not see any errors.
+
+When your command prompt returns, do:
+#cp  /tmp/jffs.image /dev/mtd0,1,2... (as the case may be, most
+likely /dev/mtd0).
+
+
+Then load the jffs module in by:
+#modprobe jffs
+
+Then mount the file system by:
+#mount -t jffs /dev/mtdblock0 /mnt/jffs (assuming /mnt/jffs exists, else
+make it).
+
+Note: Note the use of /dev/mtdblock0 NOT /dev/mtd0. "mount" needs a
+block device interface and /dev/mtdblock0,1,2,3... are provided for
+that purpose. /dev/mtd0,1,2,3 are char devices are provided for things
+like copying the binary image onto the raw flash devices.
+
+
+
+
+*** Making partitions with CFI flash and working with multiple banks
+    of FLASH:
+
+Unlike a "regular" block device, you cannot launch fdisk and create
+partitions on /dev/mtdblock0,1,2,3...
+
+(As far as I know) CFI flash partitions have to be created and
+compiled in the physmap.c file.
+
+The same goes for multiple banks of flash memory. (IS THIS CORRECT????
+Check and correct.)
+
+An example of creating partitions can be found in the file
+mtd/kernel/sbc_mediagx.c
+
+An example of multiple banks of flash chips being mapped into separate
+/dev/mtdn devices can be found in the file mtd/kernel/octagon_5066.c
+(in particular pay attention to the multiple looping of the code while
+registering the mtd device in "init_oct5066()". You may also add
+partitions to each bank by looking at code in mtd/kernel/sbc_mediagx.c
+
+
+
+
+*** Mounting a JFFS(1 or 2) F/S as root device.
+This is rather simple.
+
+*Note: This assumes that you can some how boot your kernel. This
+section does NOT deal with booting your kernel from an mtd partition
+or device.
+You may be doing this by booting your kernel off an IDE flash disk/CF
+disk etc. using lilo.
+This procedure is the same even when you want to boot the kernel
+directly off flash. This time you will just burn the kernel into the
+raw flash device after the "rdev" step below.
+
+1. Make sure that you can detect your flash devices and read and write
+   them though the MTD device nodes (/dev/mtdn).
+2. Make sure than you can mount the required JFFS(1 or 2) f/s on your
+   flash devices and copy files to it, unmount, reboot, re-mount and
+   still see your files there (also do a "diff" on a couple of files
+   to make sure that the data did not get corrupted).
+3. Compile all the required MTD/JFFS(1/2) support into the kernel
+   (using modules to mount root is left as an exercise for the
+   reader).
+4. Tell the kernel what your root device is going to be. Do that by:
+# rdev <your flash image here> /dev/mtdblock<n>
+where mtdblock<n> is where you have constructed your root fs that you
+   want to mount as root on reboot.
+5. Run your boot loader init program (lilo for LILO bootloader).
+6. Reboot. Your jffs mtdblock<n> partition should be mounted as root.
+
+
+
+
+*** Mounting a *compressed* ext2 file system stored on an mtd
+    partition or device as root.
+Ah! Ha! This is much more fun (and complicated).
+Prerequisites:
+a. You must have ramdisk support in your development system kernel at
+    least as large as the final root f/s that will be mounted in your
+    target. This is for compressing the root f/s only. If you already
+    have a ready-to-go compressed root f/s then you can skip this
+    stage.
+
+Steps:
+1. Make a "root" file system on your mtd enabled development
+    system. (mtd "enabled" means that you are running a kernel that
+    supports mtd and that you can write to your mtd flash devices from
+    your development station). The creation of this "root" file system
+    is left to the reader. There are numerous ready available root f/s
+    out on the net. Use any one or create your own (this is not
+    necessarily fun if you have never done this before).
+
+2. Make an ext2 f/s in ramdisk as large as you want the final
+uncompressed root f/s to be. Do that as thus:
+
+#mke2fs /dev/ram0 <you_root_fs_size_in_1k_blocks_here>
+
+3. Mount this empty f/s on a free dir under /mnt as:
+
+#mount -t ext2 /dev/ram0 /mnt/ramdisk
+
+4. Copy your "root fs" dir that you have so carefully made over to
+   this ramdisk.
+
+#cp -af /tmp/my_final_root_fs_files/* /mnt/ramdisk
+
+5. If you have done everything right till now you should be able to
+   see the required "root" dir's (that's etc, root, bin, lib, sbin...)
+   if you do a:
+
+# ls -ld /mnt/ramdisk 
+
+6. Now unmount and compress the file system.
+
+#umount /mnt/ramdisk
+
+#dd if=/dev/ram0 bs=1k count=<your_root_fs_size_in_1k_blocks> | gzip \
+         -9 > /tmp/compressedRootFS.gz
+
+7. Now we have to tell your kernel that will be mounting this
+   compressed file system that this is a compressed f/s and where to
+   find it on the mtd device.
+   Make sure that your mtd stuff is all compiled into the
+   kernel. Additionally you must make the following 2 changes to the
+   kernel. This applies both to the 2.2.x and 2.4.x series.
+
+   A. In the file drivers/block/rd.c you must comment out the check
+   made for ROOT_DEV to be a floppy device. This code usually looks
+   like:
+
+        if (MAJOR(ROOT_DEV) != FLOPPY_MAJOR
+#ifdef CONFIG_BLK_DEV_INITRD
+                && MAJOR(real_root_dev) != FLOPPY_MAJOR
+#endif
+        )
+                return;
+
+   You must *NOT* return here, as your ROOT_DEV will *NOT* be a floppy
+   device, it will be the mtd block device.
+
+   B. At this time, due to the link order the rd_load() call to load
+   any compressed files systems into ramdisk are made before the mtd
+   driver has a chance to register the mtd block device. This causes
+   the rd_load() code to fail to find your root device to load your
+   compressed f/s from.
+   Till this issue is fixed in the kernel, you have to make another
+   explicit call to rd_load() right before mount_root() in main.c
+   So, just add a call to rd_load() immediately before mount_root() in
+   init/main.c
+
+   C. Now compile the kernel with mtd and ext2 support in it (not as
+   modules).
+   
+8. Now tell your target kernel (before installing it in the target)
+   that you want it to load a compressed f/s and where this compressed
+   image lies.
+   There are two ways to do this. The easy way (using command line
+   parameters) and the difficult way.
+   We will do this the difficult way. Figuring out the easy way is
+   left as an exercise for the reader.
+   No, I don't usually like to do things the difficult way just for
+   the fun of it, there is a reason behind this.
+
+   I'm moving towards booting a Linux kernel out of raw flash, without
+   the help of a boot load. In that situation we will not have any
+   means to pass any kernel command line parameters.
+
+   Tell the target kernel that you want to load a compressed f/s and
+   where your image can be found as thus:
+
+#rdev -r <your_target_kernel_image> <offset_number_in_dec>
+
+where offset_number_in_dec is calculated as follows:
+This number is the decimal equivalent of a binary number which is made
+of various bits.
+Bits 0-9 specify in 1KB blocks the offset from the start of the root
+device.
+Bit  14 specifies if a (compressed in our case) ramdisk needs to be
+loaded- obviously a yes! Why else are you reading this!
+Other Bits: Set to zero.
+
+Just as a sanity check, 17408 is the number that you plug in as the
+2nd parameter to the rdev -r above for the following.
+This numbers tells the kernel that the offset is 1024 1kblocks
+(i.e. find and load the compressed image found at the 1 Megabyte
+offset from the start of the mtd device and mount it at the root device).
+
+Note: If this bit pattern ever changes or you are doubtful of my
+sanity, please go to arch/i386/kernel/setup.c file and look at the
+various #define masks there. That's where all this bit magic comes from.
+
+9. Now tell your target kernel what your root device is going to be:
+
+#rdev <your_target_kernel> /dev/mtdblock<0,1,2....n>
+
+10. Now of course you need to copy your compressed f/s image to the
+    proper offset in your mtd device. Making sure that your target
+    device is erased do:
+
+#dd if=/tmp/compressedRootFS.gz bs=1k of=/dev/mtd<0,1,2....n>
+ seek=<num of 1k blocks, in k, here that you told your kernel in
+ above>
+
+So for the 1Meg offset boundary you would put seek=1024
+
+Note: "dd" is going to complain about "operation not permitted" or
+some such thing. Just ignore that. dd tries to truncate the o/p
+device, but mtd of course in not going to let somebody like "dd"
+truncate it. The copy should go on just find.
+
+11. Sanity check (year's of experience has taught me to triple check
+    every step twice ;)
+  Let's make sure that you got the compressed image in ok.
+
+12. We will look at the first few bytes of both images and make sure
+    that they are ok. You can also "dd" the target image back to a
+    file and do a diff on it (left as an exercise for the reader).
+
+#dd if=/dev/mtd<0,1,2...n> bs=1k skip=1024 (or your 1k offset in k) \
+       od -Ax -tx1 |less
+Jot down the first few lines. (note the use of "skip" in above, NOT
+       "seek").
+
+Now let's look at your compressed root f/s file on your hard disk:
+#dd if=/tmp/compressedRootFS.gz | od -Ax -tx1 | less
+
+Compare with the stuff that you jotted down above. They should match
+(did I need to say that?).
+
+13. Install your kernel however way you are going to boot it (run lilo
+    if you are going to boot using LILO) or place it where it will
+    boot from any other boot loader (or directly from flash etc.).
+
+14. Reboot. This time, you should see the ramdisk loading code run
+    twice and find the compressed image the second time and VFS mount
+    it as root.
+
+Ship it and ask for a pay raise (and send me some of that too)!
+
+
+
+
+
+*** Booting a Linux kernel without a BIOS off an mtd device and
+    mounting a compressed root file system stored on that device.
+
+This is the holy grail of embedded Linux computing :) I shall attempt
+to describe how to do this here. Note that at best this can only be a
+guide as one embedded system differs a *lot* for another, not only in
+terms of memory maps, but type of processors, type of flash, amount of
+RAM etc.
+
+* Assumptions:
+This will (may) help you if your requirements meet the following:
+You want to:
+
+1. Use the standard Linux kernel as found when you download the entire
+kernel from ftp.kernel.org
+
+2. Know how to initialize your processor and chipset. This would
+include, memory map (and chip select decode registers etc.). You
+should be able to read/write the RAM and flash (if NOR type) from a
+"simple" init program that you or you hardware guy wrote to test the
+board. (Note: If you intend to use a BIOS, then this restriction goes
+away). 
+
+3. You are way ahead of the game if your target platform supports an
+IDE hard disk (note: This is just for the development phase. We will
+not end up with the hard disk in the final cut). This may not be an
+unreasonable requirement. You may be able to buy an "eval" or
+"development" board for the target processor that has a BIOS and
+supports an IDE disk and serial console at the very least.
+
+4. Do not think that compiling the kernel about 100-200 times is too
+much effort to get this working ;)
+
+
+* Overview:
+We will follow the following steps:
+1. Setup and boot linux on the target platform using a hard disk.
+
+2. Take a beer break, take our spouse/(girl/boy)friend out for dinner
+as they will not see you for a while.
+
+3. Setup mtd drivers so that you can read/write the flash and mount a
+jffs on it. At this stage we will use modules.
+
+4. Once we are happy and comfortable with #3 above, compile the
+mtd/jffs stuff into the kernel to prepare for booting. At this stage
+we will install the kernel on the hard disk and the compressed file
+system on the mtdblock device and boot that. Then we will either do 5a
+or 5b as you desire.
+
+5a. Non-compressed root file system on mtd device:
+    Once we are successful with #4 above we will install a jffs file
+    system on mtdblock and mount that as root (this is easy). You may
+    want to do this if you want to make changes to your root file
+    system by (easily) copying individual files over. The drawback to
+    this is the file system will span the flash device
+    uncompressed. This is bad because flash is easily 3 times more
+    expensive than DRAM, and you could easily have the root file
+    system compressed (with gzip) on FLASH and de-compress it into
+    cheaper DRAM (5b. below).
+
+5b.Compressed root file system on mtd device:
+    Or we could just skip the easy steps and install a compressed root
+    file system on the mtd device and decompress this on boot to
+    ramdisk (in DRAM) and mount that ramdisk as root. This is much
+    better (in my mind) as DRAM is usually faster then FLASH. If your
+    processor supports a DRAM controller then it probably has read
+    ahead and write combining that increase the performance even more
+    and which you have turned off for the FLASH regions if you want to
+    write to flash. If your processor has cache, then you are
+    significantly faster accessing DRAM as that area could be cached
+    and for sure you want cache turned off if you are writing to FLASH
+    (else writing may fail, this is the eq. in 'C' of declaring the FLASH
+    memory area as "volatile").
+    
+    Once we have mounted the compressed root file-system we can easily
+    mount a jffs mtd flash bank or partition on a dir on root to store
+    config files or logs or root file updates etc.
+
+6. Nightmare! Boot the raw kernel off flash (note: this may be a part
+   of the mtd flash, but mtd has nothing to do with this, except start
+   the device after a "keep-off" area for the kernel).
+
+   This is the MOST difficult part, but is now solved. See below.
+
+Lets get to work:
+
+This is now (easily) possible for bzImage kernels under x86 systems.
+Please see the following for complete details:
+
+http://www.EmbeddedLinuxWorks.com/articles/rolo_guide.html
+
+
+
+
+
+
+
+
+*** FAQ's:
+
+Q. What is MTD and why do we need it?
+
+A. From the MTD site:
+
+"We're working on a generic Linux subsystem for memory devices,
+especially Flash devices.
+
+The aim of the system is to make it simple to provide a driver for new
+hardware, by providing a generic interface between the hardware
+drivers and the upper layers of the system.  
+
+Hardware drivers need to know nothing about the storage formats used,
+such as FTL, FFS2, etc., but will only need to provide simple routines
+for read, write and erase. Presentation of the device's contents to
+the user in an appropriate form will be handled by the upper layers of
+the system."
+
+
+Q. What is JFFS?
+
+A. JFFS was designed by Axis Communications AB, Sweden
+(www.axis.com). It is an open source log structured file system that
+is most suitable for putting on raw flash chips.
+For more info: http://developer.axis.com/software/jffs/
+
+Some additional documentation (not reviewed and no link to it yet):
+http://developer.axis.com/software/jffs/doc/jffs.shtml
+
+
+David Woodhouse described jffs in a mail to the jffs mailing
+list. This is what he wrote:
+
+"JFFS is purely log-structured. The 'filesystem' is just a huge list of
+'nodes' on the flash media. Each node (struct jffs_node) contains some
+information about the file (aka inode) which it is part of, may also 
+contain a name for that file, and possibly also some data. In the cases 
+where data are present, the jffs_node will contain a field saying at what 
+location in the file those data should appear. In this way, newer data can 
+overwrite older data. 
+
+Aside from the normal inode information, the jffs_node contains a field 
+which says how much data to _delete_ from the file at the node's given 
+offset. This is used for truncating files, etc. 
+
+Each node also has a 'version' number, which starts at 1 with the first node
+written in an file, and increases by one each time a new node is written
+for that file. The (physical) ordering of those nodes really doesn't matter at
+all, but just to keep the erases level, we start at the beginning and just
+keep writing till we hit the end.
+
+To recreate the contents of a file, you scan the entire media (see 
+jffs_scan_flash() which is called on mount) and put the individual nodes in 
+order of increasing 'version'. Interpret the instructions in each as to 
+where you should insert/delete data. The current filename is that attached 
+to the most recent node which contained a name field.
+
+(Note this is not trivial. For example, if you have a file with 1024 bytes 
+of data, then you write 512 bytes to offset 256 in that file, you'll end up 
+with two nodes for it - one with data_offset 0 and data_length 1024, and 
+another with data_offset 256, data_length 512 and removed_size 512. Your 
+first node actually appears in two places in the file - locations 0-256 and 
+768-1024. The current JFFS code uses struct jffs_node_ref to represent this 
+and keeps a list of the partial nodes which make up each file. )
+
+This is all fairly simple, until your big list of nodes hits the end of the
+media. At that point, we have to start again at the beginning. Of the 
+nodes in the first erase block, some may have been obsoleted by later 
+nodes. So before we actually reach the end of the flash and fill the 
+filesystem completely, we copy all nodes from that first block which are 
+still valid, and erase the original block. Hopefully, that makes us some 
+more space. If not, we continue to the next block, etc. This is called 
+garbage collection.
+
+Note that we must ensure that we never get into a state where we run out of
+empty space between the 'head' where we're writing the new nodes, and the
+'tail' where the oldest nodes are. That would mean that we can't actually 
+continue with garbage collection at all, so the filesystem can be stuck 
+even if there are obsolete nodes somewhere in it.
+
+Although we currently just start at the beginning and continue to the end,
+we _should_ be treating the erase blocks individually, and just keeping a
+list of erase blocks in various states (free/filling/full/obsoleted/erasing/
+bad). In general, blocks will proceed through that list from free->erasing 
+and then obviously back to free. (They go from full to obsoleted by 
+rewriting any still-valid nodes into the 'filling' node)."
+
+
+
+
+Q. What is JFFS2 and how is it different from JFFS?
+
+A. JFFS was the original file systems developed for embedded file
+systems on flash devices- designed for async power down. See above Q.
+JFFS2 is an enhancement to JFFS. It enhances JFFS in the following
+areas:
+1. Understands and handles writes to flash on an erase sector
+level. This has various advantages like garbage collection on a sector
+basis rather then the entire file system basis.
+2. Possible to mark bad sectors and continue to use the remaining good
+sectors thus enhansing the write life of the devices.
+3. Less blocking time due to garbage collection (only one sector needs
+to be erased at the minimum, unlike JFFS where the entire f/s data
+needs to be "squished" to garbage collect).
+4. Provides native data compression inside the file system design.
+
+Note that JFFS2 is still under active debugging/development (as of
+March 7th 2001). Please see the jffs developer list for current status
+if this document is more than a few months out of date.
+
+
+
+Q. Ok, give me the skinny. How production worthy are JFFS1 and JFFS2?
+
+A. [This is the author's opinion only. Please pose specific questions
+to the list if you have any concerns]
+
+No active development work is being done on JFFS1. JFFS1 is popularly
+believed to be complete. To access this state, I did some power down
+tests on JFFS1. The code, as is currently checked into CVS [edit:see
+below], fails within 7 power cycles (worst case, best case it has
+lasted 59 power cycles). Modes of failure are various error messages
+that result in a completely unusable system including loss of data on
+the file system. 
+Note that, my power down test emphasised power down reliability of the
+system *while data was being written to the JFFS1 system*. As far as I
+know there are no issues with using JFFS1 on mostly "static" file
+systems where a lot of write activity is not going on or dangers of
+async power down does not exist.
+I personally would not consider the CVS JFFS1 code to be production
+quality to be used in unattended embedded systems.
+
+I have investigated this issue and have submited a patch (to intrep.c)
+to the mailing list. In the same power down tests, the JFFS1 CVS code
+patched with my intrep.c patch, manages 1100 power down cycles during
+a write before failure. That is more than two orders of magnitude
+increase in the reliability of the system. This patch is still being
+reviewed by the list and has not been accepted yet. USE AT YOUR OWN
+RISK! I will update this note when there is further activity in this
+regard.
+
+[UPDATE: Mar 16th 2001: This patch is now applied to the CVS version.
+No more mount issues were observed with this new patch. *However* a
+new problem was observed. After 653 power cycles, about 8 files from
+the file system disappeared without a trace! There is no explanation
+as of yet. These were NOT the files being written to, rather some
+programs in the /bin dir. Regardless, the CVS version of JFFS1 is now
+at least an order of magnitude more reliable regarding coming up
+successfully after an async power down. 
+/UPDATE]
+
+<UPDATE: June 12th 2001>
+
+I have done power fail testing on JFFS2. Please see the following
+report for more details (you can also download the power fail test
+program I used, from there. It's available as open source code):
+
+http://www.EmbeddedLinuxWorks.com/articles/jffs_guide.html
+
+</UPDATE>
+
+
+The objective is to have a very stable flash file system that is
+capable of an unlimited (i.e. till you stop testing :) number of async
+power fails with a successful recovery the next time around.
+
+
+
+Q. Why another file system(s). What was wrong with ext2?
+
+A. (from Johan Adolfsson:) JFFS is aimed at providing a
+crash/powerdown-safe filesystem for disk-less embedded devices. This
+typically means flash memories and these have certain characteristics,
+such as you can't write twice to the same location without doing a
+time-expensive erase on a full sector first (typically 64kB), this
+means "normal" file systems such  as ext2 won't work very well.
+
+Additionally if only a little amount of data has changed in the sector
+to be erased, then the rest of the data needs to be stored off
+somewhere, the new data merged with the old and everything written
+back. So potentially, you would write 64KB for every 512 bytes of data
+to be written to the file system. If this data is "saved off" in RAM,
+then you could loose everything if power goes down while the sector is
+being erased. If it is saved off in another sector of flash, then that
+sector needs to be pre erased, and now you are doing 128KBytes of
+write for a 512 byte data write.
+
+(David Woodhouse added:) Need journalling pseudo-filesystem to emulate
+a block  device and to wear levelling. then need ext3 (note ext_3_) on
+that. journalling  fs on top of journalling fs - not efficient. Also,
+no way for ext[23] to  mark blocks as _deleted_ and no longer cared
+about. Fill ext2 partition on  NFTL, empty it again, and the NFTL will
+still carefully copy around the  blocks containing old deleted data.
+
+( -- I was hoping you'd translate that into real-person-speak, not
+just cut and paste it -- dwmw2 :)
+
+Translation of above:(Vipin: -Ok here you go David- :))
+The ext2 filesystem was designed for normal desktop systems. "Normal"
+desktop systems have UPS's connected to them. ext2 was designed with
+various goals in mind, that included speed, size of files on disks,
+speed, total file system size, fragmentation issues, oh, did I mention
+speed?
+
+Unfortunately, power down robustness was not high on the design
+goal. Neither was wear levelling the physical medium that the data was
+stored on (hard disk platters have a significantly more read/write
+life than flash chips).
+
+What this means is that, file system meta data (or fs structure)
+corruption is a very real possibility. Additionally, file system
+"repair" and scanning software needs to be written and executed if the
+file system is suspect.
+This is of course unacceptable in embedded systems that do not have a
+UPS connected to them and power may fail without warning. Even systems
+that have advance warning (like a power fail warning interrupt) do not
+have enough time to sync hundreds of kilobytes of data to flash disks
+and unmount the disk before the plug is pulled after the advance warning.
+
+The answer is a file system designed specifically for flash storage
+devices- jffs!
+
+But what about ext3 or other "journalling" type file systems that do
+handle power fail recovery (and quite quickly too)? Unfortunately, the
+raw flash device requires a wear leveling "sector erase aware"
+handler. Putting another journalling file system on top of this log
+structured handler is inefficient. Hence jffs being a file system for
+embedded systems. (Isn't the use of the term "journalling" wrong in
+reference to jffs? JFFS is really a "log structured" file system, not
+a "journal" type file system where a "change journal" is written out
+before the actual change is made to the file system and this journal
+is a file system modify cache that can be replayed if the entire write
+did not take before power went down?) 
+
+
+
+Q. Do I have to have JFFS on MTD?
+
+A. Yes! JFFS (at the moment) only works on any linear device supported
+by the MTD layer. It does NOT work on DOC. It does NOT work on 
+Compact flash. It does NOT work on IDE flash disks.
+
+It will work on SRAM. It will work on DRAM. It will work on FRAM.
+But you have to install MTD drivers for each first and then mount
+the JFFS fs on the block device for them respectively.
+
+And I believe that support is not complete for NAND flash chips
+(I may be wrong here as I am not working with NAND flash and do not
+keep up with those developments. Please drop me a line if you know
+otherwise).
+
+In the future JFFS (or most likely JFFS2) *may* work on DOC. It will
+most likely *never* work on Compact flash or IDE flash disks.
+These devices are NOT reliable in asynchronous power fail situations.
+Having a reliable file system on unreliable hardware makes no 
+practical sense.
+
+Q. Does JFFS work on Compact Flash?
+
+A. No.
+
+Q. Does JFFS work on IDE flash disks?
+
+A. No.
+
+Q. Does JFFS only work on devices suported by the MTD driver layer?
+
+A. Yes.
+
+
+Q. What is DOC (disk on chip)?
+
+A. Manufactured by M-Systems (www.m-sys.com).
+Bunch of NAND flash chips connected together with a clever ASIC
+which does  hardware ECC.
+
+
+
+Q. What File systems can I have on DOC?
+
+A. (David Woodhouse:) If you put NFTL on it to emulate a block device
+(the status quo) then any  normal filesystem. JFFS ought to work too
+(though that has NOT been throughly tested yet).
+
+(Vipin Malik:)
+Note that once you put ext2 (or any other "standard desktop") file
+system on DOC, these file systems may suffer from reliability problems
+associated with async power down. You then have to e2fsck (for ext2)
+on power up. This may result in the compelete deletions of some files
+(particularly those that were being written to when power
+failed). Additionally e2fsck is not an automatic scanning process. It
+asks you questions (that you can force an automatic "yes" answer to
+with the -y flag, but then you have no control of what the scanning
+utility does).
+
+Be aware that DOC claims data integrity at the IC (chip) level- not at
+the file system level. JFFS and friends (JFFS2) claim data and file
+system reliability at the data and file system level. A huge
+plus. JFFS on top of DOC would be a good combination of expansion
+flexibility and data and file system reliability.
+
+
+
+Q. What is Flash memory?
+
+A. This is a non-volatile memory integrated circuit that is arranged
+in "sectors". There are two different types.
+
+NOR or code storage flash is arranged in quite large sectors of upto
+(or greater than) 64KBytes each. A fully erased flash (or sector) has
+all bits "erased" to a 1.
+
+You man change a "1" to a "0" "on-the-fly" or with a very fast byte
+(or word if the chip is 16 bits wide) write to it (almost like RAM but
+usually slower).
+However, to change a "0" back to a "1" requires that you erase the
+*entire* sector.
+Each NOR flash sector also has a finite number of erase cycles
+(typically from 100k to 1 million).
+NOR flash is usually more tolerant of physical of writes to its
+sectors and new NOR flash is 100% good and usable.
+
+NAND flash or data flash has much smaller sectors and is typically
+used to store data. This type of flash is also less tolerant of
+physical writes to it and new devices may have "bad blocks" that need
+to be marked unusable by the driver software (think bad blocks marked
+unusable on hard drives during a format operation).
+
+Note: Both types of flash can be used with a driver layer software to
+store code (obviously both can store data). The MTD driver in linux
+does just that. In this case, the code is treated as "data" and copied
+to RAM before it is executed.
+
+Please see www.amd.com or www.intel.com (or any other mfg. site like
+Toshiba, Samsung, SanDisk etc.) for more information.
+
+
+
+
+Q. If Flash has a limited "erase" sector life to it, how can I
+reliably use it to store logs etc. in an embedded system?
+
+A. Welcome to "wear levelling". If you use flash with a driver level
+software (like MTD in Linux), then as we saw in the above question,
+the driver level can convert even data flash (NAND) to code flash and
+execute code from it (really copy to RAM first and then execute). In
+other words, the driver level provides a layer of "functional
+translation" on the raw device.
+
+JFFS implements another type of transformation called wear
+levelling. Every write to the flash device (by a user program) results
+in an "addition" to the data already on the raw flash device. This is
+true even if your program is sitting there writing out oxfefefefe (or
+whatever) to the same place in the file. This has the effect of
+spreading out the writes over the entire available flash memory.
+
+For a quick back of the envelope calculation, lets assume the
+following:
+1. You want to write out a small log (say 100 bytes) 1 a second
+for ever.
+2. Your log flash chip is 2MBytes and the entire chip is available for
+log storage.
+3. If you were writing to the same location every time (if you were
+accessing the flash sector directly) then assuming a sector life of
+1 million erases your would wear out the sector in (assuming that you
+erased the sector for every write:
+
+1million/(1 timespersec * 60secs/min * 60mins/hr * 24hrs/day) 
+or in about 11 days!
+
+If your now used the entire flash to spread out your writes then you
+would have to erase a sector (assuming 64KB sectors) only once in
+(2M * 1024Kbytes * 1024 bytes)/100bytes
+
+or 20,900 writes.
+
+In other words your are increasing the life of your storage device by
+20900 times! or to 629 years!
+
+Note1: These calculations are just an example. Please do your own
+sanity check and calculations for your particular situation.
+
+[***Edit: I was "informed" by David Woodhouse that the following is true
+for JFFS2. JFFS1 does indeed move the entire data, static and all.
+Additionally JFFS2 may implement wear levelling even on the static
+data, moving static data to frequently used sectors to give them a
+break from being written to.****]
+
+Note2: This example assumes that your entire flash chip area (that you
+are considering in your equation ) is available for log storage and
+older logs are being deleted- in other words, use the amount of flash
+area that is being "churned" by your logs. If your 2MByte flash is 85%
+full with OS files and stuff that never get erased, then those sectors
+are "blocked out" from being available to be used in the wear
+leveling. The correct amount of flash to use in your calculation would
+be the 15% remaining.
+
+
+ 
+
+Q. Anything that I need to watch out for while using JFFS on raw
+flash?
+
+A. Yes! At present (13th Feb 2001) the garbage collecting thread in
+JFFS (that's what collects all the "good" inodes and gathers them into
+a new sector, then erases the old sector to free up flash space),
+BLOCKS, while doing a sector erase.
+Sectors can take upto 4 seconds to erase. Additionally the design of
+JFFS1 is such that the entire file system log (i.e. all the valid data
+on the f/s) needs to be moved during garbage collect. This would mean
+moving 12 megs data on a 16M f/s to make room for another few KB of
+data.
+This means that any program,
+either reading or writing to *that particular file system that
+contains the flash chip* will also get blocked (as you can neither
+read nor write to *any* sector of the flash chip even if one sector is
+being erased). This means that if you want to log a data file faster
+than once every (4 * num-sectors-to-erase-to-move-all-data =
+large_number_of_secs) seconds you are out of luck!
+
+There are 2 ways around this.
+
+1. Wait for "suspend erase" feature to be implemented (David, any time
+frame on this?). CFI flash chips can be suspended while being erased,
+to allow reads/writes from/to other portions of the flash. This is NOT
+in place yet.
+
+[****Edit: 7th March 2001: This will probably never be implemented as
+JFFS1 is being superseeded by JFFS2, which offers erase sector size
+handling of the file system and (possibly) erase suspends.****]
+
+(I have a question on this. Say our sector needs 4 seconds to
+erase. Say we "suspend" the erase 1 second into the erase to read from
+the flash. When we restart the erase, does the previous 1 second erase
+count towards the 4 seconds or does the flash still needs 4 seconds to
+erase the sector? Anyone know? - Vipin) (nope -- dwmw2)
+
+--
+
+Actually, support for erase suspend is already implemented in the
+physical driver for Intel CFI chips and has been for some time,
+although it's largely untested. The actual problem here is the locking
+issues in the JFFS data structures.  I took the sledgehammer approach
+and stuck a single semaphore round all JFFS operations. So even reads
+from a _different_ chip in the same filesystem are blocked while the
+GC is waiting for an erase to complete.  This should be fixed in JFFS2
+-- dwmw2
+
+--
+
+
+2. If you are designing a custom board, put a small FRAM chip (see
+www.ramtron.com) on your board. Map this chip into a /dev/mtd device
+and log your "fast" logs here. Like a flash device, FRAM chips are
+non-volatile on power fail (without needing a battery backup), but
+unlike a flash chip, these do not have to be sector erased to turn a
+"0" bit into a "1" bit. Reads and writes to these chips occur at bus
+speeds. You can then use a background task to offload the logs from
+this partition to the regular flash in a non latency critical and safe
+manner (make sure that the logs have taken on the flash and then erase
+it from the FRAM partition). Unfortunately the largest available
+device (that I know of as of 13th feb 2001) is a 32KByte (a x8)
+device. Hence you can only use it as a "fast" cache, rather than for
+the whole JFFS file system. This of course does not solve the problem
+if your reads to the flash jffs fs cannot be blocked for more than xxx*
+seconds.
+
+* xxx = see calculation above in answer to this question above.
+
+
+
+Q. Any other advise on writing programs that use the jffs file system?
+
+A. Here is a tip: Since every write to the jffs file system gets
+synced to the raw flash chip before the "write()" command returns to
+the application, and every write is implemented as a raw inode write
+to the jffs file system (see jffs_raw_inode in
+mtd/include/linux/jffs.h) you can improve the write speed as well as
+decrease the file system space overhead if you "collect" as many
+writes as possible.
+What do I mean? Consider the following:
+
+AVOID following:
+ write(fd, &hdr1, sizeof(hdr));
+ write(fd, &hdr2, sizeof(hdr2));
+ write(fd, &hdr3, sizeof(hdr3));
+ write(fd, &data, sizeof(data));
+
+rather do:
+  write(fd, &bufferThatContainsHdrs1to3andDataAbove, sizeof(<buffer on
+  left>));
+ 
+
+
+Q. What is CFI Flash memory?
+
+A. (from Johan Adolfsson:) CFI  = Common Flash Interface, see
+http://www.amd.com/products/nvd/overview/cfi.html 
+
+This makes it possible to read info from the flash chip so you know
+how to erase it etc. without having to hard-code the ID of the flash in
+your software.
+
+
+
+Q. What is JEDEC Flash memory?
+
+A. (from Johan Adolfsson:) Each flash chip has a manufacturer ID and a
+device ID that can be read and used to determine size, algorithm
+etc. to use. If the chip doesn't support CFI, this is typically what
+you have to use.
+
+
+
+Q. What is this "interleave" stuff?
+
+A. (David Woodhouse:) If you have 16-bit chips, but a 32-bit
+processor, it makes sense to arrange  them side-by-side to fill the
+CPU's bus. You drive them both simultaneously. That's the arrangement
+we refer to as 'interleave'.
+
+Hence if you have four x8 bit FLASH chips connected in parallel (ahem
+interleave!) to a 32bit processor bus, you are 4 way interleaved. One
+quick way to see how may way interleave you are is to glance at the
+address bus connected to your flash chips (on the schematic). If your
+processor A0 goes to A0 on your 8 bit flash chip(s), then you are
+1way. If your processor A1 goes to A0 on the flash chips then you are
+2 way, similarly A2 to A0 gives 4 way interleaving. (Note: There is no
+3 way interleaving).
+
+Other possibilities are... 2x 16-bit chips on 32-bit bus, 2x8-bit 
+chips on 16-bit bus, ...
+
+If you are designing your own hardware, if possible use the maximum
+width of the processor data bus as you will be able to write out 4
+times faster per word write to your flash, x32 compared to a x8
+connection.
+
+But you need to be aware of a tradeoff with this approach. All flash
+chips used to fill the processor buss will have their sectors erased at
+the same time. In other words, 4 x8 chips interleved by 4 on a 32 bit
+bus, with 64KB even sectors will have an erase size of
+4*64KB=256KBytes. Why should you care about this? Because, the JFFS
+code needs to keep a minimum number of sectors free to continue to
+garbage collect. At this time, that minimum number is 4 sectors (see Q
+below). In other words, in the above example, you will never be able
+to put data in 1MegBytes of your jffs flash device. You may care about
+this. If you do, and write speeds are not that important to you, then
+connect your x8 bit flash devices to an x8 bit processor bus (or as a
+byte wide memory on your 32 bit data bus). Then you will have an erase
+size of 4*64KB = 256KBytes or 4 times better.
+
+
+Q. What is a reasonable fmc->min_free_size?
+[David Woodhouse wrote]
+Good question. The code in question currently reads...
+
+        /* min_free_size:
+           1 sector, obviously.
+           + 1 x max_chunk_size, for when a nodes overlaps the end of a sector
+           + 1 x max_chunk_size again, which ought to be enough to handle 
+                   the case where a rename causes a name to grow, and GC has
+                   to write out larger nodes than the ones it's obsoleting.
+                   We should fix it so it doesn't have to write the name
+                   _every_ time. Later.
+           + another 2 sectors because people keep getting GC stuck and
+                   we don't know why. This scares me - I want formal proof
+                   of correctness of whatever number we put here. dwmw2.
+        */
+        fmc->min_free_size = fmc->sector_size << 2;
+
+Theoretically, we should only require 2 * sector_size. In practice, that
+sometimes wasn't enough, and we didn't reproduce the problem in-house so
+didn't find out why, and I increased it to 4 * sector_size just to be on
+the safe side.
+
+
+
+Q. Can I boot my kernel from a DOC or jffs NOR flash mtd device
+(with/without the help of a BIOS)?
+
+A. Yes! At least for x86 systems & NOR FLASH (or ROM) see 
+http://www.EmbeddedLinuxWorks.com/articles/rolo_guide.html
+for complete details.
+
+
+*** Credits:
+
+<developers, please provide me with the credits for MTD, jffs, DOC
+etc. etc. etc. for the wonderful code in MTD, DOC, JFFS,
+etc. etc. etc. Who is doing/had done what etc.>
+...
+...
+...

@@ -1,0 +1,29 @@
+# user@infradead.org : Real Name : Real Mail
+andrew:Andrew Victor:andrew@sanpeople.com
+bjd:Ben Dooks:ben@simtec.co.uk
+dbrown:Dan Brown:dan_brown@ieee.org
+dedekind:Artem B. Bityutskiy:dedekind@infradead.org
+dmarlin:David A. Marlin:dmarlin@redhat.com
+dvrabel:David Vrabel:dvrabel@arcom.com
+dwmw2:David Woodhouse:dwmw2@infradead.org
+ebiedermann:Eric W. Biederman:ebiederman@lnxi.com
+gleixner:Thomas Gleixner:tglx@linutronix.de
+hammache:Estelle Hammache:estelle.hammache@st.com
+havasi:Ferenc Havasi:havasi@inf.u-szeged.hu
+hvr:Herbert Valerio Riedel:hvr@inso.tuwien.ac.at
+joern:Joern Engel:joern@wohnheim.fh-wedel.de
+jonashg:Jonas Holmberg:jonas.holmberg@axis.com
+jwboyer:Josh Boyer:jdub@us.ibm.com
+kyungmin.park:Kyungmin Park:kyungmin.park@samsung.com
+lavinen:Jarkko Lavinen:jarkko.lavinen@nokia.com
+lennert:Lennert Buytenhek:buytenh@wantstofly.org
+lunn:Andrew Lunn:andrew@lunn.ch
+macro:Maciej W. Rozycki:macro@infradead.org
+nico:Nicolas Pitre:nico@cam.org
+pavlov:Andrew Victor:andrew@sanpeople.com
+ppopov:Pete Popov:ppopov@pacbell.net
+rmk:Russell King:linux@arm.linux.org.uk
+rpurdie:Richard Purdie:rpurdie@rpsys.net
+sean:Sean Young:sean@mess.org
+tpoynor:Todd Poynor:tpoynor@mvista.com
+vwool:Vitaly Wool:vwool@ru.mvista.com

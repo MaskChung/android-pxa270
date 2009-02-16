@@ -1,0 +1,116 @@
+%
+% JFFS3 design issues.
+%
+% Copyright (C), 2005, Artem B. Bityutskiy, <dedekind@infradead.org>
+%
+% $Id: jffs2.tex,v 1.5 2005/11/27 14:37:50 dedekind Exp $
+%
+
+JFFS2, the Journalling Flash File System version 2~[\ref{ref_JFFSdwmw2}] is
+widely used in the embedded systems world. JFFS2 was originally designed for
+small NOR flashes (less then about 32MB) and the first device with JFFS2 file
+system was a small \mbox{bar-code} scanner. Later, when NAND flashes became
+widely used, NAND support was added to JFFS2. The first NAND flashes were also
+small enough, but grew in size very quickly and are currently much larger then
+32MB (e.g., Samsung produces 2GB NAND flashes~[\ref{ref_SamsungNANDlist}]).
+
+JFFS2 has \emph{\mbox{log-structured}} design, which basically means, that the
+whole file system may be regarded as one large log. Any file system
+modification (i.e., file change, directory creation, changing file's
+attributes, etc) is appended to the log. The log is the only data structure on
+the flash media. Modifications are encapsulated into small data structures
+called \emph{nodes}.
+
+So, JFFS2 is roughly a log, the log consists of nodes, each node contains a
+file system modification. And this is basically all JFFS2 file system is. It is
+very simple from the physical layout's standpoint. For more
+information about the design of JFFS2 and about the \mbox{log-structured}
+design, look at~[\ref{ref_JFFSdwmw2}],~[\ref{ref_LFS}], and~[\ref{ref_LaFS}].
+
+It is not the goal of this chapter to delve into details of JFFS2 but it is
+still wanted to provide enough information to make it clear why JFFS2 has
+scalability problems and why JFFS3 is needed. To keep this chapter simple,
+terms \emph{index} or \emph{indexing information} are used.
+
+\emph{The index} is a crucial part of any file system as it is used to keep
+track of everything that is stored in the file system. For example, the index
+may help to quickly locate the addresses of physical blocks which correspond
+to the specified file at the specified offset, or it helps to quickly find all
+the directory entries in a specified directory and so on.
+
+For example, in case of ext2, the inode table, the bitmap and the set of
+direct, indirect, doubly indirect and triply indirect pointers may be
+considered the index. In case of the FAT file system, the File Allocation Table
+may be considered as the index, etc.
+
+In traditional file systems the index is usually kept and maintained
+on the media, but unfortunately, this is not the case for JFFS2.
+In JFFS2, \emph{the index is maintained in RAM}, not on the flash media.
+And this is the root of all the JFFS2 scalability problems.
+
+Of course, as the index in kept in RAM, JFFS2 achieves extremely high
+throughput, just because it does not need to update the index on flash after
+something has been changed in the file system. And this works very well for
+relatively small flashes, for which JFFS2 was originally designed. But as soon
+as one tries to use JFFS2 on large flashes (starting from about 128MB), many
+problems come up.
+
+At first, it is obvious that JFFS2 needs to build the index in RAM when it
+mounts the file system. For this reason, it needs to scan the entire flash
+partition in order to locate all the nodes which are present there. So, the
+larger is JFFS2 partition, the more nodes it has, the longer it takes to mount
+it.
+
+The second, it is evidently that the index consumes some RAM. And the larger is
+the JFFS2 file system, the more nodes it has, the more memory is consumed.
+
+To put it differently, if $S$ is the size of the JFFS3 flash partition
+\footnote{Note, all the symbols used in this document are summarized in
+section~\ref{ref_SectionSymbols}},
+
+\begin{itemize}
+
+\item JFFS2 mount time scales as $O(S)$ (linearly);
+
+\item JFFS2 memory consumption scales as $O(S)$ (linearly).
+
+\end{itemize}
+
+So, it may be stood that JFFS2 \emph{does not scale}. But despite the
+scalability problems, JFFS2 has many advantages, for example:
+
+\begin{itemize}
+
+\item very economical flash usage~-- data usually take as much flash
+space as it actually need, without wasting a lot space as in case of
+traditional file systems for block devices;
+
+\item admitting of "\mbox{on-flight}" compression which allows to fit a great
+deal of data to the flash; note, there are few file systems which support
+compression;
+
+\item very good file system write throughput (no need to update any
+\mbox{on-flash} indexing information as it simply does not exist there);
+
+\item unclean reboots robustness;
+
+\item good enough \mbox{wear-leveling}.
+
+\end{itemize}
+
+It is also worth noting here that there is a patch which is usually referred to
+as the "\emph{summary patch}", that was implemented by Ferenc Havasi and was
+recently committed to the JFFS2 CVS. This patch speeds up the JFFS2 mount
+greatly, especially in case of NAND flashes. What the patch basically does is
+that it puts a small "\emph{summary}" node at the end of each flash erasable
+block. This node, roughly speaking, contains the copy of headers of all the
+nodes in this eraseblocks. So, when JFFS2 mounts the file system, it needs to
+glance to the end of each eraseblock and read the summary node. This results in
+that JFFS2 only needs to read one or few NAND pages from the end of each
+eraseblock. Instead, when there is no summary, JFFS2 reads almost every NAND
+page in each eraseblock, because node headers are spread more or less evenly
+over eraseblocks.
+
+Although the patch helps a lot, it is still a not scalable solution and it only
+relaxes the coefficient of the JFFS2 mount time liner dependency. Let alone
+that it does not lessen JFFS2 memory consumption.

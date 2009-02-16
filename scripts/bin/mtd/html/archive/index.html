@@ -1,0 +1,313 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html> 
+  <head>
+    <title>Memory Technology Device (MTD) Subsystem for Linux.</title>
+    <meta name="description" content="A generic subsystem for handling memory technology devices under Linux">
+    <meta name="keywords" content="Disk-On-Chip, CompactFlash, Compact Flash, Disk On Chip, M-Systems, Linux, MTD, Flash, Memory Technology Device">
+  </head>
+ 
+  <body BGCOLOR="white">
+    <img src="images/mtdlogo.png">
+    <h1 ALIGN="CENTER">Memory Technology Device (MTD) Subsystem for Linux</h1>
+    <H2>Design aims</H2>
+    <P>We're working on a generic Linux subsystem for memory devices, 
+      especially Flash devices.
+    </P>
+    <P>The aim of the system is to make it simple to provide a driver for new
+      hardware, by providing a generic interface between the hardware drivers
+      and the upper layers of the system.
+    </P>
+    <P>Hardware drivers need to know nothing about the storage formats used,
+      such as FTL, FFS2, etc., but will only need to provide simple routines
+      for <tt>read</tt>, <tt>write</tt> and <TT>erase</TT>.
+      Presentation of the device's contents to the user in an appropriate form
+      will be handled by the upper layers of the system.
+    </P>
+
+    <HR size=2>
+    <H2>Mailing list and IRC</H2>
+
+    <UL>
+    <LI><P>There is a mailing list for discussion of MTD development: <B><I><A
+    HREF="http://www.infradead.org/~dwmw2/email.html">linux-mtd@lists.infradead.org</A></i></B>. 
+    Please do not post to the mailing list without first reading my <A
+    HREF="http://www.infradead.org/~dwmw2/email.html">notes on
+    etiquette</A>.</P> 
+    <P>Please read also the section about <A href="#kernelversions">kernel versions below</A></P>
+    <P>Before asking FAQ's read the <a href="tech/faq.html">MTD-FAQ</a>, the available <A href="#documentation">documentation</A>
+    and consult the mailing list archives.
+    </P>
+    <P>Full archives are available
+      at <A HREF="http://lists.infradead.org/pipermail/linux-mtd/">
+	http://lists.infradead.org/pipermail/linux-mtd/</A>. 
+      </P><P>
+
+      To subscribe, go <A 
+      HREF="http://lists.infradead.org/mailman/listinfo/linux-mtd/">
+	here</A> or send &quot;<TT>subscribe</TT>&quot; in the body of a 
+      mail to <I><A HREF="mailto:linux-mtd-request@lists.infradead.org">
+	  linux-mtd-request@lists.infradead.org</A></I>
+
+      </P>
+    <P><B>NOTE: DO NOT SEND YOUR SUBSCRIPTION REQUEST TO THE LIST ITSELF.<BR>
+	SEND IT TO <A 
+	  HREF="mailto:linux-mtd-request@lists.infradead.org">
+	  linux-mtd-request@lists.infradead.org</A>
+	AS THE ABOVE SAYS.</B></P>
+    </LI>
+    <LI><P>There is a CVS log mailing list to keep you informed of CVS commits. 
+      To subscribe, go <A 
+      HREF="http://lists.infradead.org/mailman/listinfo/linux-mtd-cvs/">
+	here</A>
+    </P> 	
+    <P><B>NOTE: THIS LIST IS READ ONLY. DO NOT POST TO THIS LIST</B></P>
+    </LI>
+    <LI>
+    <P>There is also an IRC channel: <TT>#mtd</TT> on <TT>irc.ipv6.freenode.net</TT> or <tt>irc.freenode.net</tt></P>
+    </LI>
+    </UL>
+    <HR size=2>
+    <H2>Download and CVS</H2>
+
+    <P>Very occasionally, I make snapshot releases. Now that the MTD code
+      is in the 2.4 kernel, it's become even rarer. Your best option is to
+      obtain the latest code from CVS, by following the instructions below.
+      We do break the CVS build occasionally, but we're also fairly good
+      at fixing it quickly when we do so. </P>
+
+<!--
+    <P>Anonymous CVS access is available, and full CVS access may also be
+      granted to developers on request.
+      <PRE>
+cvs -d :pserver:anoncvs@cvs.infradead.org:/home/cvs login <I>(password: anoncvs)</I>
+cvs -d :pserver:anoncvs@cvs.infradead.org:/home/cvs co mtd
+    </PRE>
+-->    
+   
+   <P><B>Note: Due to the Red Hat IS department <A
+   HREF="http://lwn.net/Articles/86515/">pulling the plug</A> on the
+   machines without notice, CVS is currently accessible via IPv6
+   only.</B></P> <P> Getting IPv6 isn't hard. If you have an IPv4
+   address on a network interface (e.g. <TT>eth0</TT>), and a version
+   of Red Hat Linux newer than RHL7, it's this simple:
+      </P>
+    <PRE>
+	echo NETWORKING_IPV6=yes >> /etc/sysconfig/network
+	echo IPV6_DEFAULTDEV=tun6to4 >> /etc/sysconfig/network
+	echo IPV6INIT=yes >> /etc/sysconfig/network-scripts/ifcfg-eth0
+	echo IPV6TO4INIT=yes >> /etc/sysconfig/network-scripts/ifcfg-eth0
+	/sbin/service network restart
+    </PRE>
+    <P>If you have a firewall you need to make it let IP protocol #41
+    (IPv6 in IPv4) in and out. Other distributions and other operating systems also support 
+    <A HREF="http://www.feyrer.de/NetBSD/6to4.html">6to4</A>. 
+    Even <A HREF="http://research.microsoft.com/msripv6/docs/6to4.htm">Windows</A> can do it.</P>
+
+    <P>Assuming you have IPv6, access to CVS is
+      done over SSH rather than pserver:</P>
+
+    <PRE>
+          export CVS_RSH=`which ssh`
+          cvs -d :ext:anoncvs@cvs.infradead.org:/home/cvs co mtd
+    </PRE>		  
+  </P>
+   
+    <P>If you can't access anoncvs for some reason, daily snapshots 
+      are also available at <A 
+      HREF="ftp://ftp.uk.linux.org/pub/people/dwmw2/mtd/cvs/">
+	ftp://ftp.uk.linux.org/pub/people/dwmw2/mtd/cvs/</A>
+    </P>
+    <HR size=2>
+    <H2><a name="kernelversions">Kernel versions</a></H2>
+    <p>The MTD code in the linux kernel is updated from MTD CVS in kernel version <B>2.6.newest only</B>.</P>
+    <p>The MTD CVS works most of the time with kernels from the 2.4 series too. The MTD code which is available 
+    in the 2.4 series kernel source is maintainence only and will not be updated, except for bug fixes. 
+    If you need functionality from the current MTD code for your 2.4 kernel and for whatever reason, you can 
+    use the CVS code and patch your kernel yourself. You need at least kernel version 2.4.26. 
+    Kernels below 2.4.26 are considered as outdated and obsolete.</p>
+    <p>The MTD community is neither able nor interested to provide support for ancient kernels. Either move yourself 
+    and update to a recent kernel. If you use a vendor supplied kernel, please  get support from your kernel vendor. 
+    Do not ask on the mailinglist for help with such problems. You are either ignored or you get a pointer to this text. 
+    Please save the bandwidth and our time to sort out such questions.</p>
+    <p>The MTD support for 2.4 will be moved to a maintainence only mode in the near future. This will
+    relieve us from a lot of compatibility crap and lets us concentrate on the further development in
+    the 2.6 series.</p>
+    <HR size=2>
+    <H2>Installation</H2>
+    <P>Check out sources from CVS or download a snapshot and untar it. Change to the
+       top directory and read INSTALL. Change to subdir patches. There you find a script <B>patchin.sh</B>.
+       It is highly <B>recommended</B> to use this script, as it is aware of different kernel versions,
+       pristine or already patched kernels.
+       This script applies all the neccecary changes to your kernel source <B>including</B> the often discussed
+       <B>shared zlib patches</B>. Your kernel source must be configured already, as the script retrieves 
+       information from Makefile in your kernel source.<br>
+       The script takes following options: <br>
+       <I>
+       -c copy files into kernel tree instead of linking files<br>
+       -j include jffs(2) filesystems<br>
+       </I>
+       As last argument you have to give the path of your kernel tree. This must be an absolute
+       path.</P>
+       <P>The difference between linking and copying files into the kernel tree is, that copying 
+       gives you a modified kernel tree, which can be handled by CVS as it contains no symlinks.
+       Linking the files has two advantages. <br>
+       1. All your kernel trees can share the same MTD source.<br>
+       2. You can have more than one MTD source eg. a stable and an unstable and use it with
+       your kernel tree(s) by changing the link to the directories.
+       Assumed you have two MTD versions (stable and unstable) and those are located in source,
+       then the directory listing of source shows:<br>
+       <I>
+       mtd->/source/mtd.stable<br>
+       mtd.stable<br>
+       mtd.unstable<br>
+       </I>
+       If you want to build with your stable MTD source, set the mtd link to mtd.stable else to 
+       mtd.unstable. Don't forget to make clean, if you switch the links.   	       
+    <HR size=2>
+    <H2><a name="documentation">Documentation</a></H2>
+    <P>There is now some <A HREF="tech/">MTD API documentation</A> available.
+      It's a little out of date - the API has been evolving over the last
+      few months as we encounter strange pieces of hardware that we hadn't
+      anticipated, and occasionally when I'd just overlooked something
+      blatantly obvious. Volunteers to update the docs are welcome.
+      <br><br>13th Feb 2001: A <A HREF="ftp://ftp.uk.linux.org/pub/people/dwmw2/mtd/cvs/mtd/mtd-jffs-HOWTO.txt">mtd-jffs-HOWTO</A> is now also available under
+    CVS. Not all topics are covered yet, but it's a start.
+      <br><br>5th May 2002: A <A HREF="tech/nand.html">NAND Flash</A> document is now available. It covers
+      some technical topics about NAND and filesystems and contains a FAQ.
+      <br><br>1st June 2004: A <A HREF="tech/mtdnand/index.html">NAND Flash API</A> document is now available.
+      <br><br>15th Feb 2005: A <A HREF="tech/faq.html">MTD FAQ</A> is now available.
+    </P>
+
+    <HR size=2>
+    <h2>Booting</H2>
+    <P>You can now replace the firmware on the DiskOnChip 2000, and possibly 
+    also the DiskOnChip Millennium, with a version of <A 
+      HREF="http://www.gnu.org/software/grub/">GNU Grub</A> which runs directly
+    from the flash.</P>
+
+    <P>The patches to make Grub aware of the DiskOnChip and the NFTL format
+      used on it, along with a first-stage loader to load Grub itself into
+      memory from the DiskOnChip, are in the CVS repository.</P>
+
+
+    <HR size=2>
+
+    <h2>MTD <I>User</I> modules</h2>
+    <P>These are the modules which provide interfaces that can be used
+      directly from userspace. The user modules currently planned include:</P>
+    <UL>
+      <LI><B>Raw character access:</B><BR>
+	A character device which allows direct access to the underlying 
+	memory. Useful for creating filesystems on the devices, before 
+	using some of the translation drivers below, or for raw storage 
+	on infrequently-changed flash, or RAM devices.
+      </LI>
+      <LI><B><A NAME="mtdblock">Raw block access</a></B><BR>
+	A block device driver which allows you to pretend that the flash
+	is a normal device with sensible sector size. It actually works
+	by caching a whole flash erase block in RAM, modifying it as
+	requested, then erasing the whole block and writing back the modified
+	data.<BR>
+	This allows you to use normal filesystems on flash parts. Obviously
+	it's not particularly robust when you are writing to it - you lose
+	a whole erase block's worth of data if your read/modify/erase/rewrite
+	cycle actually goes read/modify/erase/poweroff. But for development,
+	and for setting up filesystems which are actually going to be
+	mounted read-only in production units, it should be fine.
+	<BR>
+	There is also a read-only version of this driver which doesn't have
+	the capacity to do the caching and erase/writeback, mainly for use
+	with uCLinux where the extra RAM requirement was considered too
+	large.
+      </LI>
+      <LI><B>Flash Translation Layer (FTL)</B></LI>
+      <LI><B>NFTL</B><BR>
+	Block device drivers which implement an FTL/NFTL filesystem on the 
+	underlying memory device. FTL is fully functional. NFTL is currently
+	working for both reading and writing, but could probably do with 
+	some more field testing before being used on production systems. 
+      </LI>
+      <LI><B>Journalling Flash File System, v2</B><BR>
+	This provides a filesystem directly on the 
+	flash, rather than emulating a block device. For more information,
+	see <A HREF="http://sources.redhat.com/jffs2/">sources.redhat.com</A>.
+      </LI>
+    </UL>
+    <HR SIZE=2>
+    <h2>MTD hardware device drivers</h2>
+    <P>These provide physical access to memory devices, and are not used 
+      directly - they are accessed through the <I>user</I> modules above.</P>
+    <UL>
+      <LI><B>On-board memory</B><BR>
+	Many PC chipsets are incapable of correctly caching system memory
+	above 64M or 512M. A driver exists which allows you to use this
+	memory with the linux-mtd system.
+      </LI>
+      <LI><B>PCMCIA devices</B><BR>
+	PCMCIA flash (not CompactFlash but <em>real</em> flash) cards are
+	now supported by the <TT>pcmciamtd</TT> driver in CVS.
+      <LI><B>Common Flash Interface (<A 
+	    HREF="http://www.pentium.com/design/flcomp/technote/cfi_1_1.htm">CFI</A>)
+	  onboard NOR flash</B><BR>
+	This is a common solution and is well-tested and supported, most
+	often using JFFS2 or cramfs file systems.
+      </LI>
+      <LI><B>Onboard NAND flash</B><BR>
+	NAND flash is rapidly overtaking NOR flash due to its larger size 
+	and lower cost; JFFS2 support for NAND flash is approaching production
+	quality.
+      </LI>
+      <LI><B>M-Systems' DiskOnChip 2000 and Millennium</B><BR>
+	The DiskOnChip 2000, Millennium and Millennium Plus devices should
+	be fully supported, using their native NFTL and INFTL 'translation
+	layers'. Support for JFFS2 on DiskOnChip 2000 and Millennium is 
+	also operational although lacking proper support for bad block 
+	handling.
+	<HR>
+	</LI>
+
+      <LI><B>CompactFlash</B> - <A HREF="http://www.compactflash.org/">http://www.compactflash.org/</A><BR>
+	CompactFlash emulates an IDE disk, either through the PCMCIA-ATA 
+	standard, or by connecting directly to an IDE interface.
+	<BR>As such, it has no business being on this page, as to the best of
+	my knowledge it doesn't have any alternative method of accessing the 
+	flash - you <I>have</I> to use the IDE emulation - I mention it here
+	for completeness.
+      </LI>
+</UL>
+	<HR SIZE=2>
+	<h2>JFFS3 (Journalling Flash File System Version 3)</h2>
+	<P>There is some activity to create the third generation of the JFFS file
+	system.<BR>
+	We are mainly discussing JFFS3 design issues now.
+	A summary of the discussion is available in the JFFS3 design issues document
+	(<A HREF="tech/JFFS3design.pdf">pdf</A>,
+	<A HREF="tech/JFFS3design/index.html">html</A>).<BR><BR>
+	<B>JFFS3 FAQ</B>
+	<UL>
+	<LI>
+	Q: what is the fs/jffs3 in the MTD CVS repository?<BR>
+	A: this is currently almost the same as JFFS2 + Fernc Havasi's "summary"
+	patch applied (one can find it at
+	<A HREF="http://www.inf.u-szeged.hu/jffs2/">http://www.inf.u-szeged.hu/jffs2/</A>).
+	Some other minor improvements have been committed.<BR>
+	</LI>
+	<LI>
+	Q: How can I participate in JFFS3 development?<BR>
+	A: You may discuss JFFS3 design issues in the
+	<A HREF="http://lists.infradead.org/mailman/listinfo/linux-mtd/">mailing list</A>.
+	JFFS2 and JFFS3-related questions may be asked there either.
+	If you have any non-x86 board and Linux working there, you may
+	help us running our
+	<A HREF="http://lists.infradead.org/pipermail/linux-mtd/2005-January/011403.html">
+	checksum test</A> and provide us your results.
+	<BR>
+	</LI>
+	</UL>
+	<BR><BR>
+</UL>
+    <hr>
+    <address><a href="mailto:dwmw2@infradead.org">David Woodhouse</a></address>
+$Id: index.html,v 1.1 2005/03/12 13:43:48 gleixner Exp $
+  </body>
+</html>

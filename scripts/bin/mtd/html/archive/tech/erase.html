@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+  <head>
+    <title>MTD Erases</title>
+  </head>
+
+  <body BGcolor="white">
+    <h1>MTD Erases</h1>
+
+
+<H1>struct erase_info {</H1>
+
+        
+    <H2><TT>&nbsp;&nbsp;struct mtd_info *mtd;</TT></H2>
+    
+    A pointer to the MTD device on which this erase is scheduled. 
+    
+    <H2><TT>&nbsp;&nbsp;size_t addr;</TT></H2>
+
+    Address (in bytes) of the block to be erased.
+
+    <H2><TT>&nbsp;&nbsp;u_long len;</TT></H2>
+
+    Length of the erase to perform. This must <EM>always</EM> be equal to
+    <TT>mtd->erasesize</TT>. I.e. you may only erase one erase block 
+    in a single erase request.
+
+    <H2><TT>&nbsp;&nbsp;u_long time;</TT></H2>
+    <H2><TT>&nbsp;&nbsp;u_long retries;</TT></H2>
+    <H2><TT>&nbsp;&nbsp;u_int dev;</TT></H2>
+    <H2><TT>&nbsp;&nbsp;u_int cell;</TT></H2>
+
+    These are used internally by the <I>driver</I> module.
+
+    <H2><TT>&nbsp;&nbsp;void (*callback) (struct erase_info *self);</TT></H2>
+
+    <P>This is a pointer to a function provided by the <I>user</I> module which
+    will be called when the erase request is completed.</P>
+
+    <P>The <TT>callback</TT> function may be called from IRQ context or 
+      from a timer, and must not block or schedule.</P>
+
+    <H2><TT>&nbsp;&nbsp;u_long priv;</TT></H2>
+
+    <P>Private data for use by the <I>user</I> module which schedules the 
+      erase.</P>
+
+    <H2><TT>&nbsp;&nbsp;u_char state;</TT></H2>
+
+    <P>The current state of the erase request. Choose from:
+
+    <PRE>
+#define MTD_ERASE_PENDING       0x01
+#define MTD_ERASING             0x02
+#define MTD_ERASE_SUSPEND       0x04
+#define MTD_ERASE_DONE          0x08
+#define MTD_ERASE_FAILED        0x10
+    </PRE>
+
+    <P>The driver module should set this to <TT>MTD_ERASE_PENDING</TT> when
+    the erase request is queued, and will generally have set it to 
+    <TT>MTD_ERASE_DONE</TT> or <TT>MTD_ERASE_FAILED</TT> when calling
+    the <TT>callback</TT> routine.</P>
+
+    <H2><TT>&nbsp;&nbsp;struct erase_info *next;</TT></H2>
+
+    The <I>driver</I> module may use this field for queuing requests.
+
+    <H1><TT>};</TT></H1>
+
+
+    <hr>
+    <H1>Notes</H1>
+    <P>The time, retries, dev and cell fields may disappear, and be replaced
+      with a <TT>void *driverpriv</TT> field in which a <I>driver</I> module
+      may keep whatever information it needs, or a pointer to it.</P>
+    <HR>
+    <address><a href="mailto:dwmw2@infradead.org">David Woodhouse</a></address>
+$Id: erase.html,v 1.1 2005/03/12 13:43:48 gleixner Exp $
+  </body>
+</html>

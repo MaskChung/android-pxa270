@@ -1,0 +1,3068 @@
+diff -urN ../grub.orig/AUTHORS ./AUTHORS
+--- ../grub.orig/AUTHORS	2003-10-19 12:06:23.000000000 -0400
++++ ./AUTHORS	2003-11-11 00:36:10.000000000 -0500
+@@ -48,3 +48,8 @@
+ 
+ KB Sriram added a better detection of FAT filesystem and fixed a
+ network device completion.
++
++David Woodhouse <dwmw2@infradead.org> added DiskOnChip support to GRUB.
++Ilguiz Latypov <ilatypov@infradead.org> tested and improved the patch. 
++Mark Meade <mark@lakeshoremicro.com> added DiskOnChip Millennium support.
++Karim Yaghmour (karim@opersys.com) added DiskOnChip bypass.
+diff -urN ../grub.orig/ChangeLog ./ChangeLog
+--- ../grub.orig/ChangeLog	2003-10-19 13:36:28.000000000 -0400
++++ ./ChangeLog	2003-11-11 00:36:10.000000000 -0500
+@@ -1,3 +1,12 @@
++2003-11-10  Ilguiz Latypov  <ilatypov@infradead.org>
++
++	Maintenance update of the DiskOnChip NFTL block device layer.
++
++	* stage2/disk_io.c: (set_device) update the patch to match the 
++	current drive number parsing code.  Also extend int to long 
++	explicitly instead of updating the least significant bytes by
++	passing their offset (thanks gcc).
++
+ 2003-10-19  Yoshinori K. Okuji  <okuji@enbug.org>
+ 
+ 	Migrated to newer autotools. Also, don't install mkbimage
+@@ -197,6 +206,14 @@
+ 	* stage2/shared.h (part_start): Likewise.
+ 	(part_length): Likewise.
+ 
++2003-01-08  Ilguiz Latypov <ilatypov@infradead.org>
++
++	* stage2/stage2.c (cmain): Set boot_drive to the drive number
++	where configuration file was found.  This fixes the menu option
++	processing when menu.lst is found on a drive different from the
++	hardcoded one.  The multiple drive boot order is enabled only 
++	with DiskOnChip, but it doesn't depend on DiskOnChip.
++
+ 2003-01-05  Yoshinori K. Okuji  <okuji@enbug.org>
+ 
+ 	* configure.in (CFLAGS): When the default CFLAGS is used,
+@@ -388,6 +405,34 @@
+ 	* stage2/builtins.c (setup_func): Added missing space to --force-lba
+ 	option. Reported by Kenneth Crudup <kenny@panix.com>
+ 
++2002-10-08  Mark Meade <mark@lakeshoremicro.com>
++
++	Ilguiz Latypov's <ilatypov@infradead.org> 07-29 patch for
++	DiskOnChip support, with the following changes:
++
++	Added a patch from Karim Yaghmour (karim@opersys.com) that 
++	provides a way to bypass the DiskOnChip boot entirely, in case 
++	Grub is misconfigured or doesn't behave as planned.  Previously, 
++	a "hot plug" may have been required to fix a misconfigured
++	DiskOnChip.
++
++	Added support for DiskOnChip devices formatted with newer versions
++	(5.x) of the M-Sys DFORMAT utility.  The Grub firmware may now
++	be burned using the DFORMAT utility, possibly eliminating many
++	problems that occurred when using doc_loadbios under Linux.
++ 
++ 	Backed out requirement for automake 1.6 from previous DiskOnChip
++	patch.  This patch needs automake 1.5 and autoconf 2.53, like the
++	main GRUB tree.
++
++ 	* README_DiskOnChip: New DiskOnChip option information
++ 	* configure.in: Added option --enable-ctrlbypass
++ 	* stage1/doc_stage1.S: Added Karim's patch, made minor changes
++	  to the code to make it fit in 512 bytes (limitation of the DoC
++	  IPL area).
++ 	* stage2/bdev_diskonchip.c: Allow UnitSizeFactor = 0; assume this
++	  means the same thing as 0xFF.
++
+ 2002-10-06  Yoshinori K. Okuji  <okuji@enbug.org>
+ 
+ 	* stage2/asm.S (gateA20): Output a dummy command (0xff), as a
+@@ -450,6 +495,71 @@
+ 	* stage2/stage2.c (run_menu): Reverse if (!) to if () for
+ 	uniformitty.
+ 
++2002-07-29  Ilguiz Latypov <ilatypov@superbt.com>
++ 
++ 	Applied the GRUB patch written by David Woodhouse
++ 	<dwmw2@infradead.org>.  The patch is a part of the Linux MTD
++ 	project, http://linux-mtd.infradead.org/.  Applied numerous
++ 	patches written by Mark Meade <mark@lakeshoremicro.com>.
++ 	The latter enable DoC Millennium support and unify the code
++ 	base for both DiskOnChip 2000 and Millennium.
++ 
++ 	* README_DiskOnChip: New DiskOnChip background information.
++ 	* configure.in: Added options --enable-diskonchip-2000,
++ 	--enable-diskonchip-mil and --enable-diskonchip-biosnetboot.
++ 	* stage1/Makefile.am: Added explicit DiskOnChip dependency
++ 	rules.
++ 	* stage1/doc_stage1.S: Added DoC firmware startup code from
++ 	the above patch with the following modifications:
++ 	a) don't read SlowIO when fetching the flash data
++ 	b) disable CDSN_CTRL_CLE when finishing DoC command
++ 	c) apply Millennium-specific commands and addresses when DoC
++ 	   Millennium is detected
++ 	d) display DoC type (2000 or Millennium) and BIOS window
++ 	   segment
++ 	e) remove extra CDSNControl read from doc_wait to save space
++ 	* stage1/doc_stage1.h: Likewise.
++ 	* stage1/doc_stage1b.S: Removed.  Mark has eliminated the "sick 
++ 	  trick" that relied on DoC 2000 specifics.
++ 	* stage1/makecsum.c: New DoC compilation helper utility.
++ 	* stage2/Makefile.am: Added DiskOnChip NFTL block read module.
++ 	* stage2/asm.S: Set DiskOnChip as a default boot drive.
++ 	* stage2/bdev_diskonchip.c: New DoC NFTL block read module:
++ 	a) new flash memory manufacturer/model table after nand_ids.h
++ 	b) re-use DoC_Address for proper chip identification
++ 	* stage2/bios.c (get_diskinfo): Simulate BIOS disk information
++ 	for DoC and network drive to indulge GRUB drive sanity check and
++ 	command line geometry request.
++ 	* stage2/boot.c (load_image): Display the start of kernel
++ 	loading to simplify debugging.
++ 	* stage2/builtins.c (geometry_func): Return the size of DoC to 
++ 	command line geometry query.  Return 0's for network drive.
++ 	(print_root_device): DoC drive name completion.
++ 	* stage2/char_io.c (memcheck): Flag memory size error.
++ 	* disk_io.c (rawread): Redirect DoC rawread requests to NFTL
++ 	block read module.  Log all rawread() requests when run-time
++ 	debug switch is on.
++ 	(rawwrite): Deny DoC rawwrite requests as this is not
++ 	implemented for GRUB yet.
++ 	(sane_partition): Pass through the (fictitious) DoC drive
++ 	number.
++ 	(next_partition): More MBR debug for DoC as this is the first
++ 	sector of NFTL layer.  Show an error message when MBR is invalid
++ 	in DoC or other drives.
++ 	(set_device): Better drive name parsing, including "dc" for DoC.
++ 	(open_device): More DoC debugging.
++ 	(setup_part): Likewise.
++ 	* stage2/shared.h: Added fictitious DoC drive number.  Added the
++ 	compile-time DoC debug switch.
++ 	* stage2/stage2.c (try_config_partition): New function to open
++ 	configuration file in a given partition.
++ 	(find_config): New function to search for configuration file
++ 	through pre-set partition, whole disk and partitions 0 to 15.
++ 	(cmain): Attempt to open configuration file first on DoC, then
++ 	on the hard disk and lastly on the floppy disk.
++ 	(cmain): Do not clear screen on DiskOnChip failure and when 
++ 	debugging DoC.
++
+ 2002-07-12  Yoshinori K. Okuji  <okuji@enbug.org>
+ 
+ 	* stage2/boot.c (load_image): Rewrite the Linux booting support
+diff -urN ../grub.orig/README_DiskOnChip ./README_DiskOnChip
+--- ../grub.orig/README_DiskOnChip	1969-12-31 19:00:00.000000000 -0500
++++ ./README_DiskOnChip	2003-11-11 00:36:10.000000000 -0500
+@@ -0,0 +1,134 @@
++	$Id: grub-2003-11-10-doc.patch,v 1.1 2003/11/11 06:26:32 ilatypov Exp $
++
++HOW TO GET GRUB BOOTING FROM DiskOnChip
++---------------------------------------
++
++(0. You'll need the Linux MTD driver modules loaded and the utils built.
++    These are available at http://linux-mtd.infradead.org/)
++
++ 1. Build a recent GRUB (from the FSF, not the old grub-0.5) with
++
++      aclocal && automake --add-missing && autoconf
++      ./configure --enable-diskonchip-2000 \
++                  --enable-ext2fs \
++                  --disable-ffs --disable-xfs \
++                  --disable-jfs --disable-vstafs --disable-reiserfs \
++                  --disable-minix --disable-fat   # for example
++      make
++      ls -al stage1/grub_firmware
++
++    Change the first configuration option to
++
++       --enable-diskonchip-mil
++
++    for DoC Millennium.
++
++    To activate GRUB through the network boot BIOS option instead of the
++    standard BIOS bootstrap loader, add
++
++      --enable-diskonchip-biosnetboot
++
++    To enable the ability to bypass the DoC GRUB boot entirely, add
++
++      --enable-diskonchip-ctrlbypass
++
++    This option is highly recommended until you are sure that the DoC is
++    booting correctly.  Holding the CTRL key down during boot will cause
++    GRUB to use the BIOS's original bootstrap handler, bypassing GRUB on
++    the DoC.
++    
++    Using this feature avoids having to hotplug the DoC in case Grub is 
++    misconfigured or doesn't behave as planned. 
++	    
++ 2. To store the firmware into DiskOnChip, run the Linux MTD utility
++
++      ./doc_loadbios /dev/mtd0 grub_firmware
++
++This assumes that the DiskOnChip is the only (or first) memory device
++for which the driver was loaded - and hence that it's /dev/mtd0
++
++It's also possible to use the M-Sys DFORMAT utility to both install
++GRUB and format the DiskOnChip.  This eliminates the need to use
++doc_loadbios and nftl_format under Linux:
++
++      DFORMAT /win:xxxx /BDKF0:grub_firmware
++
++HOW IT WORKS
++------------
++
++The DiskOnChip has a built-in ROM which is recognised as a BIOS extension
++by the system BIOS. This is called the 'IPL ROM', and it attempts to load 
++0x2000 bytes of the next stage, called the 'SPL, from the DiskOnChip.
++
++To make life complex, it doesn't just load the first 0x2000 bytes from the
++DiskOnChip - it loads half of the first 0x4000 bytes instead. Of each 512-byte
++block, it loads the first 256 bytes. 
++This is because of the way that NAND flash blocks are divided into two pages,
++and presumably it's done to save code space in the IPL ROM.
++
++As it loads the SPL, it performs a checksum. Iff the checksum of the SPL is
++equal to 0x55, then it will execute the SPL, which it has loaded to the 
++address 0x2000:0000.
++
++The SPL in turn is responsible for loading the rest of the firmware from the 
++DiskOnChip. Normally, this steals some memory for itself, and installs an
++INT 13h (Disk BIOS) handler to emulate disk access.
++
++We change this. Instead of installing an INT 13h handler, we install an
++INT 19h (bootstrap) handler. This is very small, and is held entirely
++within the first 256 bytes of the SPL with the code which installs it. 
++
++The INT 19h handler, when executed, loads GRUB Stage2 from the DiskOnChip
++to the place where GRUB Stage1 would normally load it, and then passes 
++control to it.
++
++Clear as mud? 
++
++
++NOTE: Grub 0.5, which was the latest version for some time before the FSF
++took over, expects stage2 to be loaded to 0x08000, and executed with CS:IP
++0000:8000.
++
++The versions currently in the FSF CVS repository are slightly different. The
++stage2 now has a 512-byte loader prepended to it, so now we need to load it
++as before but execute it starting as 0000:8200.
++
++I've changed the default behaviour of the DiskOnChip Stage1 over to the new 
++address, because I expect any development of DiskOnChip capability in Grub 
++itself to be added to the CVS version, not the old 0.5 version.
++
++If you are using this with the older grub, change the first few lines of the
++Makefile appropriately.
++
++DW 28/1/00
++
++
++The Millennium's Download Engine won't expose page size differences to
++IPL.  This is unlike DoC 2000 where ROM IPL will load different blocks
++of flash memory depending on flash chip page size.  The page 13 of
++Millennium data sheet
++
++http://www.m-sys.com/files/DataSheets%5Cdoc%5CDiskOnChip_Mil._DS_Rev2.1.pdf
++
++says the following:
++
++  Upon power-up (DIP version) or the negation of the RSTIN# input (TSOP
++  version), the DiskOnChip Millennium downloads the Initial Program Loader
++  (IPL) data into the boot-block from the first 512 bytes of flash memory.
++  As a failsafe mechanism, DiskOnChip Millennium uses its internal Error
++  Detection and Correction (EDC/ECC) logic to verify the integrity of this
++  data. If DiskOnChip Millennium detects an error, it will automatically
++  download the redundant copy of the IPL, which is stored in the following
++  page of the flash memory. The entire download process takes less than 1
++  millisecond. Access to the DiskOnChip Millennium is not permitted before
++  the download process is completed.
++
++Thanks to Mark Meade the DiskOnChip-specific stage 1 is now streamlined.
++Just as with stage2 or Linux MTD DiskOnChip driver, the stage 1 code will 
++find the page size by looking at the chip manufacturer and model codes.
++Both DiskOnChip 2000 and Millennium will have almost the same firmware.
++The only differences are ROM BIOS extension signature necessary for 
++Millennium and the checksum.
++
++--ilatypov 2002-07-29
++
+diff -urN ../grub.orig/configure.ac ./configure.ac
+--- ../grub.orig/configure.ac	2003-10-19 13:38:42.000000000 -0400
++++ ./configure.ac	2003-11-11 00:36:10.000000000 -0500
+@@ -248,6 +248,69 @@
+   FSYS_CFLAGS="$FSYS_CFLAGS -DFSYS_VSTAFS=1"
+ fi
+ 
++for opt in ${!enable_diskonchip*} ; do
++  case "${opt}" in
++    ( enable_diskonchip_2000 |\
++      enable_diskonchip_mil |\
++      enable_diskonchip_ctrlbypass |\
++      enable_diskonchip_biosnetboot )
++      true
++      ;;
++    ( * )
++      AC_MSG_ERROR([
++        Only the following DiskOnChip options are allowed:
++        --enable-diskonchip-2000
++        --enable-diskonchip-mil
++        --enable-diskonchip-ctrlbypass
++        --enable-diskonchip-biosnetboot])
++      ;;
++  esac
++done
++
++AC_ARG_ENABLE(diskonchip-2000,
++  [  --enable-diskonchip-2000           enable DiskOnChip 2000 support])
++
++AC_ARG_ENABLE(diskonchip-mil,
++  [  --enable-diskonchip-mil            enable DoC Millennium support])
++
++AC_ARG_ENABLE(diskonchip-biosnetboot,
++  [  --enable-diskonchip-biosnetboot    hook DiskOnChip to BIOS network boot],
++  [STAGE1_CFLAGS="$STAGE1_CFLAGS -DDOC_BIOS_NETBOOT=1"])
++
++AC_ARG_ENABLE(diskonchip-ctrlbypass,
++  [  --enable-diskonchip-ctrlbypass     ctrl-key bypasses DiskOnChip boot],
++  [STAGE1_CFLAGS="$STAGE1_CFLAGS -DDOC_CTRL_BYPASS=1"])
++
++AM_CONDITIONAL(DOC_MIL, 
++  test x$enable_diskonchip_mil = xyes)
++
++if test x$enable_diskonchip_2000 = xyes \
++   -o x$enable_diskonchip_mil = xyes
++then
++  FSYS_CFLAGS="$FSYS_CFLAGS -DBDEV_DISKONCHIP=1"
++  if test x$enable_diskonchip_mil = xyes
++  then
++    STAGE1_CFLAGS="$STAGE1_CFLAGS -DDOC_MIL=1"
++  fi
++  n_doc_drivers=0
++  test x$enable_diskonchip_2000 = xyes && \
++	n_doc_drivers=$((n_doc_drivers + 1))
++  test x$enable_diskonchip_mil = xyes && \
++	n_doc_drivers=$((n_doc_drivers + 1))
++  test $n_doc_drivers -ne 1 && {
++    AC_MSG_ERROR([Only one DiskOnChip driver can be enabled])
++  }
++else
++  if test x$enable_diskonchip_biosnetboot = xyes \
++     -o x$enable_diskonchip_ctrlbypass = xyes ; then
++    AC_MSG_ERROR([The DiskOnChip driver should be enabled])
++  fi
++fi
++
++AM_CONDITIONAL(BDEV_DISKONCHIP, 
++  test x$enable_diskonchip_2000 = xyes \
++    -o x$enable_diskonchip_mil = xyes)
++
+ AC_ARG_ENABLE(jfs,
+   [  --disable-jfs           disable IBM JFS support in Stage 2])
+ 
+diff -urN ../grub.orig/stage1/Makefile.am ./stage1/Makefile.am
+--- ../grub.orig/stage1/Makefile.am	2003-10-19 13:36:29.000000000 -0400
++++ ./stage1/Makefile.am	2003-11-11 00:36:10.000000000 -0500
+@@ -1,7 +1,48 @@
+ pkgdatadir = $(datadir)/$(PACKAGE)/$(host_cpu)-$(host_vendor)
+-nodist_pkgdata_DATA = stage1
+ 
+-CLEANFILES = $(nodist_pkgdata_DATA)
++if BDEV_DISKONCHIP
++##################### Build DiskOnChip bootloader ######################
++# DiskOnChip stage 1 bootloader from http://linux-mtd.infradead.org/
++# as of Feb 19, 2002
++#
++STAGE2FILE = ../stage2/pre_stage2
++
++if DOC_MIL
++DOC_MIL_CHECKSUM = -m
++else
++DOC_MIL_CHECKSUM =
++endif
++
++grub_firmware: doc_stage1 makecsum $(STAGE2FILE) Makefile
++	./makecsum $(DOC_MIL_CHECKSUM) doc_stage1 $(STAGE2FILE) grub_firmware
++
++doc_stage1.o: doc_stage1.S doc_stage1.h stage2_size.h Makefile
++	$(CC) $(STAGE1_CFLAGS) -fno-builtin -nostdinc -c \
++		-o doc_stage1.o doc_stage1.S
++
++doc_stage1.exec: doc_stage1.o
++	$(LD) -N -Ttext 0 -o doc_stage1.exec doc_stage1.o
++
++stage2_size.h: $(STAGE2FILE)
++	-rm -f stage2_size.h
++	set dummy `ls -l $(STAGE2FILE)`; \
++	echo "#define STAGE2_SIZE $$6" > stage2_size.h
++
++# Ignore CFLAGS and LDFLAGS as these are set up for standalone mode
++makecsum: makecsum.c
++	$(CC) -o $@ $<
++
++GRUB_FIRMWARE = grub_firmware
++
++GRUB_FIRMWARE_CLEAN = doc_stage1 *.o *.bin *.exec *~ \
++		grub_firmware makecsum stage2_size.h
++
++########################################################################
++endif
++
++nodist_pkgdata_DATA = stage1 $(GRUB_FIRMWARE)
++
++CLEANFILES = $(nodist_pkgdata_DATA) $(GRUB_FIRMWARE_CLEAN)
+ 
+ # We can't use builtins or standard includes.
+ AM_CCASFLAGS = $(STAGE1_CFLAGS) -fno-builtin -nostdinc
+@@ -12,3 +53,5 @@
+ 
+ %: %.exec
+ 	$(OBJCOPY) -O binary $< $@
++
++
+diff -urN ../grub.orig/stage1/doc_stage1.S ./stage1/doc_stage1.S
+--- ../grub.orig/stage1/doc_stage1.S	1969-12-31 19:00:00.000000000 -0500
++++ ./stage1/doc_stage1.S	2003-11-11 00:36:10.000000000 -0500
+@@ -0,0 +1,494 @@
++/* -*-Asm-*- */
++/*
++ *  GRUB  --  GRand Unified Bootloader
++ *  Copyright (C) 2000 Machine Vision Holdings, Inc.
++ *
++ *  Author: David Woodhouse <dwmw2@infradead.org>
++ *
++ *  $Id: grub-2003-11-10-doc.patch,v 1.1 2003/11/11 06:26:32 ilatypov Exp $
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ *  2002/08/10: Karim Yaghmour (karim@opersys.com)
++ *	Added code to keep a copy of the BIOS's handler and restore it
++ *      in case the user is holding the "ctrl" button down. Avoids
++ *      having to hotplug the DoC in case Grub is misconfigured or
++ *      doesn't behave as planned. 
++ *
++ *  2002/10/04: Mark Meade <mark@lakeshoremicro.com>
++ *	 Combined Karim's patch with the latest DoC 2000/Millenium patches.
++ *      These earlier patches include contributions from Ilguiz Latypov 
++ *	 <ilatypov@infradead.org> and myself.
++ */
++
++#include "doc_stage1.h"
++	
++	.file	"doc_stage1.S"
++
++	.text
++
++	/* Tell GAS to generate 16-bit instructions so that this code works
++	   in real mode. */
++	.code16
++
++.globl _start; _start:
++
++#ifdef DOC_MIL
++	/*
++	 * _start is in the beginning of DoC Millennium flash memory
++	 */
++	.byte 0x55, 0xAA	/* BIOS extension signature */
++	.byte 0x10		/* BIOS extension size in 512 byte blocks */
++       /*                                       
++	 * The checksum byte at offset 511 of every copy of IPL is the
++	 * complement to 0 of first 511 bytes.  This is because of 2 facts:
++	 * a) the sum of bytes in the BIOS extension window is supposed to 
++	 *    be 0
++	 * b) the whole 8K DoC window is split into 2 aliases of 2 copies
++	 *    of 512 byte IPL in the beginning, 4K of zero-filled area and 
++	 *    again 2 aliases of 2 copies of 512 byte IPL in the end.
++	 */
++	/* BIOS will call far _start + 3 */
++	.org	3
++bios_extension_start:
++	pushw	%cs
++#else
++	pushw	%ds
++#endif
++	cld 
++	MSG(doc_bios_scan_start_string)
++
++	/*
++	 * With DoC 2000, _start is loaded at 0x20000 by the IPL,
++	 * and is jumped to with CS:IP 0x2000:0, DS is <DoC segment>.
++	 *
++	 * With DoC Millennium, the flash memory is mapped to offset 0
++	 * of DoC window.  We suppose that BIOS jumps to that offset 
++	 * during the ROM extension scan with CS:IP <DoC segment>:3.
++	 */
++
++	/* What we need to do is:
++	   1. Check the current end-of-memory in the BIOS
++	   2. Reduce it by the amount of memory we need for our INT 19h 
++	   3. Return, and wait for our INT 18h/19h to be called.
++	*/
++
++	/* Find top of memory */
++	xorw	%ax, %ax
++	movw	%ax, %ds
++	movw	0x0413, %ax
++
++	/* Steal 1K from the top */
++	decw	%ax
++	movw	%ax,0x0413
++
++	/* Generate segment address */
++	shlw	$6,%ax
++	movw	%ax,%es
++
++#ifdef DOC_CTRL_BYPASS
++	/* Keep the BIOS's original handler handy */
++	movl    (DOC_BIOS_HOOK * 4), %eax
++	movl    %eax, %cs:bios_orig_handle_adr
++#endif
++
++	/* Set up our shiny new INT 18h or 19h handler */
++	movw	%es, (DOC_BIOS_HOOK * 4 + 2)
++	movw	$doc_bios_boot_hook, (DOC_BIOS_HOOK * 4)
++
++	/* Copy ourself into the new segment we've just reserved */
++	movw	$0x200, %cx
++	pushw	%cs
++	popw	%ds
++	xorw	%si,%si
++	xorw	%di,%di
++	rep
++	movsw
++       
++	/* Store the DiskOnChip segment */
++	popw	%es:doc_seg
++	lret
++
++
++doc_bios_boot_hook:
++	cld
++       
++#ifdef DOC_CTRL_BYPASS
++	/* Verify whether the user is holding down the "ctrl" key */
++	movb	$0x02, %ah
++	int	$0x16
++	testb	$0x04, %al
++	jz	doc_boot
++
++	/* Restore the BIOS's original handler and let it boot the machine */
++	xor     %ax, %ax
++	movw    %ax, %ds
++	movl	%cs:bios_orig_handle_adr, %eax
++	movl    %eax, (DOC_BIOS_HOOK * 4)
++	int	$DOC_BIOS_HOOK
++
++doc_boot:
++#endif DOC_CTRL_BYPASS
++
++	/* Say hello */
++	MSG(doc_bios_hook_execed_string)
++#ifndef SHOW_INFO
++	MSG(eol_string)
++#endif
++
++	/* Check where the DiskOnChip is */
++	movw	%cs:doc_seg, %ds
++
++	/* Reset DiskOnChip */
++	movw	$BXREG, %bx
++	movb	$DOC_MODE_CLR_ERR + DOC_MODE_MDWREN + DOC_MODE_NORMAL, BX_DOCControl
++	movb	$DOC_MODE_CLR_ERR + DOC_MODE_MDWREN + DOC_MODE_NORMAL, BX_DOCControl
++
++	/* Set the I/O register */
++	movw	$DoC_2k_CDSN_IO, %si
++	movb	BX_ChipID, %al
++	cmpb	$DOC_ChipID_Doc2k, %al
++	je	ioreg_end
++	movw	$DoC_Mil_CDSN_IO, %si
++ioreg_end:
++	
++	/* Flash command:	Reset */
++	movb	$NAND_CMD_RESET, %ah
++	call	doc_cmd
++
++#ifdef SHOW_INFO
++
++	/********* Display chip ID and segment ***************/
++	pushw	%bx
++	pushw	%si
++
++	movb	BX_ChipID, %al
++	cmpb	$DOC_ChipID_Doc2k, %al
++	movw	$(doc_2k_string), %si	
++	je	print_id
++
++	cmpb	$DOC_ChipID_DocMil, %al
++	movw	$(doc_mil_string), %si	
++	je	print_id
++
++	call	phbyte
++	jmp	print_seg
++
++print_id:
++	call	message
++
++print_seg:
++	movw	%ds, %ax
++	call	phword
++	MSG(eol_string)
++	popw	%si
++	popw	%bx
++#endif		
++	/* defined(SHOW_INFO) */
++	/*****************************************************/
++
++       /* figure out if we have a 256-byte or 512-byte device:
++       ** 
++       ** Basically, we know that the DiskOnChip 2000 IPL ROM will 
++       ** load only the first 256 bytes of each 512-byte page
++       ** from a 512-byte-page device, but it'll load 
++       ** the data from a 256-byte-page device.
++       **
++       ** Therefore, we'll put a copy of the code that normally resides
++       ** at offset 0x100..0x1FF at 0x200.  This way, the correct
++       ** code will be there, regardless of which device we have.
++       **
++       ** The DoC Millennium is slightly different -- here, we are
++       ** actually replacing the IPL, so this code duplication isn't
++       ** necessary.
++       */
++
++       movb    $NAND_CMD_READID, %ah
++       call    doc_cmd
++
++       /* Use existing block read routine to get Manufacturer &
++       ** Chip ID.  Overkill, but saves code space.  */  
++
++       movw    $1, %cx		/* read just one block */
++       movw    $GRUBSTART >> 4, %ax
++       movw    %ax, %es
++       movw    $0, %di
++       call    read_block
++
++       movw    %es:0, %ax	/* id/mfr in first 2 bytes */
++
++#ifdef SHOW_INFO
++
++       /* Display Chip ID and Manufacturer Code */
++
++       pushw   %ax
++       pushw   %bx
++       pushw   %si
++       call    phword
++       MSG(eol_string)
++       popw    %si
++       popw    %bx
++       popw    %ax
++
++#endif
++
++       /* Look at the device ID code to determine if we have 256 byte pages.
++       ** Based on the "nand_flash_dev" table in ../stage2/bdev_diskonchip.c,
++       ** there are currently only two ID codes that are 256: 0x64 and 0xea. 
++       ** All the other types of chips have 512 byte pages. */
++       
++       cmpb    $0x64,%ah
++       je      have_256
++
++       cmpb    $0xEA,%ah
++       jne     get_grub
++
++have_256:
++
++       movb    $1,%cs:page256
++
++get_grub:
++
++       /* Load %CX with the number of 256-byte blocks to load */       
++       movw    $LOADLEN, %cx
++
++       /* Set up our target address for writing stage2 */
++       movw    $GRUBLOADSEG, %ax
++       movw    %ax, %es
++       movw    $GRUBLOADOFS, %di
++
++       /* Stage2 proper starts at offset 0x300 of the DoC 2000 
++	  flash and offset 0x400 of the DoC Millennium flash. We
++	  have defined the load address GRUBLOADSEG so that
++	  we're loading this to 0x8000:0000 or 0x8000:0200, 
++	  depending on whether this is old or GNU Grub, 
++	  respectively.
++       */
++
++       call    copy_grub
++
++good:  
++       MSG(msgjmp)
++	       /* Run it:       jmpf 0:8200 */
++       .byte   0xea
++       .word   GRUBSTART,0
++
++       
++       /* Routines used by both 256- and 512- byte/page loaders. */
++       
++	/* doc_cmd:      Send a command to the flash chip */
++doc_cmd:
++	/* Enable CLE line to flash */
++	movb    $CDSN_CTRL_FLASH_IO + CDSN_CTRL_WP + CDSN_CTRL_CLE + CDSN_CTRL_CE, BX_CDSNControl
++	/* Dummy */
++	incw    BX_ChipID
++	/* Write the actual command */
++	movb    %ah,BX_SlowIO
++	movb    %ah,(%si)
++	/* Disable CLE */
++	incw    BX_ChipID
++	movb    $CDSN_CTRL_FLASH_IO + CDSN_CTRL_WP + CDSN_CTRL_CE, BX_CDSNControl
++
++	/* doc_wait:     Wait for the DiskOnChip to be ready */
++doc_wait:
++	incw    BX_ChipID
++l38:    
++	testb   $0x80,BX_CDSNControl
++	jz      l38
++	ret
++
++       /* copy_grub: copies GRUB code from flash to RAM */
++
++ copy_grub:
++
++       /* 256 bytes/page: Send new READ0 command
++       ** 512 bytes/page: READ0 or READ1, depending on address */
++
++       xorb   %ah, %ah
++       call    is_256_byte
++       je      send_cmd
++
++       movw    %di, %ax
++       andb    $1,%ah
++
++ send_cmd:
++
++       call    doc_cmd
++
++ read_block:
++
++       /* Start of new block. Set address */
++       movb    $CDSN_CTRL_FLASH_IO + CDSN_CTRL_WP + CDSN_CTRL_ALE + CDSN_CTRL_CE, BX_CDSNControl
++       incw    BX_ChipID
++
++       /* For 256 bytes/page, we send bits 0-7, then 8-15, then 16-23 */
++       /* For 512, We send bits 0-7, then 9-16, then 17-23 */
++       /* Yes bit 8 is missing. Read the NAND flash specs */           
++
++       movw    %di,%dx
++       
++       /* Bits 0-7 are always zero */
++       movb    $0,BX_SlowIO
++       movb    $0,(%si)
++
++       /* Bits 8-15 (256), or Bits 9-16 (512) */
++
++       call    is_256_byte
++       je      adrbytemid
++
++       shrw    $1,%dx
++       .byte   0x80, 0xce /* orb adrbit16, %dh */
++ adrbit16:     
++       .byte   0
++
++ adrbytemid:
++
++       movb    %dh,BX_SlowIO
++       movb    %dh,(%si)
++
++       /* Bits 16-23 (256), or Bits 17-24 (512) */
++
++       .byte   0xb2 /* movb adrbytehi, %dl */
++ adrbytehi:
++       .byte   0
++
++       movb    %dl,BX_SlowIO
++       movb    %dl,(%si)
++
++       /* Clear the ALE line to the flash chip */
++       movb    $CDSN_CTRL_FLASH_IO + CDSN_CTRL_WP + CDSN_CTRL_CE, BX_CDSNControl
++       call    doc_wait
++
++       pushw   %cx             /* Store the 'blocks remaining' count */
++       movw    $0x100, %cx     /* Set up to copy 0x100 bytes */
++       cmpw    $DoC_2k_CDSN_IO, %si
++       je      mil_spec_end1
++       testb   BX_ReadPipeInit, %al /* Millennium should use the */
++       decw    %cx             /* LastDataRead register - Pipeline Reads */
++ mil_spec_end1:
++
++ readbyte:     
++       movsb                   /* movb (%si), %al ; stosb would be more */
++       decw    %si             /* obvious, but would take an extra byte. */
++       loop    readbyte
++
++       cmpw    $DoC_2k_CDSN_IO, %si
++       je      mil_spec_end2
++       movb    BX_LastDataRead, %al
++       stosb
++ mil_spec_end2:
++
++       testw   $0xffff, %di    /* Check if we've done a whole 0x10000 bytes */
++       jnz     endloop         /* No - continue regardless */
++
++       /* Yes - increase %es */
++       movw    %es, %cx
++       addb    $0x10, %ch
++       movw    %cx, %es
++
++       call    is_256_byte
++       je      inc_hibyte
++
++       addb    $0x80, %cs:adrbit16     /* Increase bit 16 */
++       jnc     endloop         /* Did it overflow? */
++
++ inc_hibyte:
++       incb    %cs:adrbytehi           /* If so, increase the high byte too */
++
++ endloop:      
++       popw    %cx             /* Restore the 'blocks remaining' count */
++       loop    copy_grub       /* Loop till completely done */
++       ret
++
++ is_256_byte:
++       cmpb    $1,%cs:page256
++       ret
++
++
++/*
++ * message: write the string pointed to by %si
++ *
++ *   WARNING: trashes %si, %ax, and %bx
++ */
++
++	/*
++	 * Use BIOS "int 10H Function 0Eh" to write character in teletype mode
++	 *	%ah = 0xe	%al = character
++	 *	%bh = page	%bl = foreground color (graphics modes)
++	 */
++1:
++	call	printchar
++message:
++	lodsb	%cs:(%si)
++	cmpb	$0, %al
++	jne	1b	/* if not end of string, jmp to display */
++	ret
++
++#ifdef SHOW_INFO
++       /* Hex output routines, used at one point in debugging */       
++phword:
++	pushw   %ax
++	xchgb   %al,%ah
++	call    phbyte
++	movb    %ah,%al
++	call    phbyte
++	popw    %ax
++	ret
++
++phbyte:
++	pushw   %ax
++	movb    %al, %ah
++	shrb    $4,%al
++	call    phnibble
++	movb    %ah, %al
++	call    phnibble
++	popw    %ax
++	ret
++
++phnibble:
++	pushw   %ax
++	andb    $0xf,%al
++	addb    $48,%al
++	cmpb    $57,%al
++	jna     ph1
++	add     $7,%al
++ph1:    call   printchar
++	popw    %ax
++	ret
++
++printchar:
++	movb	$0xe, %ah
++	movw	$0x0001, %bx
++	int	$0x10
++	ret
++
++#endif         /* defined(SHOW_INFO) */
++
++doc_seg:	.word 0
++page256:       .byte   0
++
++#ifdef DOC_CTRL_BYPASS
++bios_orig_handle_adr:	.long 0
++#endif
++
++doc_bios_scan_start_string:	.string "DoC found\r\n"
++doc_bios_hook_execed_string:	.string "DoC "
++doc_2k_string:			.string "2000 "
++doc_mil_string:			.string "Mil "
++eol_string:			.string "\r\n"
++msgjmp:				.string "Grub:\r\n"
++       .org 0x1ff
++       .byte 0 /* checksum */
++
+diff -urN ../grub.orig/stage1/doc_stage1.h ./stage1/doc_stage1.h
+--- ../grub.orig/stage1/doc_stage1.h	1969-12-31 19:00:00.000000000 -0500
++++ ./stage1/doc_stage1.h	2003-11-11 00:36:10.000000000 -0500
+@@ -0,0 +1,142 @@
++/* -*-Asm-*- */
++/*
++ *  GRUB  --  GRand Unified Bootloader
++ *  Copyright (C) 2000 Machine Vision Holdings, Inc.
++ *
++ *  Author: David Woodhouse <dwmw2@infradead.org>
++ *
++ *  $Id: grub-2003-11-10-doc.patch,v 1.1 2003/11/11 06:26:32 ilatypov Exp $
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++/* SHOW_INFO displays the DiskOnChip ChipID (2000 or Millennium) and
++ * its window segment at the expense of extra code */
++#define SHOW_INFO 1
++
++#define DoC_ChipID 0x1000
++#define DoC_DOCStatus 0x1001
++#define DoC_DOCControl 0x1002
++#define DoC_FloorSelect 0x1003
++#define DoC_CDSNControl 0x1004
++#define DoC_CDSNDeviceSelect 0x1005
++#define DoC_ECCConf 0x1006
++#define DoC_2k_ECCStatus 0x1007
++
++#define DoC_CDSNSlowIO 0x100d
++#define DoC_ECCSyndrome0 0x1010
++#define DoC_ECCSyndrome1 0x1011
++#define DoC_ECCSyndrome2 0x1012
++#define DoC_ECCSyndrome3 0x1013
++#define DoC_ECCSyndrome4 0x1014
++#define DoC_ECCSyndrome5 0x1015
++#define DoC_AliasResolution 0x101b
++#define DoC_ConfigInput 0x101c
++#define DoC_ReadPipeInit 0x101d
++#define DoC_WritePipeTerm 0x101e
++#define DoC_LastDataRead 0x101f
++#define DoC_NOP 0x1020
++
++#define DoC_Mil_CDSN_IO 0x0800
++#define DoC_2k_CDSN_IO 0x1800
++
++#define DOC_MODE_RESET 0
++#define DOC_MODE_NORMAL 1
++#define DOC_MODE_RESERVED1 2
++#define DOC_MODE_RESERVED2 3
++
++#define DOC_MODE_MDWREN 4
++#define DOC_MODE_CLR_ERR 0x80
++
++#define DOC_ChipID_Doc2k 0x20
++#define DOC_ChipID_DocMil 0x30
++
++#define CDSN_CTRL_FR_B 0x80
++#define CDSN_CTRL_ECC_IO 0x20
++#define CDSN_CTRL_FLASH_IO 0x10
++#define CDSN_CTRL_WP 8
++#define CDSN_CTRL_ALE 4
++#define CDSN_CTRL_CLE 2
++#define CDSN_CTRL_CE 1
++
++	
++#define NAND_CMD_READ0 0
++#define NAND_CMD_READ1 1
++#define NAND_CMD_READID 0x90
++#define NAND_CMD_RESET 0xff
++
++#include "stage2_size.h"
++
++/*
++ *  defines for the code go here
++ */
++
++/*
++ * Whether we hook to the Bootstrap Loader INT 0x19
++ * or to the Diskless Boot INT 0x18
++ * See 
++ *    http://etherboot.sourceforge.net/doc/html/devman-3.html
++ *    http://www.ctyme.com/intr/rb-2270.htm
++ *    http://www.ctyme.com/intr/rb-2241.htm
++ */
++#ifdef DOC_BIOS_NETBOOT
++#define DOC_BIOS_HOOK 0x18
++#else
++#define DOC_BIOS_HOOK 0x19
++#endif
++
++
++#define LOADLEN (((STAGE2_SIZE + 0xff) & ~0xff) >> 8)
++
++#ifdef DOC_MIL
++/*
++ * We place GRUB stage 2 at offset 0x400 of DoC Millennium flash memory
++ * to leave room for 2 copies of stage 1 (IPL) at offset 0.  In this way
++ * the Download Engine can load the backup copy of IPL from offset 0x200.
++ */
++#  define GRUBLOADOFS	0x400
++#else
++/*
++ * DoC 2000 IPL is stored in ROM.  It will download stage 1 from two 256
++ * byte blocks of flash memory.  The first block is at the start.  The
++ * second block is at offset 0x100 if DoC 2000 page size is 256 bytes.  
++ * If the page size is 512 bytes, the second block gest loaded off 0x200.
++ * Stage 2 can be stored at offset 0x300 in both cases.
++ */
++#  define GRUBLOADOFS	0x300
++#endif
++
++#ifdef OLDGRUB /* Loading Erich's old grub */
++# define GRUBSTART	0x8000
++#else /* Loading FSF grub */
++# define GRUBSTART	0x8200
++#endif
++
++#define GRUBLOADSEG	((GRUBSTART - GRUBLOADOFS) >> 4)
++
++	/* Some macros to make it obvious what we're accessing */
++#define BXREG			DoC_CDSNControl
++
++#define BX_ChipID		(DoC_ChipID - BXREG)(%bx)
++#define BX_DOCControl		(DoC_DOCControl - BXREG)(%bx)
++				/* "movb (%bx), %al" takes only 2 bytes */
++#define BX_CDSNControl		(%bx)
++#define BX_SlowIO		(DoC_CDSNSlowIO - BXREG)(%bx)
++#define BX_ReadPipeInit		(DoC_ReadPipeInit - BXREG)(%bx)
++#define BX_LastDataRead		(DoC_LastDataRead - BXREG)(%bx)
++
++			/* Print message string */
++#define MSG(x)	movw $(x), %si; call message
++
+diff -urN ../grub.orig/stage1/makecsum.c ./stage1/makecsum.c
+--- ../grub.orig/stage1/makecsum.c	1969-12-31 19:00:00.000000000 -0500
++++ ./stage1/makecsum.c	2003-11-11 00:36:10.000000000 -0500
+@@ -0,0 +1,226 @@
++#include <stdio.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <fcntl.h>
++
++#define BUFSIZE 16384
++unsigned char buf[BUFSIZE];
++
++main(int argc, char **argv)
++{
++	int len, i, stubfd, st2fd, outfd, retval = 0;
++	unsigned char checksum = 0;
++	int isMillennium = 0;
++	unsigned char total;
++
++	memset(buf, 0xff, BUFSIZE);
++
++	if (argc < 4) {
++		fprintf(stderr, "Usage: makecsum [-m] <stubfile> <stage2> "
++				"<outfile> [checksum]\n");
++		exit(1);
++	}
++
++	i = 1;
++
++	if (!strcmp(argv[i], "-m")) {
++		isMillennium = 1;
++		i++;
++	}
++	
++	stubfd = open(argv[i++], O_RDONLY);
++	if (stubfd < 0) {
++		perror("open stub file");
++		exit(1);
++	}
++
++	st2fd = open(argv[i++], O_RDONLY);
++	if (st2fd < 0) {
++		perror("open stage2 file");
++		close(stubfd);
++		exit(1);
++	}
++
++	outfd = open(argv[i++], O_WRONLY | O_CREAT | O_TRUNC, 0664);
++	if (outfd < 0) {
++		perror("open output file");
++		exit(1);
++	}
++
++	if ((argc >= i + 1) && argv[i][0]) {
++		total = strtoul(argv[i++], NULL, 0);
++	} else {
++		total = isMillennium ? 0x00 : 0x55;
++	}
++
++	if (isMillennium) {
++		len =  read(stubfd, buf, 513);
++		if (len < 0) {
++			perror("read from stub file");
++			close(outfd);
++			close(st2fd);
++			close(stubfd);
++			exit(1);
++		}
++
++		if (len > 512) {
++			fprintf(stderr, "stub file is too large (>512 bytes)\n");
++			close(outfd);
++			close(st2fd);
++			close(stubfd);
++			exit(1);
++		}
++
++		close(stubfd);
++
++		/* Calculate the DoC Millennium IPL checksum for BIOS */
++		buf[511] = 0;
++
++		i = 0;
++		while (i < 511) {
++			checksum += buf[i++];
++		}
++
++		/* Set the slack byte to fix the csum */
++		buf[511] = total - checksum;
++
++		/*
++		 * Write the original buffer twice.
++		 * The second copy will be used by the DoC Millennium
++		 * Download Engine in case the ECC check fails on the 
++		 * first copy.
++		 */
++		for (i = 0; i < 2; i++) {
++			len = write(outfd, buf, 512);
++
++			if (len < 0) {
++				perror("write output file");
++				close(outfd);
++				close(st2fd);
++				exit(1);
++			}
++
++			if (len < 512) {
++				fprintf(stderr, "short write of "
++					"output file (%d bytes < 512)\n", len);
++				close(outfd);
++				close(st2fd);
++				exit(1);
++			}
++		}
++	} else {	/* DoC 2000 */
++		/* Read the stub loader (stage1) */
++
++		memset(buf, sizeof(buf), 0);
++		len =  read(stubfd,buf,513);
++		if (len < 0) {
++			perror("read from stub file");
++			close(outfd);
++			close(st2fd);
++			close(stubfd);
++			exit(1);
++		}
++
++		if (len > 512) {
++			fprintf(stderr, "stub file is "
++					"too large (>512 bytes)\n");
++			close(outfd);
++			close(st2fd);
++			close(stubfd);
++			exit(1);
++		}
++
++		close(stubfd);
++
++		/* Duplicate bytes 256 through 511 to 512 */
++		memcpy(&buf[512], &buf[256], 256);
++
++		/* Read enough of the remainder to calculate the csum */
++		
++		len = read(st2fd, buf+768, BUFSIZE-768);
++		if (len < 0) {
++			perror("read from stage2 file\n");
++			close(outfd);
++			close(st2fd);
++			exit(1);
++		}
++
++
++		/* Calculate the csum for 512-byte-page devices */
++		buf[767] = 0;
++
++		i=0;
++		while (i<BUFSIZE) {
++			checksum += buf[i];
++			i++;
++			if ((i >> 8)&1)
++				i += 256;
++		}
++
++		/* Set the slack byte to fix the csum */
++		buf[767] = total - checksum;
++
++		/* Calculate the csum for 256-byte-page devices */
++		checksum = 0;
++
++		buf[511] = 0;
++
++		i=0;
++		while (i<8192) {
++			checksum += buf[i++];
++		}
++
++		/* Set the slack byte to fix the csum */
++		buf[511] = total - checksum;
++
++
++		/* Write the original buffer */
++		len = write(outfd, buf, BUFSIZE);
++
++		if (len < 0) {
++			perror("write output file");
++			close(outfd);
++			close(st2fd);
++			exit(1);
++		}
++
++		if (len < BUFSIZE) {
++			fprintf(stderr, "short write of "
++				"output file (%d bytes < %d)\n", 
++				len, (int)BUFSIZE);
++			close(outfd);
++			close(st2fd);
++			exit(1);
++		}
++	}
++
++	/* Now chuck out the rest of the stage2 */
++
++	while (1) {
++		len = read(st2fd, buf, BUFSIZE);
++		if (len < 0) {
++			perror("read stage2 file");
++			retval = 1;
++			break;
++		}
++		if (len == 0)
++			break;
++		
++		i = write(outfd, buf, len);
++		if (i < 0) {
++			perror("write output file");
++			retval = 1;
++			break;
++		}
++		if (i<len) {
++			fprintf(stderr, "short write of "
++				"output file (%d bytes < %d)\n", i, len);
++			retval = 1;
++			break;
++		}
++	}
++		
++	close(outfd);
++	close(st2fd);
++	exit(retval);
++}
+diff -urN ../grub.orig/stage2/Makefile.am ./stage2/Makefile.am
+--- ../grub.orig/stage2/Makefile.am	2003-10-19 13:36:30.000000000 -0400
++++ ./stage2/Makefile.am	2003-11-11 00:36:10.000000000 -0500
+@@ -83,7 +83,7 @@
+ 
+ # For stage2 target.
+ pre_stage2_exec_SOURCES = asm.S bios.c boot.c builtins.c char_io.c \
+-	cmdline.c common.c console.c disk_io.c fsys_ext2fs.c \
++	cmdline.c common.c console.c bdev_diskonchip.c disk_io.c fsys_ext2fs.c \
+ 	fsys_fat.c fsys_ffs.c fsys_jfs.c fsys_minix.c fsys_reiserfs.c \
+ 	fsys_vstafs.c fsys_xfs.c gunzip.c hercules.c md5.c serial.c \
+ 	smp-imps.c stage2.c terminfo.c tparm.c
+diff -urN ../grub.orig/stage2/asm.S ./stage2/asm.S
+--- ../grub.orig/stage2/asm.S	2002-12-20 19:34:33.000000000 -0500
++++ ./stage2/asm.S	2003-11-11 00:36:10.000000000 -0500
+@@ -133,7 +133,7 @@
+ 
+ 	sti		/* we're safe again */
+ 
+-#ifndef SUPPORT_DISKLESS
++#if !defined(SUPPORT_DISKLESS) && !defined(BDEV_DISKONCHIP)
+ 	/* save boot drive reference */
+ 	ADDR32	movb	%dl, EXT_C(boot_drive)
+ 
+@@ -2331,8 +2331,10 @@
+ 	.long	PROTSTACKINIT
+ 
+ VARIABLE(boot_drive)
+-#ifdef SUPPORT_DISKLESS
++#if defined(SUPPORT_DISKLESS)
+ 	.long	NETWORK_DRIVE
++#elif defined(BDEV_DISKONCHIP)
++	.long	DISK_ON_CHIP
+ #else
+ 	.long	0
+ #endif
+diff -urN ../grub.orig/stage2/bdev_diskonchip.c ./stage2/bdev_diskonchip.c
+--- ../grub.orig/stage2/bdev_diskonchip.c	1969-12-31 19:00:00.000000000 -0500
++++ ./stage2/bdev_diskonchip.c	2003-11-11 00:36:10.000000000 -0500
+@@ -0,0 +1,1068 @@
++/*
++ *  GRUB  --  GRand Unified Bootloader
++ *  Copyright (C) 1996  Erich Boleyn  <erich@uruk.org>
++ *  Copyright (C) 1999  Free Software Foundation, Inc.
++ *  Copyright (C) 2000  David Woodhouse  <dwmw2@infradead.org>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#ifdef BDEV_DISKONCHIP
++
++#include "shared.h"
++
++#define DoC_ChipID 0x1000
++#define DoC_DOCStatus 0x1001
++#define DoC_DOCControl 0x1002
++#define DoC_FloorSelect 0x1003
++#define DoC_CDSNControl 0x1004
++#define DoC_CDSNDeviceSelect 0x1005
++#define DoC_ECCConf 0x1006
++#define DoC_2k_ECCStatus 0x1007
++
++#define DoC_CDSNSlowIO 0x100d
++#define DoC_ECCSyndrome0 0x1010
++#define DoC_ECCSyndrome1 0x1011
++#define DoC_ECCSyndrome2 0x1012
++#define DoC_ECCSyndrome3 0x1013
++#define DoC_ECCSyndrome4 0x1014
++#define DoC_ECCSyndrome5 0x1015
++#define DoC_AliasResolution 0x101b
++#define DoC_ConfigInput 0x101c
++#define DoC_ReadPipeInit 0x101d
++#define DoC_WritePipeTerm 0x101e
++#define DoC_LastDataRead 0x101f
++#define DoC_NOP 0x1020
++
++#define DoC_Mil_CDSN_IO 0x0800
++#define DoC_2k_CDSN_IO 0x1800
++
++#define DOC_MODE_RESET 0
++#define DOC_MODE_NORMAL 1
++#define DOC_MODE_RESERVED1 2
++#define DOC_MODE_RESERVED2 3
++
++#define DOC_MODE_MDWREN 4
++#define DOC_MODE_CLR_ERR 0x80
++
++#define DOC_ChipID_Doc2k 0x20
++#define DOC_ChipID_DocMil 0x30
++#define DoC_is_Millennium(id) (id == DOC_ChipID_DocMil)
++
++#define CDSN_CTRL_FR_B 0x80
++#define CDSN_CTRL_ECC_IO 0x20
++#define CDSN_CTRL_FLASH_IO 0x10
++#define CDSN_CTRL_WP 8
++#define CDSN_CTRL_ALE 4
++#define CDSN_CTRL_CLE 2
++#define CDSN_CTRL_CE 1
++
++#define DOC_ECC_RESET 0
++#define DOC_ECC_ERROR 0x80
++#define DOC_ECC_RW 0x20
++#define DOC_ECC__EN 0x08
++#define DOC_TOGGLE_BIT 0x04
++#define DOC_ECC_RESV 0x02
++/* We have to also set the reserved bit 1 for enable */
++#define DOC_ECC_EN (DOC_ECC__EN | DOC_ECC_RESV)
++#define DOC_ECC_DIS (DOC_ECC_RESV)
++
++#define MAX_FLOORS 4
++#define MAX_CHIPS 4
++
++#define NAND_CMD_READ0 0
++#define NAND_CMD_READ1 1
++#define NAND_CMD_PAGEPROG 0x10
++#define NAND_CMD_READOOB 0x50
++#define NAND_CMD_ERASE1 0x60
++#define NAND_CMD_STATUS 0x70
++#define NAND_CMD_SEQIN 0x80
++#define NAND_CMD_READID 0x90
++#define NAND_CMD_ERASE2 0xd0
++#define NAND_CMD_RESET 0xff
++
++#define NAND_MFR_TOSHIBA 0x98
++#define NAND_MFR_SAMSUNG 0xec
++
++/*
++ * NAND Flash Device ID Structure
++ *
++ * Structure overview:
++ *
++ *  name - Complete name of device
++ *
++ *  manufacture_id - manufacturer ID code of device.
++ *
++ *  model_id - model ID code of device.
++ *
++ *  chipshift - total number of address bits for the device which
++ *              is used to calculate address offsets and the total
++ *              number of bytes the device is capable of.
++ *
++ *  page256 - denotes if flash device has 256 byte pages or not.
++ *
++ *  pageadrlen - number of bytes minus one needed to hold the
++ *               complete address into the flash array. Keep in
++ *               mind that when a read or write is done to a
++ *               specific address, the address is input serially
++ *               8 bits at a time. This structure member is used
++ *               by the read/write routines as a loop index for
++ *               shifting the address out 8 bits at a time.
++ *
++ *  erasesize - size of an erase block in the flash device.
++ */
++struct nand_flash_dev {
++	char * name;
++	int manufacture_id;
++	int model_id;
++	int chipshift;
++	char page256;
++	char pageaddrlen;
++	unsigned long erasesize;
++};
++
++static struct nand_flash_dev nand_flash_ids[] = {
++	{"Toshiba TC5816BDC",     NAND_MFR_TOSHIBA, 0x64, 21, 1, 2, 0x1000},
++	{"Toshiba TC5832DC",      NAND_MFR_TOSHIBA, 0x6b, 22, 0, 2, 0x2000},
++	{"Toshiba TH58V128DC",    NAND_MFR_TOSHIBA, 0x73, 24, 0, 2, 0x4000},
++	{"Toshiba TC58256FT/DC",  NAND_MFR_TOSHIBA, 0x75, 25, 0, 2, 0x4000},
++	{"Toshiba TH58512FT",     NAND_MFR_TOSHIBA, 0x76, 26, 0, 3, 0x4000},
++	{"Toshiba TC58V32DC",     NAND_MFR_TOSHIBA, 0xe5, 22, 0, 2, 0x2000},
++	{"Toshiba TC58V64AFT/DC", NAND_MFR_TOSHIBA, 0xe6, 23, 0, 2, 0x2000},
++	{"Toshiba TC58V16BDC",    NAND_MFR_TOSHIBA, 0xea, 21, 1, 2, 0x1000},
++	{"Samsung KM29N16000",    NAND_MFR_SAMSUNG, 0x64, 21, 1, 2, 0x1000},
++	{"Samsung unknown 4Mb",   NAND_MFR_SAMSUNG, 0x6b, 22, 0, 2, 0x2000},
++	{"Samsung KM29U128T",     NAND_MFR_SAMSUNG, 0x73, 24, 0, 2, 0x4000},
++	{"Samsung KM29U256T",     NAND_MFR_SAMSUNG, 0x75, 25, 0, 2, 0x4000},
++	{"Samsung unknown 64Mb",  NAND_MFR_SAMSUNG, 0x76, 26, 0, 3, 0x4000},
++	{"Samsung KM29W32000",    NAND_MFR_SAMSUNG, 0xe3, 22, 0, 2, 0x2000},
++	{"Samsung unknown 4Mb",   NAND_MFR_SAMSUNG, 0xe5, 22, 0, 2, 0x2000},
++	{"Samsung KM29U64000",    NAND_MFR_SAMSUNG, 0xe6, 23, 0, 2, 0x2000},
++	{"Samsung KM29W16000",    NAND_MFR_SAMSUNG, 0xea, 21, 1, 2, 0x1000},
++	{NULL,}
++};
++
++
++#define MAX_NFTLS 16
++
++#define ERASE_MARK 0x3c69
++#define BLOCK_FREE 0xffff
++#define BLOCK_USED 0x5555
++#define BLOCK_IGNORE 0x1111
++#define BLOCK_DELETED 0x0000
++
++struct NFTLMediaHeader
++{
++  char DataOrgID[6];
++  unsigned short NumEraseUnits;
++  unsigned short FirstPhysicalEUN;
++  unsigned long FormattedSize;
++  unsigned char UnitSizeFactor;
++} __attribute__((packed));
++
++struct NFTLrecord
++{
++  unsigned short MediaUnit, SpareMediaUnit;
++  struct NFTLMediaHeader MediaHdr;
++  unsigned short numvunits;
++  unsigned short lastEUN; /* last + 1 */
++};
++
++/* Block Control Information */
++
++struct nftl_bci
++{
++  unsigned char ECCSig[6];
++  unsigned short Status;
++} __attribute__((packed));
++
++/* Unit Control Information */
++
++struct nftl_uci0
++{
++  unsigned short VirtUnitNum;
++  unsigned short ReplUnitNum;
++  unsigned short SpareVirtUnitNum;
++  unsigned short SpareReplUnitNum;
++} __attribute__((packed));
++
++struct nftl_uci1
++{
++  unsigned long WearInfo;
++  unsigned short EraseMark;
++  unsigned short EraseMark1;
++} __attribute__((packed));
++
++struct nftl_uci2
++{
++  unsigned long WriteInh;
++  unsigned long unused;
++} __attribute__((packed));
++
++union nftl_uci
++{
++  struct nftl_uci0 a;
++  struct nftl_uci1 b;
++  struct nftl_uci2 c;
++};
++
++struct nftl_oob
++{
++  struct nftl_bci b;
++  union nftl_uci u;
++};
++
++static int doc_inited = 0;
++static volatile unsigned char *docloc = NULL;
++static unsigned char docid = 0;
++static char *docname = NULL;
++static int eccstatusreg = 0;
++static int ioreg = 0;
++static int numchips[MAX_FLOORS];
++static int totalchips = 0;
++static int chipshift = 0;
++static char page256 = 0;
++static char pageaddrlen = 0;
++static unsigned long erasesize = 0;
++static unsigned long erasesect = 0;
++static int current_floor = -1;
++static int current_chip = -1;
++static unsigned char nftlbuf[512];
++
++static struct NFTLrecord NFTLs[MAX_NFTLS];
++static int nNFTLs = 0;
++
++/* badtable cache */
++static unsigned char badtableblock[512];
++static int badtablestart = -1;
++static int badtablenftl = -1;
++
++/* Perform the required delay cycles by reading from the appropriate register */
++static void DoC_Delay(unsigned short cycles)
++{
++	volatile char dummy;
++	int i;
++	
++	for (i = 0; i < cycles; i++) {
++		if (DoC_is_Millennium(docid))
++			dummy = docloc[DoC_NOP];
++		else
++			dummy = docloc[DoC_DOCStatus];
++	}
++	
++}
++
++static int _DoC_WaitReady(void)
++{
++	short c=-1;
++
++	while (!(docloc[DoC_CDSNControl] & CDSN_CTRL_FR_B) && --c)
++		;
++
++	if (c == 0)
++		printf("_DoC_WaitReady timed out\n");
++
++	return (c==0);
++}
++
++static inline int DoC_WaitReady(void)
++{
++	int ret = 0;
++
++	DoC_Delay(4);
++	if (!(docloc[DoC_CDSNControl] & CDSN_CTRL_FR_B))
++		ret = _DoC_WaitReady();
++	DoC_Delay(2);
++
++	return ret;
++}
++
++static inline void slow_write(unsigned char data)
++{
++	if (DoC_is_Millennium(docid)) {
++		docloc[DoC_CDSNSlowIO] = data;
++		DoC_Delay(4);
++	}
++
++	docloc[ioreg] = data;
++}
++
++static inline void DoC_Command(unsigned char command, unsigned char xtraflags)
++{
++	DoC_WaitReady();
++	docloc[DoC_CDSNControl] = 
++		CDSN_CTRL_FLASH_IO | xtraflags | CDSN_CTRL_CLE | CDSN_CTRL_CE;
++	DoC_Delay(4);
++
++	slow_write(command);
++
++	docloc[DoC_CDSNControl] = 
++		CDSN_CTRL_FLASH_IO | xtraflags | CDSN_CTRL_CE;
++	DoC_WaitReady();
++}
++
++static void DoC_Address(unsigned long address, unsigned char xtraflags1,
++	unsigned char xtraflags2, int read_cmd)
++{
++	if (read_cmd)
++		DoC_Command(!page256 && (address & 0x100) ? 
++			NAND_CMD_READ1 : NAND_CMD_READ0, CDSN_CTRL_WP);
++
++	xtraflags1 |= CDSN_CTRL_FLASH_IO;
++	docloc[DoC_CDSNControl] = xtraflags1 | CDSN_CTRL_ALE | CDSN_CTRL_CE;
++	DoC_Delay(4);
++
++	slow_write(address & 0xff);
++	address >>= 8;
++	if (!page256)
++		address >>= 1;
++	slow_write(address & 0xff);
++	address >>= 8;
++	slow_write(address & 0xff);
++	address >>= 8;
++	if (pageaddrlen > 2) {
++		slow_write(address & 0xff);
++	}
++	DoC_Delay(2);
++
++	docloc[DoC_CDSNControl] = xtraflags1 | xtraflags2 | CDSN_CTRL_CE;
++	DoC_Delay(4);
++
++	DoC_WaitReady();
++}
++
++static int DoC_IdentChip(unsigned char floor, unsigned char chip)
++{
++	int dummy, mfr, id;
++	struct nand_flash_dev *mfr_id;
++
++	docloc[DoC_FloorSelect] = floor;
++	docloc[DoC_CDSNDeviceSelect] = chip;
++
++	DoC_Command(NAND_CMD_RESET, CDSN_CTRL_WP);
++
++	if (DoC_WaitReady())
++		return 0;
++
++	/* Read the NAND chip ID: 1. Send ReadID command */
++	DoC_Command(NAND_CMD_READID, CDSN_CTRL_WP);
++
++	/* Read the NAND chip ID: 2. Send address byte zero */
++        DoC_Address(0, CDSN_CTRL_WP, 0, 0);
++
++	/* Read the manufacturer and device id codes from the device */
++	/* CDSN Slow IO register see Software Requirement 11.4 item 5. */
++	
++	dummy = docloc[DoC_CDSNSlowIO];
++	DoC_Delay(2);
++	mfr = docloc[ioreg];
++
++	dummy = docloc[DoC_CDSNSlowIO];
++	DoC_Delay(2);
++	id = docloc[ioreg];
++
++	if (mfr == 0xff || mfr == 0)
++		return 0;
++
++	/*
++        if (mfr != NAND_MFR_TOSHIBA && mfr != NAND_MFR_SAMSUNG)
++		return 0;
++	*/
++
++        switch (mfr)
++        {
++          case NAND_MFR_TOSHIBA:
++            printf("floor %d, chip %d; ", floor, chip);
++            printf("manufacturer: Toshiba\n");
++            break;
++          case NAND_MFR_SAMSUNG:
++            printf("floor %d, chip %d; ", floor, chip);
++            printf("manufacturer: Samsung\n");
++            break;
++          default:
++            printf("unknown manufacturer code: 0x%x\n", mfr);
++            return 0;
++        }
++
++        for (mfr_id = nand_flash_ids; mfr_id->name != NULL; mfr_id++)
++        {
++          if (mfr_id->manufacture_id == mfr && mfr_id->model_id == id)
++            break;
++        }
++        if (mfr_id->name == NULL)
++        {
++           printf("unknown model id 0x%x\n", (int)id);
++           return 0;
++        }
++        chipshift = mfr_id->chipshift;
++        page256 = mfr_id->page256;
++        pageaddrlen = mfr_id->pageaddrlen;
++        erasesize = mfr_id->erasesize;
++        erasesect = erasesize >> 9;
++	
++        printf("Chip: %s, total size: %d MiB\n", 
++		mfr_id->name, (int) (1 << (chipshift - 20)));
++        printf("       erase unit: %d bytes, page: %d bytes\n", 
++		(int) erasesize, (int) (page256 ? 256 : 512));
++	
++	DoC_WaitReady();
++
++	/* disable the ECC engine */
++	docloc[DoC_ECCConf] = DOC_ECC_RESV;
++
++	DoC_WaitReady();
++	return 1;
++}
++
++static void DoC_ScanChips(void)
++{
++	unsigned char floor, chip;
++	int ret;
++
++	for (floor = 0; floor < MAX_FLOORS; floor++) {
++		ret = 1;
++		numchips[floor]=0;
++		for (chip = 0; chip < MAX_CHIPS && ret != 0; chip++) {
++			ret = DoC_IdentChip(floor, chip);
++			if (ret) {
++				numchips[floor]++;
++				totalchips++;
++			}
++		}
++	}
++}
++
++
++static int DoC_Probe(volatile unsigned char *loc)
++{
++	unsigned char tmp;
++	unsigned char ChipID;
++#ifndef DOC_PASSIVE_PROBE
++	unsigned char tmp2;
++#endif
++	unsigned int eccstatus;
++	char *name;
++	unsigned int io;
++
++	if ((loc[0] != 0x55) || (loc[1] != 0xaa))
++	    return 0;
++	
++#ifndef DOC_PASSIVE_PROBE
++	tmp2 = loc[DoC_DOCControl];
++
++	loc[DoC_DOCControl] = 
++		DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_RESET;
++	loc[DoC_DOCControl] = 
++		DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_RESET;
++
++	loc[DoC_DOCControl] = 
++		DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_NORMAL;
++	loc[DoC_DOCControl] = 
++		DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_NORMAL;
++#endif
++
++	ChipID = loc[DoC_ChipID];
++
++	if ((ChipID != DOC_ChipID_Doc2k) && 
++	    (ChipID != DOC_ChipID_DocMil)) {
++		printf("Unknown ChipID %x at %x\n", ChipID, (unsigned int)loc);
++#ifndef DOC_PASSIVE_PROBE
++		loc[DoC_DOCControl] = tmp2;
++#endif
++		return 0;
++	}
++
++	if (DoC_is_Millennium(ChipID)) {
++		name = "Millennium";
++		eccstatus = DoC_ECCConf;
++		io = DoC_Mil_CDSN_IO;
++	} else {
++		name = "2000";
++		eccstatus = DoC_2k_ECCStatus;
++		io = DoC_2k_CDSN_IO;
++	}
++
++	/* See if the TOGGLE bit is toggling */
++
++	tmp = loc[eccstatus] & DOC_TOGGLE_BIT;
++	if (tmp == (loc[eccstatus] & DOC_TOGGLE_BIT)) {
++#ifndef DOC_PASSIVE_PROBE
++		loc[DoC_DOCControl] = tmp2;
++#endif
++		return 0;
++	}
++
++	/* OK. We're fairly sure it's a DiskOnChip now. */
++	printf("DiskOnChip %s found at %x\n", name, (unsigned int)loc);
++	docloc = loc;
++	docid = ChipID;
++	docname = name;
++	eccstatusreg = eccstatus;
++	ioreg = io;
++
++	DoC_ScanChips();
++
++	if (!totalchips)
++		return 0;
++	printf("Total of %d chips found - total capacity %d MiB\n",
++		    totalchips, totalchips * ( 1 << (chipshift -20)));
++	return 1;
++}
++
++static void doc_select_chip(int chip)
++{
++	docloc[DoC_CDSNControl] = CDSN_CTRL_WP;
++	DoC_Delay(4);
++	docloc[DoC_CDSNDeviceSelect] = chip;
++	current_chip = chip;
++	DoC_Delay(4);
++	docloc[DoC_CDSNControl] = CDSN_CTRL_CE | CDSN_CTRL_FLASH_IO | \
++				  CDSN_CTRL_WP;
++	DoC_Delay(4);
++	DoC_WaitReady();
++}
++
++static int doc_select_floor_chip(unsigned long sector)
++{
++	unsigned char chip, floor;
++
++	chip = sector >> (chipshift - 9);
++	floor = 0;
++
++	/* dprintf("sector %d\n", sector); */
++
++	while (chip >= numchips[floor]) {
++		dprintf("Chip %d Not on floor %d (%d chips)\n", 
++			chip, floor, numchips[floor]);
++		chip -= numchips[floor];
++		floor++;
++		if (floor == MAX_FLOORS)
++			return -1;
++	}
++		
++	/*
++	dprintf("sector 0x%x is on floor %d, chip %d\n", sector, floor, chip);
++	*/
++	
++	if (floor != current_floor) {
++		docloc[DoC_FloorSelect] = floor;
++		current_floor = floor;
++		DoC_WaitReady();
++		doc_select_chip(chip);
++	} else if (chip != current_chip) {
++		doc_select_chip(chip);
++	}
++
++	return 1;
++}
++
++static void DoC_ReadBuf(unsigned char *buf, int len)
++{
++	int i;
++	volatile int dummy;
++	unsigned int modulus = 0xffff;
++
++	if (DoC_is_Millennium(docid)) {
++		/* Read the data via the internal pipeline through 
++		   CDSN IO register, see Pipelined Read Operations 11.3 */
++		dummy = docloc[DoC_ReadPipeInit];
++
++		/* Millennium should use the LastDataRead register - 
++		   Pipeline Reads */
++		len--;
++
++		/* This is needed for correct ECC calculation */
++		modulus = 0xff;
++	}
++
++	for (i=0; i < len; i++) {
++		buf[i] = docloc[ioreg + (i & modulus)];
++	}
++
++	if (DoC_is_Millennium(docid)) {
++		buf[i] = docloc[DoC_LastDataRead];
++	}
++}
++
++static int doc_read_oob(unsigned long sector, void *buf)
++{
++	unsigned long ofs = (sector << 9);
++
++	// printf("doc_read_oob %d\n", (unsigned int) sector);
++	doc_select_floor_chip(sector);
++
++	/* update address for 2M x 8bit devices. OOB starts on the second */
++	/* page to maintain compatibility with doc_read_ecc. */
++	if (page256) {
++		/* read from the middle of 512 byte sector */
++		ofs += 0x100;
++	}
++
++	DoC_Command(NAND_CMD_READOOB, CDSN_CTRL_WP);
++	DoC_Address(ofs, CDSN_CTRL_WP, 0, 0);
++
++	/* treat crossing 8-byte OOB data for 2M x 8bit devices */
++	/* Note: datasheet says it should automaticaly wrap to the */
++	/*       next OOB block, but it didn't work here. mf.      */
++	if (page256) {
++		DoC_ReadBuf(buf, 8);
++		DoC_Command(NAND_CMD_READOOB, CDSN_CTRL_WP);
++
++		/* read from the beginning of 512 byte sector */
++		DoC_Address(ofs & (~0x1ff), CDSN_CTRL_WP, 0, 0);
++		DoC_ReadBuf((unsigned char *)buf + 8, 8);
++	} else {
++		DoC_ReadBuf(buf, 16);
++	}
++	DoC_WaitReady();
++        return 0;
++}
++
++static int doc_read_sector(unsigned long sector, unsigned char *buf)
++{
++        unsigned long address = (sector << 9);
++	// printf("doc_read_sector %d\n", (unsigned int) sector);
++	doc_select_floor_chip(sector);
++
++	DoC_Address(address, CDSN_CTRL_WP, 0, 1);
++
++	/* treat crossing 256-byte sector for 2M x 8bits devices */
++	if (page256) {
++		DoC_ReadBuf(buf, 256);
++		DoC_Address(address + 256, CDSN_CTRL_WP, 0, 1);
++		DoC_ReadBuf(buf + 256, 256);
++	} else {
++		DoC_ReadBuf(buf, 512);
++	}
++
++	DoC_WaitReady();
++        return 0;
++}
++
++static
++void NFTL_setup(unsigned long sect, struct NFTLMediaHeader *hdr)
++{
++  int i;
++  unsigned int eun = sect / erasesect;
++  struct NFTLrecord *nftl;
++
++  for (i=0; i<nNFTLs; i++)
++  {
++    if (NFTLs[i].MediaHdr.FirstPhysicalEUN == hdr->FirstPhysicalEUN)
++    {
++      /* This is a Spare Media Header for an NFTL we've already found */
++      printf("Spare Media Header for NFTL %d found in flash sector %d\n",
++        i, sect);
++      NFTLs[i].SpareMediaUnit = eun;
++      return;
++    }
++  }
++  printf("NFTL Media Header found in flash sector %d\n", sect);
++
++  if (hdr->UnitSizeFactor != 0xff && hdr->UnitSizeFactor != 0 ) 
++  {
++    printf("Sorry, we don't support UnitSizeFactor of != 1 yet\n");
++    return;
++  }
++
++  if (nNFTLs >= MAX_NFTLS)
++  {
++    printf("Maximum of NFTLs is exceeded\n");
++    return;
++  }
++
++  nftl = &NFTLs[nNFTLs++];
++  nftl->MediaHdr = *hdr;
++  nftl->MediaUnit = eun;
++  nftl->SpareMediaUnit = 0xffff;
++  nftl->numvunits = hdr->FormattedSize / erasesize;
++
++  nftl->lastEUN =
++    nftl->MediaHdr.NumEraseUnits + nftl->MediaHdr.FirstPhysicalEUN;
++}
++
++/* read badtable
++*/
++static
++int isbad(unsigned int nftl_num, int eun)
++{
++  int flag = 0;
++  int offset = eun / 512;
++  if (badtablenftl != nftl_num)
++    flag = 1;
++  else if (badtablestart != offset)
++    flag = 1;
++  if (flag)
++  {
++    doc_read_sector(
++      NFTLs[nftl_num].MediaUnit * erasesect + offset + 1, badtableblock
++    );
++    badtablenftl = nftl_num;
++    badtablestart = offset;
++  }
++  return badtableblock[eun % 512] == 0xff ? 0 : 1;
++}
++
++/* virtual block -> physical block hash
++*/
++#define max_blk_hash 4096
++#define blk_hash_func(a, b) ((b) & 0x0fff)
++static
++struct blk_hash_entry
++{
++  int vblock;
++  int pblock;
++  char nftl;
++} __attribute__((packed)) blk_hash[max_blk_hash];
++
++/* VUN -> firstEUN hash
++*/
++#define max_eun_hash 1024
++#define eun_hash_func(a, b) ((b) & 0x03ff)
++static
++struct eun_hash_entry
++{
++  unsigned short vun;
++  unsigned short eun;
++  char nftl;
++} __attribute__((packed)) eun_hash[max_eun_hash];
++
++static
++int nftl_findsect(unsigned int nftl_num, int block)
++{
++  struct NFTLrecord *nftl;
++  unsigned short vun, eun, save_stat, save_eun;
++  unsigned long sect;
++  struct nftl_oob oob, oob1;
++  unsigned int k, n;
++
++  if (nftl_num >= nNFTLs)
++    return -1;
++
++  nftl = &NFTLs[nftl_num];
++
++  k = blk_hash_func(nftl_num, block);
++  if (blk_hash[k].nftl == nftl_num &&
++      blk_hash[k].vblock == block)
++    return blk_hash[k].pblock;
++
++  blk_hash[k].nftl = nftl_num;
++  blk_hash[k].vblock = block;
++  blk_hash[k].pblock = -1;
++
++  /* dprintf("find virtual sector %d\n", block); */
++  vun = block / erasesect;
++  block = block % erasesect;
++  /* dprintf("virtual unit number %d, offset %d\n", vun, block); */
++
++  /* find first eun in a chain */
++  n = eun_hash_func(nftl_num, vun);
++  if (eun_hash[n].nftl == nftl_num && eun_hash[n].vun == vun)
++  {
++    eun = eun_hash[n].eun;
++    if (eun == 0xffff)
++      return -1;
++    sect = eun * erasesect;
++    /* Read Unit Control Information #0 */
++    if (doc_read_oob(sect, &oob) < 0)
++      return -1;
++  }
++  else
++  {
++    eun_hash[n].nftl = nftl_num;
++    eun_hash[n].vun = vun;
++    eun_hash[n].eun = 0xffff;
++    eun = nftl->MediaHdr.FirstPhysicalEUN;
++    sect = eun * erasesect;
++    for (; eun<nftl->lastEUN; eun++, sect += erasesect)
++    {
++      if (isbad(nftl_num, eun))
++      { dprintf("eun %d is bad\n", eun);
++        continue;
++      }
++      /* Read Unit Control Information #0 */
++      if (doc_read_oob(sect, &oob) < 0)
++        return -1;
++      if (oob.u.a.VirtUnitNum != oob.u.a.SpareVirtUnitNum)
++        continue;
++      if (oob.u.a.ReplUnitNum != oob.u.a.SpareReplUnitNum)
++        continue;
++      /* find first only! */
++      if (oob.u.a.VirtUnitNum == vun)
++        break;
++    }
++    if (eun == nftl->lastEUN)
++      return -1;
++    eun_hash[n].eun = eun;
++    /* dprintf("found first eun %d\n", eun); */
++  }
++
++  /* walk throw the chain */
++  save_stat = BLOCK_FREE;
++  save_eun = eun;
++  for (;;)
++  {
++    /* read block status */
++    if (doc_read_oob(sect + block, &oob1) < 0)
++      return -1;
++    /* end of block chain? */
++    if (oob1.b.Status == BLOCK_FREE)
++    { /* dprintf("block %d in eun %d is BLOCK_FREE\n", block, eun); */
++      break;
++    }
++    /* remember last 'active' status and EUN */
++    if (oob1.b.Status == BLOCK_USED ||
++        oob1.b.Status == BLOCK_DELETED)
++    {
++      save_stat = oob1.b.Status;
++      save_eun = eun;
++#ifdef DOC_THOROUGH_DEBUG
++      dprintf("block %d in eun %d is %s\n",
++        block, eun, save_stat == BLOCK_USED ? "BLOCK_USED" : "BLOCK_DELETED");
++#endif
++    }
++    /* is it last in eun chain? */
++    if (oob.u.a.ReplUnitNum == 0xffff)
++    { /* dprintf("eun %d is last in the chain\n", eun); */
++      break;
++    }
++    /* read next eun in the chain */
++    eun = oob.u.a.ReplUnitNum;
++    sect = eun * erasesect;
++    /* dprintf("read block in next eun %d\n", eun); */
++    if (doc_read_oob(sect, &oob) < 0)
++      return -1;
++    if (oob.u.a.VirtUnitNum != oob.u.a.SpareVirtUnitNum)
++      return -1;
++    if (oob.u.a.ReplUnitNum != oob.u.a.SpareReplUnitNum)
++      return -1;
++  }
++
++  if (save_stat == BLOCK_USED)
++  { /* dprintf("found block %d in eun %d\n",
++      save_eun * erasesect + block, save_eun); */
++    return
++      blk_hash[k].pblock = save_eun * erasesect + block;
++  }
++
++  return -1;
++}
++
++static int doc_init(void);
++
++static
++void NFTL_Scan(void)
++{
++  unsigned long sector;
++  struct NFTLMediaHeader *hdr = (struct NFTLMediaHeader *)nftlbuf;
++
++  /* total size in sectors */
++  unsigned long ssize = totalchips * (1 << (chipshift - 9));
++
++  printf("Scanning for NFTL Media Header\n");
++
++  /* Scan for NFTL partitions */
++  for (sector=0; sector<ssize; sector+=erasesect)
++  {
++    if (doc_read_sector(sector, nftlbuf) < 0)
++      continue;      
++    if (!strcmp(hdr->DataOrgID, "ANAND"))
++    {
++      dprintf("NFTL Media Header found in flash sector %d\n", sector);
++      dprintf("NumEraseUnits: %d\n", hdr->NumEraseUnits);
++      dprintf("FirstPhysicalEUN: %d\n", hdr->FirstPhysicalEUN);
++      dprintf("FormattedSize: %d\n", hdr->FormattedSize);
++      dprintf("UnitSizeFactor: %d\n", hdr->UnitSizeFactor);
++      NFTL_setup(sector, hdr);
++    }
++  }
++}
++
++static void doc_find(void)
++{
++	unsigned long probeloc = 0xc8000;
++	
++
++	for (probeloc = 0xc8000; probeloc < 0xf0000; probeloc += 0x2000) {
++		if (DoC_Probe((unsigned char *)probeloc)) {
++			NFTL_Scan();
++			return;
++		}
++	}
++	
++	printf("No DiskOnChip found\n");
++	return;
++}
++		
++static int doc_init(void)
++{
++  /* If this is the first time we've been called, 
++     we need to go searching for a DiskOnChip
++  */
++  if (!doc_inited)
++  {
++    int i;
++
++    for (i=0; i<max_blk_hash; i++)
++    {
++      blk_hash[i].nftl = -1;
++      blk_hash[i].vblock = -1;
++      blk_hash[i].pblock = -1;
++    }
++    
++    for (i=0; i<max_eun_hash; i++)
++    {
++      eun_hash[i].nftl = -1;
++      eun_hash[i].vun = 0xffff;
++      eun_hash[i].eun = 0xffff;
++    }
++
++    current_floor = -1;
++    current_chip = -1;
++
++    doc_find();
++
++    doc_inited = 1;
++  }
++
++  if (docloc == NULL)
++  {
++    errnum = ERR_NO_DISK;
++    return 0;
++  }
++  return 1;
++}
++
++int nftl_rawread(int drive, int sector, int byte_offset, int byte_len, char *buf)
++{
++  int size, block;
++
++  /* dprintf("nftl_rawread(%d, %d, %d, %d)\n", 
++	drive, sector, byte_offset, byte_len); */
++  if (byte_len < 0 || !buf || drive < 0 || drive >= MAX_NFTLS)
++  { errnum = ERR_BAD_ARGUMENT; return 0;
++  }
++
++  if (!doc_init())
++    return 0;
++
++  if (drive < 0 || drive >= nNFTLs)
++  { errnum = ERR_NO_DISK; return 0;
++  }
++
++  sector += (byte_offset >> 9);
++  byte_offset &= 511;
++
++  while (byte_len)
++  {
++    size = 512 - byte_offset;
++    if (byte_len < size) size = byte_len;
++
++    /* virtual unit number */
++    block = nftl_findsect(drive, sector);
++    if (block < 0)
++    { errnum = ERR_FSYS_CORRUPT; return 0;
++    }
++
++    if (doc_read_sector(block, nftlbuf) < 0)
++    { errnum = ERR_FSYS_CORRUPT; return 0;
++    }
++
++#ifdef DOC_THOROUGH_DEBUG
++  {
++    /* int sec = 16352;
++    printf("nftl_rawread: reading sector %d\n", sector);
++    if (doc_read_sector(sec, nftlbuf) < 0) {
++      printf("error\n");
++    } else { */
++      int i = 0;
++      while (i < SECTOR_SIZE) {
++        printf("%x    "
++          "%b %b %b %b %b %b %b %b "
++          "%b %b %b %b %b %b %b %b\n",
++           i, 
++           nftlbuf[i + 0], nftlbuf[i + 1], nftlbuf[i + 2], nftlbuf[i + 3], 
++           nftlbuf[i + 4], nftlbuf[i + 5], nftlbuf[i + 6], nftlbuf[i + 7],
++           nftlbuf[i + 8], nftlbuf[i + 9], nftlbuf[i + 10], nftlbuf[i + 11],
++           nftlbuf[i + 12], nftlbuf[i + 13], nftlbuf[i + 14], nftlbuf[i + 15]);
++        i += 16;
++      }
++      printf("Press any key..."); getkey(); printf("\n");
++    // }
++  }
++#endif
++
++#ifdef DOC_THOROUGH_DEBUG
++    printf("memcpy(0x%x, 0x%x, 0x%x)\n", 
++      (int)buf, (int)(nftlbuf + byte_offset), (int)size);
++#endif
++    if (memcpy(buf, nftlbuf + byte_offset, size) == NULL) {
++	printf("nftl_rawread(): error %d in memcpy() or earlier,"
++		" press any key...", errnum);
++	getkey();
++        printf("\n");
++        errnum = ERR_FSYS_CORRUPT;
++        return 0;
++     }
++#ifdef DOC_THOROUGH_DEBUG
++  {
++    int i = 0;
++    while (i < SECTOR_SIZE) {
++      printf("%x    "
++        "%b %b %b %b %b %b %b %b "
++        "%b %b %b %b %b %b %b %b\n",
++         i, 
++         buf[i + 0], buf[i + 1], buf[i + 2], buf[i + 3], 
++         buf[i + 4], buf[i + 5], buf[i + 6], buf[i + 7],
++         buf[i + 8], buf[i + 9], buf[i + 10], buf[i + 11],
++         buf[i + 12], buf[i + 13], buf[i + 14], buf[i + 15]);
++      i += 16;
++    }
++    printf("Press any key..."); getkey(); printf("\n");
++  }
++#endif
++
++#ifdef DOC_THOROUGH_DEBUG
++    dprintf("read sector %d (%d), bytes %d..%d\n",
++      sector, block, byte_offset, byte_offset + size - 1);
++#endif
++    sector++;
++    byte_offset = 0;
++    byte_len -= size;
++    buf += size;
++  }
++
++  errnum = ERR_NONE;
++  return 1;
++}
++
++int get_diskinfo_diskonchip (int drive, unsigned long *cylinders, 
++	unsigned long *heads, unsigned long *sectors)
++{
++  if (!doc_init())
++    return 1;		// bios.c functions return non-zero on error
++
++  if (drive < 0 || drive >= nNFTLs)
++  { errnum = ERR_NO_DISK; return 1;
++  }
++
++  *sectors = 1;
++  *heads = erasesect;
++  *cylinders = (NFTLs[drive].MediaHdr.FormattedSize >> 9) / (*heads);
++  return 0;
++}
++
++#endif /* BDEV_DISKONCHIP */
++
+diff -urN ../grub.orig/stage2/bios.c ./stage2/bios.c
+--- ../grub.orig/stage2/bios.c	2003-01-29 04:13:56.000000000 -0500
++++ ./stage2/bios.c	2003-11-11 00:36:10.000000000 -0500
+@@ -129,6 +129,22 @@
+   /* Clear the flags.  */
+   geometry->flags = 0;
+   
++#ifdef BDEV_DISKONCHIP
++  if ((drive & 0xFFFFFFF0) == DISK_ON_CHIP)
++    {
++      err = get_diskinfo_diskonchip (drive & 0x0000000f,
++		   &geometry->cylinders,
++		   &geometry->heads,
++		   &geometry->sectors);
++      if (err)
++	return err;
++
++      geometry->total_sectors = (geometry->cylinders
++				 * geometry->heads
++				 * geometry->sectors);
++    }
++  else
++#endif
+   if (drive & 0x80)
+     {
+       /* hard disk */
+@@ -217,6 +233,13 @@
+ 	}
+       geometry->total_sectors = total_sectors;
+     }
++  else if (drive == NETWORK_DRIVE)
++    { /* indulge the command line geometry query */
++      geometry->cylinders = 0;
++      geometry->heads = 0;
++      geometry->sectors = 0;
++      geometry->total_sectors = 0;
++    }
+   else
+     {
+       /* floppy disk */
+diff -urN ../grub.orig/stage2/boot.c ./stage2/boot.c
+--- ../grub.orig/stage2/boot.c	2003-03-18 16:07:35.000000000 -0500
++++ ./stage2/boot.c	2003-11-11 00:36:10.000000000 -0500
+@@ -61,6 +61,8 @@
+      buffer by default */
+   pu.aout = (struct exec *) buffer;
+ 
++  printf("Loading kernel image...\n");
++
+   if (!grub_open (kernel))
+     return KERNEL_TYPE_NONE;
+ 
+diff -urN ../grub.orig/stage2/builtins.c ./stage2/builtins.c
+--- ../grub.orig/stage2/builtins.c	2003-03-09 20:12:26.000000000 -0500
++++ ./stage2/builtins.c	2003-11-11 00:36:10.000000000 -0500
+@@ -1322,56 +1322,68 @@
+       return 1;
+     }
+ 
+-  /* Attempt to read the first sector, because some BIOSes turns out not
+-     to support LBA even though they set the bit 0 in the support
+-     bitmap, only after reading something actually.  */
+-  if (biosdisk (BIOSDISK_READ, current_drive, &geom, 0, 1, SCRATCHSEG))
++  if ((current_drive & 0xfffffff0) == DISK_ON_CHIP)
+     {
+-      errnum = ERR_READ;
+-      return 1;
++      msg = "Disk On Chip";
+     }
+-
+-#ifdef GRUB_UTIL
+-  ptr = skip_to (0, device);
+-  if (*ptr)
++  else if (current_drive == NETWORK_DRIVE)
+     {
+-      char *cylinder, *head, *sector, *total_sector;
+-      int num_cylinder, num_head, num_sector, num_total_sector;
+-
+-      cylinder = ptr;
+-      head = skip_to (0, cylinder);
+-      sector = skip_to (0, head);
+-      total_sector = skip_to (0, sector);
+-      if (! safe_parse_maxint (&cylinder, &num_cylinder)
+-	  || ! safe_parse_maxint (&head, &num_head)
+-	  || ! safe_parse_maxint (&sector, &num_sector))
+-	return 1;
+-
+-      disks[current_drive].cylinders = num_cylinder;
+-      disks[current_drive].heads = num_head;
+-      disks[current_drive].sectors = num_sector;
+-
+-      if (safe_parse_maxint (&total_sector, &num_total_sector))
+-	disks[current_drive].total_sectors = num_total_sector;
+-      else
+-	disks[current_drive].total_sectors
+-	  = num_cylinder * num_head * num_sector;
+-      errnum = 0;
+-
+-      geom = disks[current_drive];
+-      buf_drive = -1;
++      msg = "Network Drive";
+     }
++  else
++    {
++      /* Attempt to read the first sector, because some BIOSes turns out not
++         to support LBA even though they set the bit 0 in the support
++         bitmap, only after reading something actually.  */
++      if (biosdisk (BIOSDISK_READ, current_drive, &geom, 0, 1, SCRATCHSEG))
++        {
++          errnum = ERR_READ;
++          return 1;
++        }
++
++#ifdef GRUB_UTIL
++      ptr = skip_to (0, device);
++      if (*ptr)
++        {
++          char *cylinder, *head, *sector, *total_sector;
++          int num_cylinder, num_head, num_sector, num_total_sector;
++
++          cylinder = ptr;
++          head = skip_to (0, cylinder);
++          sector = skip_to (0, head);
++          total_sector = skip_to (0, sector);
++          if (! safe_parse_maxint (&cylinder, &num_cylinder)
++              || ! safe_parse_maxint (&head, &num_head)
++              || ! safe_parse_maxint (&sector, &num_sector))
++            return 1;
++
++          disks[current_drive].cylinders = num_cylinder;
++          disks[current_drive].heads = num_head;
++          disks[current_drive].sectors = num_sector;
++
++          if (safe_parse_maxint (&total_sector, &num_total_sector))
++            disks[current_drive].total_sectors = num_total_sector;
++          else
++            disks[current_drive].total_sectors
++              = num_cylinder * num_head * num_sector;
++          errnum = 0;
++
++          geom = disks[current_drive];
++          buf_drive = -1;
++        }
+ #endif /* GRUB_UTIL */
+ 
+ #ifdef GRUB_UTIL
+-  msg = device_map[current_drive];
++      msg = device_map[current_drive];
+ #else
+-  if (geom.flags & BIOSDISK_FLAG_LBA_EXTENSION)
+-    msg = "LBA";
+-  else
+-    msg = "CHS";
++      if (geom.flags & BIOSDISK_FLAG_LBA_EXTENSION)
++        msg = "LBA";
++      else
++        msg = "CHS";
+ #endif
+ 
++    }  /* current_drive is not DiskOnChip and not a network drive */
++
+   grub_printf ("drive 0x%x: C/H/S = %d/%d/%d, "
+ 	       "The number of sectors = %d, %s\n",
+ 	       current_drive,
+@@ -3050,6 +3062,19 @@
+       /* Network drive.  */
+       grub_printf (" (nd):");
+     }
++  else if ((saved_drive & 0xfffffff0) == DISK_ON_CHIP)
++    {
++      /* DiskOnChip 2000 */
++      grub_printf (" (dc%d", saved_drive & 0x0F);
++
++      if ((saved_partition & 0xFF0000) != 0xFF0000)
++	grub_printf (",%d", saved_partition >> 16);
++
++      if ((saved_partition & 0x00FF00) != 0x00FF00)
++	grub_printf (",%c", ((saved_partition >> 8) & 0xFF) + 'a');
++
++      grub_printf ("):");
++    }
+   else if (saved_drive & 0x80)
+     {
+       /* Hard disk drive.  */
+diff -urN ../grub.orig/stage2/char_io.c ./stage2/char_io.c
+--- ../grub.orig/stage2/char_io.c	2002-12-09 01:27:05.000000000 -0500
++++ ./stage2/char_io.c	2003-11-11 00:36:10.000000000 -0500
+@@ -1170,6 +1170,7 @@
+ int
+ memcheck (int addr, int len)
+ {
++  int memerr = 0;
+ #ifdef GRUB_UTIL
+   static int start_addr (void)
+     {
+@@ -1194,22 +1195,38 @@
+     }
+ 
+   if (start_addr () <= addr && end_addr () > addr + len)
+-    return ! errnum;
++    {
++      memerr = errnum = ERR_WONT_FIT;
++      return ! memerr;
++    }
+ #endif /* GRUB_UTIL */
+ 
++#ifdef MEMORY_DEBUG
++  printf("memcheck(): errnum %d, addr 0x%x, len 0x%x,"
++	" mem_lower 0x%x, mem_upper 0x%x\n",
++	errnum, addr, len, mbi.mem_lower, mbi.mem_upper);
++#endif
++
+   if ((addr < RAW_ADDR (0x1000))
+       || (addr < RAW_ADDR (0x100000)
+ 	  && RAW_ADDR (mbi.mem_lower * 1024) < (addr + len))
+       || (addr >= RAW_ADDR (0x100000)
+ 	  && RAW_ADDR (mbi.mem_upper * 1024) < ((addr - 0x100000) + len)))
+-    errnum = ERR_WONT_FIT;
++    {
++      printf("memcheck(): error\n");
++      memerr = errnum = ERR_WONT_FIT;
++    }
+ 
+-  return ! errnum;
++  return ! memerr;
+ }
+ 
+ void *
+ grub_memmove (void *to, const void *from, int len)
+ {
++#ifdef MEMORY_DEBUG
++   printf("grub_memmove(): errnum %d, to 0x%x, from 0x%x, len 0x%x\n",
++	errnum, (int) to, (int) from, len);
++#endif
+    if (memcheck ((int) to, len))
+      {
+        /* This assembly code is stolen from
+@@ -1240,6 +1257,9 @@
+ 	 }
+      }
+ 
++#ifdef MEMORY_DEBUG
++   printf("grub_memmove(): errnum %d\n", errnum);
++#endif
+    return errnum ? NULL : to;
+ }
+ 
+diff -urN ../grub.orig/stage2/disk_io.c ./stage2/disk_io.c
+--- ../grub.orig/stage2/disk_io.c	2003-10-19 12:06:24.000000000 -0400
++++ ./stage2/disk_io.c	2003-11-11 00:36:10.000000000 -0500
+@@ -126,9 +126,24 @@
+ {
+   int slen = (byte_offset + byte_len + SECTOR_SIZE - 1) >> SECTOR_BITS;
+ 
++#if !defined(STAGE1_5)
++  if (debug)
++    {
++      printf("rawread: drive %d, sector %d, byte_offset %d,"
++	" byte_len %d, buf 0x%x\n", drive, sector, byte_offset, byte_len, buf);
++    }
++#endif
++
+   if (byte_len <= 0)
+     return 1;
+ 
++#ifdef BDEV_DISKONCHIP
++  if ((drive & 0xfffffff0) == DISK_ON_CHIP)
++    return nftl_rawread(
++      drive & 0x0000000f, sector, byte_offset, byte_len, buf
++    );
++#endif
++
+   while (byte_len > 0 && !errnum)
+     {
+       int soff, num_sect, bufaddr, track, size = byte_len;
+@@ -304,6 +319,16 @@
+ int
+ rawwrite (int drive, int sector, char *buf)
+ {
++
++#ifdef BDEV_DISKONCHIP
++  if ((drive & 0xfffffff0) == DISK_ON_CHIP)
++    {
++      errnum = ERR_WRITE;
++      return 0;
++      /* return nftl_rawrite(drive & 0x0000000f, sector, buf); */
++    }
++#endif
++
+   if (sector == 0)
+     {
+       if (biosdisk (BIOSDISK_READ, drive, &buf_geom, 0, 1, SCRATCHSEG))
+@@ -371,15 +396,20 @@
+     return 1;
+   
+   if (!(current_partition & 0xFF000000uL)
+-      && (current_drive & 0xFFFFFF7F) < 8
++      && ((current_drive & 0xFFFFFF7F) < 8 
++	  || (current_drive & 0xFFFFFFF0) == DISK_ON_CHIP)
+       && (current_partition & 0xFF) == 0xFF
+       && ((current_partition & 0xFF00) == 0xFF00
+ 	  || (current_partition & 0xFF00) < 0x800)
+       && ((current_partition >> 16) == 0xFF
+ 	  || (current_drive & 0x80)))
+-    return 1;
++    {
++      dprintf("sane_partition: yes\n");
++      return 1;
++    }
+ 
+   errnum = ERR_DEV_VALUES;
++  dprintf("sane_partition: no\n");
+   return 0;
+ }
+ #endif /* ! STAGE1_5 */
+@@ -625,14 +655,39 @@
+ 	  pc_slice_no = -1;
+ 	}
+ 
++      dprintf("next_pc_slice(): errnum %d\n", errnum);
++      dprintf("next_pc_slice(): reading MBR at sector 0x%x of drive 0x%x\n",
++		*offset, drive);
+       /* Read the MBR or the boot sector of the extended partition.  */
+       if (! rawread (drive, *offset, 0, SECTOR_SIZE, buf))
+-	return 0;
++	{
++	  printf("next_pc_slice: error reading MBR at sector %x"
++		" of drive %x\n", *offset, drive);
++	  return 0;
++	}
++
++#ifdef DOC_THOROUGH_DEBUG
++        {
++	  int i = 0;
++	  while (i < SECTOR_SIZE) {
++	    printf("%x    "
++		"%b %b %b %b %b %b %b %b "
++		"%b %b %b %b %b %b %b %b\n",
++		i, 
++		buf[i + 0], buf[i + 1], buf[i + 2], buf[i + 3], 
++		buf[i + 4], buf[i + 5], buf[i + 6], buf[i + 7],
++		buf[i + 8], buf[i + 9], buf[i + 10], buf[i + 11],
++		buf[i + 12], buf[i + 13], buf[i + 14], buf[i + 15]);
++	    i += 16;
++	  }
++        }
++#endif
+ 
+       /* Check if it is valid.  */
+       if (! PC_MBR_CHECK_SIG (buf))
+ 	{
+ 	  errnum = ERR_BAD_PART_TABLE;
++	  printf("next_pc_slice: invalid MBR\n");
+ 	  return 0;
+ 	}
+ 
+@@ -682,6 +737,9 @@
+ 
+   /* Start the body of this function.  */
+   
++  dprintf("next_partition(): drive %x, current_drive 0x%x\n",
++	drive, current_drive);
++
+ #ifndef STAGE1_5
+   if (current_drive == NETWORK_DRIVE)
+     return 0;
+@@ -932,6 +990,8 @@
+ #else /* ! STAGE1_5 */
+   
+   int result = 0;
++  unsigned int bios_drive_base = 0;
++  unsigned int bios_drive_offs = 0;
+ 
+   incomplete = 0;
+   disk_choice = 1;
+@@ -939,6 +999,8 @@
+   current_drive = saved_drive;
+   current_partition = 0xFFFFFF;
+ 
++  dprintf("set_device(): device %s, drive %x\n", device, current_drive);
++
+   if (*device == '(' && !*(device + 1))
+     /* user has given '(' only, let disk_choice handle what disks we have */
+     return device + 1;
+@@ -967,28 +1029,45 @@
+ 	      else if (*(device + 1) == 'd' && !*(device + 2))
+ 		return device + 2;
+ 	    }
++	  
++	  device += 2;
+ 
+-#ifdef SUPPORT_NETBOOT
+-	  if ((*device == 'f' || *device == 'h' ||
+-	       (*device == 'n' && network_ready))
+-#else
+-	  if ((*device == 'f' || *device == 'h')
+-#endif /* SUPPORT_NETBOOT */
+-	      && (device += 2, (*(device - 1) != 'd')))
+-	    errnum = ERR_NUMBER_PARSING;
++#define MK16(a,b) ( ((a)<<8) + (b) )
+ 
+-#ifdef SUPPORT_NETBOOT
+-	  if (ch == 'n' && network_ready)
+-	    current_drive = NETWORK_DRIVE;
+-	  else
+-#endif /* SUPPORT_NETBOOT */
+-	    {
+-	      safe_parse_maxint (&device, (int *) &current_drive);
++	  switch (MK16(ch, *(device-1)))
++ 	    {
++#ifdef BDEV_DISKONCHIP
++	    case MK16('d','c'):
++	      bios_drive_base += (DISK_ON_CHIP - 0x80);
++	      /* fall through "hd" to "fd" */
++#endif
++ 	      
++	    case MK16('h','d'):
++	      bios_drive_base += 0x80;
++	      /* fall through to "fd" */
++	    
++	    case MK16('f','d'):
++	      safe_parse_maxint (&device, &bios_drive_offs);
++ 	      disk_choice = 0;
++	      current_drive = bios_drive_base + bios_drive_offs;
++	      break;
+ 	      
+-	      disk_choice = 0;
+-	      if (ch == 'h')
+-		current_drive += 0x80;
+-	    }
++#ifdef SUPPORT_NETBOOT
++	    case MK16('n','d'):
++	      if (network_ready)
++	        {
++		  current_drive = NETWORK_DRIVE;
++		  break;
++	        }
++	      else
++	        {
++		  /* fall through to the default case */
++	        }
++#endif
++
++	    default:
++	      errnum = ERR_NUMBER_PARSING;
++ 	    }
+ 	}
+ 
+       if (errnum)
+@@ -1008,18 +1087,19 @@
+ 
+ 	  if (*device >= '0' && *device <= '9')
+ 	    {
++	      unsigned int device_parsed = 0;
+ 	      part_choice ++;
+ 	      current_partition = 0;
+ 
+ 	      if (!(current_drive & 0x80)
+-		  || !safe_parse_maxint (&device, (int *) &current_partition)
+-		  || current_partition > 254)
++		  || !safe_parse_maxint (&device, &device_parsed)
++		  || device_parsed > 254)
+ 		{
+ 		  errnum = ERR_DEV_FORMAT;
+ 		  return 0;
+ 		}
+ 
+-	      current_partition = (current_partition << 16) + 0xFFFF;
++	      current_partition = (device_parsed << 16) + 0xFFFF;
+ 
+ 	      if (*device == ',')
+ 		device++;
+@@ -1074,8 +1154,15 @@
+ int
+ open_device (void)
+ {
++  dprintf("open_device(): errnum %d, current_drive %x, current_partition %x\n",
++	errnum, current_drive, current_partition);
+   if (open_partition ())
+-    attempt_mount ();
++    {
++      dprintf("open_device(): open_partition() ok, attempt_mount()\n");
++      attempt_mount ();
++    }
++
++  dprintf("open_device(): errnum %d\n", errnum);
+ 
+   if (errnum != ERR_NONE)
+     return 0;
+@@ -1158,6 +1245,7 @@
+   
+ #else /* ! STAGE1_5 */
+   
++  dprintf("setup_part(): filename %s\n", filename);
+   if (*filename == '(')
+     {
+       if ((filename = set_device (filename)) == 0)
+@@ -1191,6 +1279,7 @@
+   
+ #endif /* ! STAGE1_5 */
+   
++  dprintf("setup_part(): errnum %d\n", errnum);
+   if (errnum && (*filename == '/' || errnum != ERR_FSYS_MOUNT))
+     return 0;
+   else
+@@ -1582,8 +1671,10 @@
+   print_possibilities = 0;
+ # endif
+ 
++  dprintf("grub_open(): errnum %d == 0 ? calling dir_func\n", errnum);
+   if (!errnum && (*(fsys_table[fsys_type].dir_func)) (filename))
+     {
++      dprintf("grub_open(): dir_func returned success\n");
+ #ifndef NO_DECOMPRESSION
+       return gunzip_test_header ();
+ #else /* NO_DECOMPRESSION */
+diff -urN ../grub.orig/stage2/shared.h ./stage2/shared.h
+--- ../grub.orig/stage2/shared.h	2003-03-18 18:51:59.000000000 -0500
++++ ./stage2/shared.h	2003-11-11 00:36:10.000000000 -0500
+@@ -27,6 +27,14 @@
+ 
+ #include <config.h>
+ 
++/* #define DOC_DEBUG */
++
++#ifdef DOC_DEBUG
++	#define dprintf(fmt...)  printf(fmt)
++#else
++	#define dprintf(fmt...)
++#endif
++
+ /* Add an underscore to a C symbol in assembler code if needed. */
+ #ifdef HAVE_ASM_USCORE
+ # define EXT_C(sym) _ ## sym
+@@ -180,7 +188,7 @@
+ 
+ /* Not bad, perhaps.  */
+ #define NETWORK_DRIVE	0x20
+-
++#define DISK_ON_CHIP	0xE0
+ /*
+  *  GRUB specific information
+  *    (in LSB order)
+@@ -974,6 +982,14 @@
+ 
+ void init_bios_info (void);
+ 
++#ifdef BDEV_DISKONCHIP
++extern int nftl_rawread(
++  int drive, int sector, int byte_offset, int byte_len, char *buf
++);
++extern int get_diskinfo_diskonchip (int drive, unsigned long *cylinders, 
++	unsigned long *heads, unsigned long *sectors);
++#endif
++
+ #endif /* ASM_FILE */
+ 
+ #endif /* ! GRUB_SHARED_HEADER */
+diff -urN ../grub.orig/stage2/stage2.c ./stage2/stage2.c
+--- ../grub.orig/stage2/stage2.c	2002-12-03 19:55:45.000000000 -0500
++++ ./stage2/stage2.c	2003-11-11 00:36:10.000000000 -0500
+@@ -824,6 +824,46 @@
+   return pos;
+ }
+ 
++#ifdef BDEV_DISKONCHIP
++static int
++try_config_partition(int part_no)
++{
++  int is_opened = 0;
++  saved_partition   = 0x0000FFFF | (part_no << 16);
++  current_partition = 0xFFFFFFFF;
++  errnum = ERR_NONE;
++  printf("Attempting to open %s on drive 0x%x, partition 0x%x\n", 
++    config_file, saved_drive, part_no);
++  is_opened = grub_open (config_file);
++  dprintf("grub_open %d, errnum %d\n", is_opened, errnum);
++  return is_opened;
++}
++
++static int
++find_config(int drive_no)
++{
++  int part_no;
++  unsigned long saved_drive2;
++  unsigned long saved_partition2;
++  saved_drive2 = saved_drive;
++  saved_partition2 = saved_partition;
++  saved_drive = drive_no;
++  current_drive = 0xFF;
++  if (try_config_partition(saved_partition >> 16))
++    return 1;
++  if (try_config_partition(0xFF))
++    return 1;
++  for (part_no = 0; part_no < 0x10; part_no++)
++    {
++      if (try_config_partition(part_no))
++        return 1;
++    }
++  saved_partition = saved_partition2;
++  saved_drive = saved_drive2;
++  current_partition = 0xFFFFFFFF;
++  return 0;
++}
++#endif
+ 
+ /* This is the starting function in C.  */
+ void
+@@ -867,30 +907,48 @@
+ 	  do
+ 	    {
+ 	      /* STATE 0:  Before any title command.
+-		 STATE 1:  In a title command.
+-		 STATE >1: In a entry after a title command.  */
++	         STATE 1:  In a title command.
++	         STATE >1: In a entry after a title command.  */
+ 	      int state = 0, prev_config_len = 0, prev_menu_len = 0;
+ 	      char *cmdline;
+ 
+ 	      /* Try the preset menu first. This will succeed at most once,
+-		 because close_preset_menu disables the preset menu.  */
++	         because close_preset_menu disables the preset menu.  */
+ 	      is_opened = is_preset = open_preset_menu ();
+ 	      if (! is_opened)
+ 		{
++#ifdef BDEV_DISKONCHIP
++		  /* Look for configuration file in DiskOnChip 
++		   * by trying to find a file system from its very start.
++		   * If that failed, find_config() will assume there is
++		   * a partition table and will attempt to open partitions
++		   * 0 through 15.
++		   * Next, if the above didn't succeed, perform the same
++		   * search on the first hard disk (BIOS drive 0x80).
++		   */
++		  is_opened = find_config(saved_drive);
++		  if (! is_opened )
++	            is_opened = find_config(0x80);
++		  if (! is_opened )
++	            is_opened = find_config(0);
++		  dprintf("is_opened %d\n", is_opened);
++		  boot_drive = saved_drive;
++#else
+ 		  is_opened = grub_open (config_file);
+-		  errnum = ERR_NONE;
++#endif
++		  if (! is_opened)
++	            current_term->flags |= TERM_DUMB;
+ 		}
+ 
+ 	      if (! is_opened)
+-		break;
++	        break;
+ 
+ 	      /* This is necessary, because the menu must be overrided.  */
+ 	      reset ();
+ 	      
+ 	      cmdline = (char *) CMDLINE_BUF;
+-	      while (get_line_from_config (cmdline, NEW_HEAPSIZE,
+-					   ! is_preset))
+-		{
++	      while (get_line_from_config (cmdline, NEW_HEAPSIZE, ! is_preset))
++	        {
+ 		  struct builtin *builtin;
+ 		  
+ 		  /* Get the pointer to the builtin structure.  */

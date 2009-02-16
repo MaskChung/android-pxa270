@@ -1,0 +1,604 @@
+diff -uNr linux-2.2.17-clean/Makefile linux-2.2.17-mtd/Makefile
+--- linux-2.2.17-clean/Makefile	Mon Sep 11 09:27:12 2000
++++ linux-2.2.17-mtd/Makefile	Thu Nov 30 11:55:53 2000
+@@ -210,6 +210,10 @@
+ DRIVERS := $(DRIVERS) drivers/telephony/telephony.a
+ endif
+ 
++ifeq ($(CONFIG_MTD),y)
++DRIVERS := $(DRIVERS) drivers/mtd/mtdlink.o
++endif
++
+ include arch/$(ARCH)/Makefile
+ 
+ .S.s:
+@@ -233,7 +237,7 @@
+ 		$(LIBS) \
+ 		--end-group \
+ 		-o vmlinux
+-	$(NM) vmlinux | grep -v '\(compiled\)\|\(\.o$$\)\|\( [aU] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)' | sort > System.map
++	$(NM) vmlinux | grep -v '\(compiled\)\|\(\.o$$\)\|\( [aUw] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)' | sort > System.map
+ 
+ symlinks:
+ 	rm -f include/asm
+@@ -348,6 +352,7 @@
+ 	if [ -f VIDEO_MODULES ]; then inst_mod VIDEO_MODULES video; fi; \
+ 	if [ -f FC4_MODULES   ]; then inst_mod FC4_MODULES   fc4;   fi; \
+ 	if [ -f IRDA_MODULES  ]; then inst_mod IRDA_MODULES  net;   fi; \
++	if [ -f MTD_MODULES   ]; then inst_mod MTD_MODULES   mtd;   fi; \
+ 	if [ -f SK98LIN_MODULES ]; then inst_mod SK98LIN_MODULES  net;   fi; \
+ 	\
+ 	for f in *.o; do [ -r $$f ] && echo $$f; done | sort > $$MODLIB/.allmods; \
+diff -uNr linux-2.2.17-clean/arch/alpha/config.in linux-2.2.17-mtd/arch/alpha/config.in
+--- linux-2.2.17-clean/arch/alpha/config.in	Thu Aug  3 13:25:14 2000
++++ linux-2.2.17-mtd/arch/alpha/config.in	Thu Nov 30 11:55:53 2000
+@@ -218,6 +218,8 @@
+ fi
+ endmenu
+ 
++source drivers/mtd/Config.in
++
+ source drivers/pnp/Config.in
+ 
+ source drivers/block/Config.in
+diff -uNr linux-2.2.17-clean/arch/arm/config.in linux-2.2.17-mtd/arch/arm/config.in
+--- linux-2.2.17-clean/arch/arm/config.in	Thu Jun  8 10:06:05 2000
++++ linux-2.2.17-mtd/arch/arm/config.in	Thu Nov 30 11:55:53 2000
+@@ -136,6 +136,8 @@
+ fi
+ endmenu
+ 
++source drivers/mtd/Config.in
++
+ source drivers/pnp/Config.in
+ 
+ source drivers/block/Config.in
+diff -uNr linux-2.2.17-clean/arch/i386/config.in linux-2.2.17-mtd/arch/i386/config.in
+--- linux-2.2.17-clean/arch/i386/config.in	Thu Jul 20 20:40:19 2000
++++ linux-2.2.17-mtd/arch/i386/config.in	Thu Nov 30 11:55:53 2000
+@@ -118,6 +118,8 @@
+ 
+ endmenu
+ 
++source drivers/mtd/Config.in
++
+ source drivers/pnp/Config.in
+ 
+ source drivers/block/Config.in
+diff -uNr linux-2.2.17-clean/arch/m68k/config.in linux-2.2.17-mtd/arch/m68k/config.in
+--- linux-2.2.17-clean/arch/m68k/config.in	Thu Jun  8 10:06:05 2000
++++ linux-2.2.17-mtd/arch/m68k/config.in	Thu Nov 30 11:55:53 2000
+@@ -123,6 +123,8 @@
+ 
+ endmenu
+ 
++source drivers/mtd/Config.in
++
+ source drivers/block/Config.in
+ 
+ if [ "$CONFIG_NET" = "y" ]; then
+diff -uNr linux-2.2.17-clean/arch/mips/config.in linux-2.2.17-mtd/arch/mips/config.in
+--- linux-2.2.17-clean/arch/mips/config.in	Thu Jun  8 10:06:05 2000
++++ linux-2.2.17-mtd/arch/mips/config.in	Thu Nov 30 11:55:53 2000
+@@ -124,6 +124,8 @@
+ 	endmenu
+ fi
+ 
++source drivers/mtd/Config.in
++
+ source drivers/block/Config.in
+ 
+ if [ "$CONFIG_NET" = "y" ]; then
+diff -uNr linux-2.2.17-clean/arch/ppc/config.in linux-2.2.17-mtd/arch/ppc/config.in
+--- linux-2.2.17-clean/arch/ppc/config.in	Thu Jul 20 20:40:19 2000
++++ linux-2.2.17-mtd/arch/ppc/config.in	Thu Nov 30 11:55:53 2000
+@@ -125,7 +125,7 @@
+ fi
+ 
+ endmenu
+-
++source drivers/mtd/Config.in
+ source drivers/pnp/Config.in
+ source drivers/block/Config.in
+ #source drivers.new/Config.in
+diff -uNr linux-2.2.17-clean/arch/s390/config.in linux-2.2.17-mtd/arch/s390/config.in
+--- linux-2.2.17-clean/arch/s390/config.in	Thu Jun  8 10:06:05 2000
++++ linux-2.2.17-mtd/arch/s390/config.in	Thu Nov 30 11:55:53 2000
+@@ -55,6 +55,9 @@
+ 
+ source fs/Config.in
+ 
++# Not sure about this one. dwmw2
++# source drivers/mtd/Config.in
++
+ # source drivers/char/Config.in
+ 
+ mainmenu_option next_comment
+diff -uNr linux-2.2.17-clean/arch/sparc/config.in linux-2.2.17-mtd/arch/sparc/config.in
+--- linux-2.2.17-clean/arch/sparc/config.in	Thu Jun  8 10:06:09 2000
++++ linux-2.2.17-mtd/arch/sparc/config.in	Thu Nov 30 11:55:53 2000
+@@ -78,6 +78,8 @@
+ bool 'SunOS binary emulation' CONFIG_SUNOS_EMUL
+ endmenu
+ 
++source drivers/mtd/Config.in
++
+ mainmenu_option next_comment
+ comment 'Floppy, IDE, and other block devices'
+ 
+diff -uNr linux-2.2.17-clean/arch/sparc64/config.in linux-2.2.17-mtd/arch/sparc64/config.in
+--- linux-2.2.17-clean/arch/sparc64/config.in	Thu Aug  3 13:25:14 2000
++++ linux-2.2.17-mtd/arch/sparc64/config.in	Thu Nov 30 11:55:53 2000
+@@ -45,6 +45,7 @@
+ define_bool CONFIG_SUN_AUXIO y
+ define_bool CONFIG_SUN_IO y
+ bool 'PCI support' CONFIG_PCI
++source drivers/mtd/Config.in
+ source drivers/sbus/char/Config.in
+ source drivers/sbus/audio/Config.in
+ 
+diff -uNr linux-2.2.17-clean/drivers/Makefile linux-2.2.17-mtd/drivers/Makefile
+--- linux-2.2.17-clean/drivers/Makefile	Wed Jun  7 11:00:14 2000
++++ linux-2.2.17-mtd/drivers/Makefile	Thu Nov 30 11:55:53 2000
+@@ -9,7 +9,7 @@
+ 
+ SUB_DIRS     := block char net misc sound
+ MOD_SUB_DIRS := $(SUB_DIRS)
+-ALL_SUB_DIRS := $(SUB_DIRS) pci sgi scsi sbus cdrom isdn pnp \
++ALL_SUB_DIRS := $(SUB_DIRS) pci sgi scsi sbus cdrom isdn pnp mtd \
+ 				macintosh video dio zorro fc4 usb telephony i2o
+ 
+ ifdef CONFIG_DIO
+@@ -46,6 +46,15 @@
+ ifdef CONFIG_PPC
+ SUB_DIRS += macintosh
+ MOD_SUB_DIRS += macintosh
++endif
++
++ifeq ($(CONFIG_MTD),y)
++SUB_DIRS += mtd
++MOD_SUB_DIRS += mtd
++else
++  ifeq ($(CONFIG_MTD),m)
++  MOD_SUB_DIRS += mtd
++  endif
+ endif
+ 
+ ifeq ($(CONFIG_USB),y)
+diff -uNr linux-2.2.17-clean/fs/Config.in linux-2.2.17-mtd/fs/Config.in
+--- linux-2.2.17-clean/fs/Config.in	Wed Jun  7 11:00:29 2000
++++ linux-2.2.17-mtd/fs/Config.in	Thu Nov 30 11:55:53 2000
+@@ -59,6 +59,11 @@
+   if [ "$CONFIG_EFS_FS" != "n" ]; then
+     define_bool CONFIG_SGI_PARTITION y
+   fi
++  tristate 'Journalling Flash filesystem (JFFS) support (experimental)' CONFIG_JFFS_FS
++  if [ "$CONFIG_JFFS_FS" = "y" -o "$CONFIG_JFFS_FS" = "m" ]; then
++    bool '  /proc filesystem support' CONFIG_JFFS_PROC_FS $CONFIG_JFFS_FS
++    int '  JFFS verbose level 0 (quiet), 1, 2, or 3' CONFIG_JFFS_FS_VERBOSE 0
++  fi
+ fi
+ 
+ if [ "$CONFIG_NET" = "y" ]; then
+diff -uNr linux-2.2.17-clean/fs/Makefile linux-2.2.17-mtd/fs/Makefile
+--- linux-2.2.17-clean/fs/Makefile	Wed Jun  7 10:56:34 2000
++++ linux-2.2.17-mtd/fs/Makefile	Thu Nov 30 11:55:53 2000
+@@ -18,7 +18,7 @@
+ MOD_LIST_NAME := FS_MODULES
+ ALL_SUB_DIRS = coda minix ext2 fat msdos vfat proc isofs nfs umsdos ntfs \
+ 		hpfs sysv smbfs ncpfs ufs affs romfs autofs hfs lockd \
+-		nfsd nls devpts adfs qnx4 efs
++		nfsd nls devpts adfs qnx4 efs jffs
+ 
+ ifeq ($(CONFIG_QUOTA),y)
+ O_OBJS += dquot.o
+@@ -220,6 +220,14 @@
+ else
+   ifeq ($(CONFIG_EFS_FS),m)
+   MOD_SUB_DIRS += efs
++  endif
++endif
++
++ifeq ($(CONFIG_JFFS_FS),y)
++SUB_DIRS += jffs
++else
++  ifeq ($(CONFIG_JFFS_FS),m)
++  MOD_SUB_DIRS += jffs
+   endif
+ endif
+ 
+diff -uNr linux-2.2.17-clean/fs/filesystems.c linux-2.2.17-mtd/fs/filesystems.c
+--- linux-2.2.17-clean/fs/filesystems.c	Wed Jun  7 10:58:40 2000
++++ linux-2.2.17-mtd/fs/filesystems.c	Thu Nov 30 11:55:53 2000
+@@ -49,6 +49,10 @@
+ extern int init_devpts_fs(void);
+ #endif
+ 
++#ifdef CONFIG_JFFS_FS
++extern int init_jffs_fs(void);
++#endif
++
+ void __init filesystem_setup(void)
+ {
+ #ifdef CONFIG_EXT2_FS
+@@ -133,6 +137,10 @@
+ 
+ #ifdef CONFIG_EFS_FS
+ 	init_efs_fs();
++#endif
++
++#ifdef CONFIG_JFFS_FS
++	init_jffs_fs();
+ #endif
+ 
+ #ifdef CONFIG_AUTOFS_FS
+diff -uNr linux-2.2.17-clean/include/linux/list.h linux-2.2.17-mtd/include/linux/list.h
+--- linux-2.2.17-clean/include/linux/list.h	Wed Jun  7 09:41:09 2000
++++ linux-2.2.17-mtd/include/linux/list.h	Thu Nov 30 11:55:53 2000
+@@ -17,6 +17,8 @@
+ 	struct list_head *next, *prev;
+ };
+ 
++#define LIST_HEAD_INIT(name) { &(name), &(name) }
++
+ #define LIST_HEAD(name) \
+ 	struct list_head name = { &name, &name }
+ 
+@@ -49,6 +51,14 @@
+ }
+ 
+ /*
++ * Insert a new entry at the tail
++ */
++static __inline__ void list_add_tail(struct list_head *new, struct list_head *head)
++{
++	__list_add(new, head->prev, head);
++}
++
++/*
+  * Delete a list entry by making the prev/next entries
+  * point to each other.
+  *
+@@ -93,6 +103,9 @@
+ 
+ #define list_entry(ptr, type, member) \
+ 	((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
++
++#define list_for_each(pos, head) \
++        for (pos = (head)->next; pos != (head); pos = pos->next)
+ 
+ #endif /* __KERNEL__ */
+ 
+diff -uNr linux-2.2.17-clean/include/linux/module.h linux-2.2.17-mtd/include/linux/module.h
+--- linux-2.2.17-clean/include/linux/module.h	Wed Jun  7 11:00:29 2000
++++ linux-2.2.17-mtd/include/linux/module.h	Thu Nov 30 11:55:53 2000
+@@ -8,6 +8,7 @@
+ #define _LINUX_MODULE_H
+ 
+ #include <linux/config.h>
++#include <linux/list.h>
+ 
+ #ifdef __GENKSYMS__
+ #  define _set_ver(sym) sym
+@@ -141,8 +142,38 @@
+ #define __MODULE_STRING_1(x)	#x
+ #define __MODULE_STRING(x)	__MODULE_STRING_1(x)
+ 
++/* Generic inter module communication.
++ *
++ * NOTE: This interface is intended for small amounts of data that are
++ *       passed between two objects and either or both of the objects
++ *       might be compiled as modules.  Do not over use this interface.
++ *
++ *       If more than two objects need to communicate then you probably
++ *       need a specific interface instead of abusing this generic
++ *       interface.  If both objects are *always* built into the kernel
++ *       then a global extern variable is good enough, you do not need
++ *       this interface.
++ *
++ * Keith Owens <kaos@ocs.com.au> 28 Oct 2000.
++ */
++
++#define HAVE_INTER_MODULE
++extern void inter_module_register(const char *, struct module *, const void *);
++extern void inter_module_unregister(const char *);
++extern const void *inter_module_get(const char *);
++extern const void *inter_module_get_request(const char *, const char *);
++extern void inter_module_put(const char *);
++
++struct inter_module_entry {
++       struct list_head list;
++       const char *im_name;
++       struct module *owner;
++       const void *userdata;
++};
++
+ /* Find a symbol exported by the kernel or another module */
+ extern unsigned long get_module_symbol(char *, char *);
++extern void put_module_symbol(unsigned long);
+ 
+ #if defined(MODULE) && !defined(__GENKSYMS__)
+ 
+diff -uNr linux-2.2.17-clean/init/main.c linux-2.2.17-mtd/init/main.c
+--- linux-2.2.17-clean/init/main.c	Thu Aug  3 13:25:15 2000
++++ linux-2.2.17-mtd/init/main.c	Thu Nov 30 11:55:53 2000
+@@ -101,7 +101,9 @@
+ #ifdef CONFIG_ARCH_ACORN
+ extern void ecard_init(void);
+ #endif
+-
++#ifdef CONFIG_MTD
++extern void init_mtd(void);
++#endif
+ extern void smp_setup(char *str, int *ints);
+ #ifdef __i386__
+ extern void ioapic_pirq_setup(char *str, int *ints);
+@@ -1552,6 +1554,9 @@
+ 	/* Set up devices .. */
+ 	device_setup();
+ 
++#ifdef CONFIG_MTD
++	init_mtd();
++#endif
+ 	/* .. executable formats .. */
+ 	binfmt_setup();
+ 
+diff -uNr linux-2.2.17-clean/kernel/ksyms.c linux-2.2.17-mtd/kernel/ksyms.c
+--- linux-2.2.17-clean/kernel/ksyms.c	Mon Sep 11 09:27:25 2000
++++ linux-2.2.17-mtd/kernel/ksyms.c	Thu Nov 30 11:55:53 2000
+@@ -80,7 +80,13 @@
+ 
+ #ifdef CONFIG_MODULES
+ EXPORT_SYMBOL(get_module_symbol);
++EXPORT_SYMBOL(put_module_symbol);
+ #endif
++EXPORT_SYMBOL(inter_module_register);
++EXPORT_SYMBOL(inter_module_unregister);
++EXPORT_SYMBOL(inter_module_get);
++EXPORT_SYMBOL(inter_module_get_request);
++EXPORT_SYMBOL(inter_module_put);
+ EXPORT_SYMBOL(get_options);
+ 
+ /* process memory management */
+diff -uNr linux-2.2.17-clean/kernel/module.c linux-2.2.17-mtd/kernel/module.c
+--- linux-2.2.17-clean/kernel/module.c	Wed Jun  7 11:00:30 2000
++++ linux-2.2.17-mtd/kernel/module.c	Thu Nov 30 11:55:53 2000
+@@ -6,6 +6,8 @@
+ #include <linux/smp_lock.h>
+ #include <asm/pgtable.h>
+ #include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/kmod.h>
+ 
+ /*
+  * Originally by Anonymous (as far as I know...)
+@@ -14,11 +16,12 @@
+  * Heavily modified by Bjorn Ekwall <bj0rn@blox.se> May 1994 (C)
+  * Rewritten by Richard Henderson <rth@tamu.edu> Dec 1996
+  * Add MOD_INITIALIZING Keith Owens <kaos@ocs.com.au> Nov 1999
++ * Backport inter_module_xxx from 2.4.  Keith Owens <kaos@ocs.com.au> Oct 2000
+  *
+  * This source is covered by the GNU GPL, the same as all kernel sources.
+  */
+ 
+-#ifdef CONFIG_MODULES		/* a *big* #ifdef block... */
++#ifdef CONFIG_MODULES
+ 
+ extern struct module_symbol __start___ksymtab[];
+ extern struct module_symbol __stop___ksymtab[];
+@@ -48,6 +51,174 @@
+ 
+ struct module *module_list = &kernel_module;
+ 
++#endif	/* CONFIG_MODULES */
++
++/* inter_module functions are always available, even when the kernel is
++ * compiled without modules.  Consumers of inter_module_xxx routines
++ * will always work, even when both are built into the kernel, this
++ * approach removes lots of #ifdefs in mainline code.
++ */
++
++static struct list_head ime_list = LIST_HEAD_INIT(ime_list);
++static spinlock_t ime_lock = SPIN_LOCK_UNLOCKED;
++static int kmalloc_failed;
++
++/**
++ * inter_module_register - register a new set of inter module data.
++ * @im_name: an arbitrary string to identify the data, must be unique
++ * @owner: module that is registering the data, always use THIS_MODULE
++ * @userdata: pointer to arbitrary userdata to be registered
++ *
++ * Description: Check that the im_name has not already been registered,
++ * complain if it has.  For new data, add it to the inter_module_entry
++ * list.
++ */
++void inter_module_register(const char *im_name, struct module *owner, const void *userdata)
++{
++	struct list_head *tmp;
++	struct inter_module_entry *ime, *ime_new;
++
++	if (!(ime_new = kmalloc(sizeof(*ime), GFP_KERNEL))) {
++		/* Overloaded kernel, not fatal */
++		printk(KERN_ERR
++			"Aiee, inter_module_register: cannot kmalloc entry for '%s'\n",
++			im_name);
++		kmalloc_failed = 1;
++		return;
++	}
++	memset(ime_new, 0, sizeof(*ime_new));
++	ime_new->im_name = im_name;
++	ime_new->owner = owner;
++	ime_new->userdata = userdata;
++
++	spin_lock(&ime_lock);
++	list_for_each(tmp, &ime_list) {
++		ime = list_entry(tmp, struct inter_module_entry, list);
++		if (strcmp(ime->im_name, im_name) == 0) {
++			spin_unlock(&ime_lock);
++			kfree(ime_new);
++			/* Program logic error, fatal */
++			panic("inter_module_register: duplicate im_name '%s'", im_name);
++		}
++	}
++	list_add(&(ime_new->list), &ime_list);
++	spin_unlock(&ime_lock);
++}
++
++/**
++ * inter_module_unregister - unregister a set of inter module data.
++ * @im_name: an arbitrary string to identify the data, must be unique
++ *
++ * Description: Check that the im_name has been registered, complain if
++ * it has not.  For existing data, remove it from the
++ * inter_module_entry list.
++ */
++void inter_module_unregister(const char *im_name)
++{
++	struct list_head *tmp;
++	struct inter_module_entry *ime;
++
++	spin_lock(&ime_lock);
++	list_for_each(tmp, &ime_list) {
++		ime = list_entry(tmp, struct inter_module_entry, list);
++		if (strcmp(ime->im_name, im_name) == 0) {
++			list_del(&(ime->list));
++			spin_unlock(&ime_lock);
++			kfree(ime);
++			return;
++		}
++	}
++	spin_unlock(&ime_lock);
++	if (kmalloc_failed) {
++		printk(KERN_ERR
++			"inter_module_unregister: no entry for '%s', "
++			"probably caused by previous kmalloc failure\n",
++			im_name);
++		return;
++	}
++	else {
++		/* Program logic error, fatal */
++		panic("inter_module_unregister: no entry for '%s'", im_name);
++	}
++}
++
++/**
++ * inter_module_get - return arbitrary userdata from another module.
++ * @im_name: an arbitrary string to identify the data, must be unique
++ *
++ * Description: If the im_name has not been registered, return NULL.
++ * Try to increment the use count on the owning module, if that fails
++ * then return NULL.  Otherwise return the userdata.
++ */
++const void *inter_module_get(const char *im_name)
++{
++	struct list_head *tmp;
++	struct inter_module_entry *ime;
++	const void *result = NULL;
++
++	spin_lock(&ime_lock);
++	list_for_each(tmp, &ime_list) {
++		ime = list_entry(tmp, struct inter_module_entry, list);
++		if (strcmp(ime->im_name, im_name) == 0) {
++			/* This should be try_inc_use_count but that function is
++			 * not in 2.2 kernels.  I am not opening that can of worms
++			 * for 2.2.  Keith Owens
++			 */
++			if (ime->owner)
++				__MOD_INC_USE_COUNT(ime->owner);
++			result = ime->userdata;
++			break;
++		}
++	}
++	spin_unlock(&ime_lock);
++	return(result);
++}
++
++/**
++ * inter_module_get_request - im get with automatic request_module.
++ * @im_name: an arbitrary string to identify the data, must be unique
++ * @modname: module that is expected to register im_name
++ *
++ * Description: If inter_module_get fails, do request_module then retry.
++ */
++const void *inter_module_get_request(const char *im_name, const char *modname)
++{
++	const void *result = inter_module_get(im_name);
++	if (!result) {
++		request_module(modname);
++		result = inter_module_get(im_name);
++	}
++	return(result);
++}
++
++/**
++ * inter_module_put - release use of data from another module.
++ * @im_name: an arbitrary string to identify the data, must be unique
++ *
++ * Description: If the im_name has not been registered, complain,
++ * otherwise decrement the use count on the owning module.
++ */
++void inter_module_put(const char *im_name)
++{
++	struct list_head *tmp;
++	struct inter_module_entry *ime;
++
++	spin_lock(&ime_lock);
++	list_for_each(tmp, &ime_list) {
++		ime = list_entry(tmp, struct inter_module_entry, list);
++		if (strcmp(ime->im_name, im_name) == 0) {
++			if (ime->owner)
++				__MOD_DEC_USE_COUNT(ime->owner);
++			spin_unlock(&ime_lock);
++			return;
++		}
++	}
++	spin_unlock(&ime_lock);
++	panic("inter_module_put: no entry for '%s'", im_name);
++}
++
++#if defined(CONFIG_MODULES)	/* The rest of the source */
++
+ static long get_mod_name(const char *user_name, char **buf);
+ static void put_mod_name(char *buf);
+ static struct module *find_module(const char *name);
+@@ -952,7 +1123,9 @@
+  * Gets the address for a symbol in the given module.  If modname is
+  * NULL, it looks for the name in any registered symbol table.  If the
+  * modname is an empty string, it looks for the symbol in kernel exported
+- * symbol tables.
++ * symbol tables. Increase the usage count of the module in which the
++ * symbol was found - it's the only way we can guarantee that it's still
++ * there by the time our caller actually uses it.
+  */
+ unsigned long
+ get_module_symbol(char *modname, char *symname)
+@@ -969,12 +1142,29 @@
+ 				i > 0; --i, ++sym) {
+ 
+ 				if (strcmp(sym->name, symname) == 0) {
++					__MOD_INC_USE_COUNT(mp);
+ 					return sym->value;
+ 				}
+ 			}
+ 		}
+ 	}
+ 	return 0;
++}
++
++/* Decrease the use count of the module containing a symbol with the 
++ * address passed.
++ */
++void put_module_symbol(unsigned long addr)
++{
++	struct module *mp;
++
++	for (mp = module_list; mp; mp = mp->next) {
++		if (addr >= (unsigned long)mp &&
++		    addr < (unsigned long)mp + mp->size) {
++			__MOD_DEC_USE_COUNT(mp);
++			return;
++		}
++	}
+ }
+ 
+ #else		/* CONFIG_MODULES */

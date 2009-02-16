@@ -1,0 +1,230 @@
+%
+% JFFS3 design issues.
+%
+% Copyright (C), 2005, Artem B. Bityutskiy, <dedekind@infradead.org>
+%
+% $Id: definit.tex,v 1.5 2005/11/27 14:37:49 dedekind Exp $
+%
+
+\begin{enumerate}
+
+\item \textbf{Access Control Lists, ACL}~-- a modern mechanism to control
+accesses to files which provides much more flexibility that the standard Unix
+mechanism of owner/group/others permissions, see~[\ref{ref_ACL}] for more
+details.
+
+\item \textbf{Acl}~-- an object in the tree containing inode's ACL. Refer to
+section~\ref{ref_SectionObjects} for more information.
+
+\item \textbf{Acl key}~-- acl object's key.
+
+\item \textbf{Acl node}~-- a leaf node containing an acl object.
+
+\item \textbf{Anchor eraseblock, anchor area}~-- the second and the third
+\emph{good} eraseblocks of the JFFS3 partition which are reserved for the
+superblock management. See section~\ref{ref_SectionSBAlg} for more details.
+
+\item \textbf{Attr-data}~-- an object in the tree where inode's attributes are
+stored (standard Unix attributes like creation time, owner ID, etc and other
+attributes like the type of compression, etc). Refer to
+section~\ref{ref_SectionObjects} for more information.
+
+\item \textbf{Attr-data key}~-- attr-data object's key.
+
+\item \textbf{Attr-data node}~-- a leaf node containing an \mbox{attr-data}
+object.
+
+\item \textbf{$B$-tree}~-- a balanced search tree where each node has many
+children. See section~\ref{ref_SectionBTrees}.
+
+\item \textbf{$B^+$-tree}~-- a \mbox{$B$-tree} where no data is stored in
+\mbox{non-leaf} nodes but instead, is stored only in leaf nodes.
+
+\item \textbf{Branch node}~-- any node that is not leaf, not twig and not root.
+
+\item \textbf{Branching factor}~-- the branching factor of the $B$-tree is the
+number of children of a node.
+
+\item \textbf{Chain eraseblock}~-- an eraseblock containing references to other
+chain eraseblocks or to the super eraseblock. Chain eraseblocks facilitate
+quick SB searching and are the part of the JFFS3 superblock management scheme
+(see section~\ref{ref_SectionSBAlg}). The main reason why chain eraseblocks are
+needed is the need to provide good flash \mbox{wear-levelling}.
+
+\item \textbf{Clean eraseblock}~-- an eraseblock which contains no garbage, only
+valid information.
+
+\item \textbf{Data area}~-- the whole JFFS3 partition excluding the static
+superblock and anchor eraseblocks.
+
+\item \textbf{Data key}~-- data object's key.
+
+\item \textbf{Data node}~-- a leaf node with file's data.
+
+\item \textbf{Directory entry, direntry}~-- basically an association between
+the name and the inode number.
+
+\item \textbf{Direntry key}~-- direntry object's key.
+
+\item \textbf{Direntry node}~-- a leaf node containing a direntry object.
+
+\item \textbf{Dirt, dirty space}~-- information on flash which is not valid due
+to \mbox{out-of-place} updates or objects deletion. It is the aim if the
+Garbage Collector to reclaim the space occupied by dirt.
+
+\item \textbf{Dirty eraseblock}~-- an eraseblock which contains some dirt along
+with valid nodes.
+
+\item \textbf{Dirty sector}~-- a sector which contains dirt.
+
+\item \textbf{Erasable block, eraseblock}~-- the minimal erasable unit of the
+flash chip from the JFFS3's viewpoint.
+
+\item \textbf{Extended attributes, xattr}~-- an association between names and
+data for files and directories. See attr(5) Linux manual pages for more
+information.
+
+\item \textbf{Fanout}~-- the same as \textbf{branching factor}.
+
+\item \textbf{Free eraseblock}~-- an erased eraseblock (contains only
+\texttt{0xFF} words).
+
+\item \textbf{Garbage}~-- the same as \textbf{dirt}.
+
+\item \textbf{Garbage Collector}~-- a part of any Flash File System which
+is responsible for recycling dirty space and producing free eraseblocks.
+
+\item \textbf{Indexing information, index}~-- data structures which do not
+contain any file system data (files, directories, extended attributes, etc) but
+instead, keep track of this data. For example, indexing information allows to
+quickly find all the directory entries for any specified directory. In case of
+the FAT file system, the File Allocation Table is may be treated as the index,
+in case of the ext2 file system the inode table, the bitmap and the set of
+direct, indirect, doubly indirect and triply indirect pointers may be
+considered as the index. In JFFS3, the index is comprised by the indexing
+nodes. See section~\ref{ref_SectionIndexing} for more information.
+
+\item \textbf{Indexing eraseblock}~-- an eraseblock which contains indexing
+nodes.
+
+\item \textbf{Indexing node}~-- a \mbox{non-leaf} node. Indexing nodes have
+fixed size (one sector) and contain only keys and links.
+
+\item \textbf{In-place updates, in-place writes}~-- a method of updating
+\mbox{on-media} data when the update is written to the physical position where
+the data resides (in opposite to \mbox{out-of-place} updates).
+
+\item \textbf{Journal}~-- contains recent JFFS3 changes and all the file system
+updates first go to the journal. The purpose of the Journal is to accumulate a
+bunch of JFFS3 file system changes and to postpone updating the index. See
+section~\ref{ref_SectionJournalIntro} for more information.
+
+\item \textbf{Journal commit}~-- the process of \mbox{re-building} the indexing
+information for the data which is in the journal. After the journal has been
+committed the journal eraseblocks become just leaf eraseblocks.
+
+\item \textbf{Journal eraseblock}~-- an eraseblock containing the journal data.
+
+\item \textbf{Journal tree}~-- an \mbox{in-memory} tree referring Journal nodes
+which were not committed so far. When JFFS3 reads, it first looks up the
+journal tree to find out whether the searched information is there. See
+section~\ref{ref_SectionJournalIntro} for more details.
+
+\item \textbf{Key}~-- an identifier of objects in the tree.
+
+\item \textbf{Key type}~-- an unique identifier of the key type. There are
+6 key types in JFFS3 (see section~\ref{ref_SectionKeys}).
+
+\item \textbf{Leaf eraseblock}~-- an eraseblock containing leaf nodes.
+
+\item \textbf{Leaf node}~-- any node from the leaf level of the tree (level 0).
+Leaf nodes contain only data and do not further refer other nodes. For more
+information see section~\ref{ref_SectionIndexing}.
+
+\item \textbf{NAND page}~-- a basic input output unit of NAND flash chips. ECC
+is calculated on the \mbox{per-NAND} page basis. See any NAND flash manual for
+more details, e.g.,~\ref{ref_TOSHIBA_TC58DVM92A1FT}.
+
+\item \textbf{Node}~-- a pile of the tree (the tree consists of nodes) as well
+as the container for file system data. There are different types of nodes in
+JFFS3. For more information see section~\ref{ref_SectionIndexing}.
+
+\item \textbf{Obsolete nodes/data/sectors}~-- the same as \textbf{dirty} nodes,
+data or sectors.
+
+\item \textbf{Out-of-place updates, out-of-place writes}~-- a sort of data
+updates when the update is not written to the same physical position, but
+instead, is written to some other place and the previous contents is treated as
+garbage afterwords. Opposite to \mbox{in-place} updates.
+
+\item \textbf{RAM page}~-- an unit of memory management in Virtual
+Memory Management subsystem of most modern operating systems (including Linux).
+See~[\ref{ref_VM}] for more information.
+
+\item \textbf{Sector}~-- the smallest writable unit of the \emph{flash chip}
+from JFFS3's viewpoint. May be equivalent to the minimal physical input/output
+unit (like in case of NAND flashes) or larger (like in case of NOR flashes).
+
+\item \textbf{Shared acl}~-- an acl object which is shared by many inodes for
+optimization purposes. Refer to section~\ref{ref_SectionObjects} for more
+information.
+
+\item \textbf{Static eraseblock}~-- the fist good erasable block of the JFFS3
+partition where the file system static data is stored. JFFS3 may
+only read it and it is created/changed by external formatting tools.
+
+\item \textbf{Superblock}~-- a data structure which describes the whole
+JFFS3 file system. Only dynamic data is stored in the superblock, all the
+static data is kept in the static superblock. There is a comprehensive
+superblock management scheme in JFFS3, see section~\ref{ref_SectionSBAlg}.
+
+\item \textbf{Super eraseblock}~-- an eraseblock where the superblock is kept.
+See section~\ref{ref_SectionSBAlg} details.
+
+\item \textbf{Target eraseblock}~-- the eraseblock which is currently being
+processed by the Garbage Collector, i.e., nodes are moved from the \emph{target
+eraseblock} and it is erased afterwords.
+
+\item \textbf{Quota}~-- a mechanism which allows to assign different limits on
+the file system (e.g., restrict users in the number of files they may create or
+in the amount of space they may consume, etc). See~[\ref{ref_Quota}] for more
+details about quota support in Linux.
+
+\item \textbf{Tree}~-- the main entity JFFS3 design revolves about. The JFFS3
+tree is a wandering \mbox{$B^+$-tree} where all the file system stuff (files,
+directories, extended attributes, etc) is stored.
+
+\item \textbf{Twig nodes}~-- nodes which reside one level upper then leaf nodes
+(level 1).
+
+\item \textbf{Valid nodes}~-- nodes which contain actual information,
+non-obsolete nodes.
+
+\item \textbf{Wandering tree}~-- a method of updating trees when there is no
+possibility to perform \mbox{in-place} updates. The JFFS3 tree is a wandering
+\mbox{$B^+$-tree}. See section~\ref{ref_SectionWandTrees} for more information.
+
+\item \textbf{Xattr}~-- a widely used contracted form for \textbf{extended
+attributes}.
+
+\item \textbf{Xattr-data}~-- an object in the tree containing the data of an
+extended attribute.
+
+\item \textbf{xattr-data key}~-- xattr-data object's key.
+
+\item \textbf{Xattr-data node}~-- a leaf node containing an \mbox{attr-data}
+object.
+
+\item \textbf{Xattr ID}~-- an unique identifier of an extended attribute. Refer to
+section~\ref{ref_SectionObjects} for more information.
+
+\item \textbf{Xentry}~-- an object in the tree which stores the association
+between the name of an extended attribute and its xattr~ID. Refer to
+section~\ref{ref_SectionObjects} for more information.
+
+\item \textbf{Xentry key}~-- xentry object's key.
+
+\item \textbf{Xentry node}~-- a leaf node containing a xentry object.
+
+\end{enumerate}
+

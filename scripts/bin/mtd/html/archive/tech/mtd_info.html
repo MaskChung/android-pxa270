@@ -1,0 +1,170 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+  <head>
+    <title>struct mtd_info</title>
+  </head>
+
+  <body bgcolor="white">
+    <h1>struct mtd_info {</h1>
+
+    
+    <H2><TT>&nbsp;&nbsp;char name[32];</TT></H2>
+
+    Name of the device. Rarely used, but presented to the user via the
+    <TT>/proc/mtd</TT> interface.
+
+    <H2><TT>&nbsp;&nbsp;u_char type;</TT></H2>
+    
+    Type of memory technology used in this device. Choose from:
+    <PRE>
+#define MTD_ABSENT              0
+#define MTD_RAM                 1
+#define MTD_ROM                 2
+#define MTD_NORFLASH            3
+#define MTD_NANDFLASH           4
+#define MTD_PEROM               5
+#define MTD_OTHER               14
+#define MTD_UNKNOWN             15
+</PRE>
+ 
+
+      
+    <H2><TT>&nbsp;&nbsp;u_long flags;</TT></H2>
+    Device capabilities. Bitmask. Choose from:
+    <PRE>
+#define MTD_CLEAR_BITS          1       // Bits can be cleared (flash)
+#define MTD_SET_BITS            2       // Bits can be set
+#define MTD_ERASEABLE           4       // Has an erase function
+#define MTD_WRITEB_WRITEABLE    8       // Direct IO is possible
+#define MTD_VOLATILE            16      // Set for RAMs
+#define MTD_XIP                 32      // eXecute-In-Place possible
+#define MTD_OOB                 64      // Out-of-band data (NAND flash)
+#define MTD_ECC                 128     // Device capable of automatic ECC
+    </PRE>
+
+    <H2><TT>&nbsp;&nbsp;loff_t size; </TT></H2>
+
+    Total size in bytes.
+
+    <H2><TT>&nbsp;&nbsp;u_long erasesize;</TT></H2>
+
+    Size in bytes of the &quot;erase block&quot; of this memory device - the
+    smallest area which can be erased in a single erase command.
+
+    <H2><TT>&nbsp;&nbsp;u_long oobblock; </TT></H2>
+    <H2><TT>&nbsp;&nbsp;u_long oobsize;</TT></H2>
+
+    Some memory technologies support <I>out-of-band</I> data - for example,
+    NAND flash has 16 extra bytes per 512-byte page, for error correction
+    or metadata. <TT>oobsize</TT> and <TT>oobblock</TT> hold the size of each
+    out-of-band area, and the number of bytes of &quot;real&quot; memory with
+    which each is associated, respectively. As an example, NAND flash, would
+    have <TT>oobblock == 512</TT> and <TT>oobsize == 16</TT> to show that
+    it has 16 bytes of OOB data per 512 bytes of flash.
+
+    <H2><TT>&nbsp;&nbsp;u_long ecctype;</TT></H2>
+    <H2><TT>&nbsp;&nbsp;u_long eccsize;</TT></H2>
+    
+    Some hardware not only allows access to flash or similar devices, but
+    also has ECC (error correction) capabilities built-in to the interface.
+    The <TT>ecctype</TT> field is an enumeration - currently you have a 
+    choice of:
+    <PRE>
+#define MTD_ECC_NONE            0       // No automatic ECC available
+#define MTD_ECC_RS_DiskOnChip   1       // Automatic ECC on DiskOnChip
+    </PRE>
+    The <TT>eccsize</TT> holds the size of the blocks on which the hardware
+    can perform automatic ECC.
+    
+    <H2><TT>&nbsp;&nbsp;struct module *module;</TT></H2>
+    
+    <P>When a driver is a kernel loadable module, this field is a pointer to
+    the <TT>struct module</TT> of the module. It is used to increase and 
+    decrease the module's usage count as appropriate.</P>
+    
+    <P>The <I>user</I> modules are responsible for increasing and 
+      decreasing the usage count of the driver as appropriate, for 
+      example by calling <TT>__MOD_INC_USE_COUNT(mtd->module);</TT> in 
+      their <TT>open</TT> routine.</P>
+
+    <H2><TT>&nbsp;&nbsp;int (*erase) (struct mtd_info *mtd, struct erase_info *instr);</TT></H2>
+
+    <P>This routine adds a <TT>struct erase_info</TT> to the erase queue for 
+    the device. This routine may sleep until the erase had finished, or
+    it may simply queue the request and return immediately.</P>
+    
+    <P>The <TT>struct erase_info</TT> contains a pointer to a callback function
+    which will be called by the <I>driver</I> module when the erase has
+    completed.</P>
+    
+    <P>For more information, see the <A HREF="erase.html">erase</A> page.</P>
+
+    <H2><TT>&nbsp;&nbsp;int (*point) (struct mtd_info *mtd, loff_t from, size_t len, u_char **mtdbuf);</TT></H2>
+    <H2><TT>&nbsp;&nbsp;void (*unpoint) (struct mtd_info *mtd, u_char * addr);</TT></H2>
+    For devices which are entirely memory-mapped and which can be mapped 
+    directly into user-space page tables, we may support execute-in-place
+    (XIP) mapping of data on the flash. The precise semantics of this are
+    yet to be defined, so it's probably best just not to either implement
+    or attempt to use these two functions right at the moment.
+
+         <H2><TT>&nbsp;&nbsp;int (*read) (struct mtd_info *mtd, loff_t from, size_t len, u_char *buf);</TT></H2>
+         <H2><TT>&nbsp;&nbsp;int (*write) (struct mtd_info *mtd, loff_t to, size_t len, const u_char *buf);</TT></H2>
+
+    <P>Read and write functions for the memory device. These may sleep, 
+      and should not be called from IRQ context or with locks held. </P>
+    <P>The <TT>buf</TT> 
+      argument is assumed to be in kernel-space. If you need to copy to 
+      userspace, either use a <TT>kiobuf</TT> to lock down the pages first,
+      or use a bounce buffer.</P>
+    
+    <H2><TT>&nbsp;&nbsp;int (*read_ecc) (struct mtd_info *mtd, loff_t from, size_t len, u_char *buf, u_char *eccbuf);</TT></H2>
+    <H2><TT>&nbsp;&nbsp;int (*write_ecc) (struct mtd_info *mtd, loff_t to, size_t len, const u_char *buf, u_char *eccbuf);</TT></H2>
+    
+    <P>For devices which support automatic ECC generation or checking, these
+      routines behave just the same at the read/write functions above, but
+      with the addition that the <TT>write_ecc</TT> function places the 
+      generated ECC data into <TT>eccbuf</TT>, and the <TT>read_ecc</TT>
+      function verifies the ECC data and attempts to correct any errors which 
+      it detects.</P>
+
+         <H2><TT>&nbsp;&nbsp;int (*read_oob) (struct mtd_info *mtd, loff_t from, size_t len, u_char *buf);</TT></H2>
+         <H2><TT>&nbsp;&nbsp;int (*write_oob) (struct mtd_info *mtd, loff_t to, size_t len, const u_char *buf);</TT></H2>
+        
+    <P>For devices which have out-of-band data, these functions provide 
+      access to it.</P>
+    <P>The <TT>from</TT>/<TT>to</TT> address is the address of the 
+      <EM>start</EM> of the real page of memory with which the OOB data
+      is associated, added to the offset within the OOB block.</P>
+    <P>Example: To specify the 5th byte of the OOB data associated with the
+      NAND flash page at 0x1000 in the device, you would pass address 0x1005
+    </P>
+
+    <H2><TT>&nbsp;&nbsp;void (*sync) (struct mtd_info *mtd);</TT></H2>
+
+    <P>This routine will sleep until all pending flash operations have 
+      completed.</P>
+    
+    <H2><TT>&nbsp;&nbsp;void *priv;</TT></H2>
+
+    This is used for data private to the MTD driver.
+
+<H3><TT>};</TT></H3>
+
+<HR>
+<H1>Notes</H1>
+    <P>All the MTD driver functions may be sleep. You may not call any of them
+      from an IRQ or timer context, or with locks held. </P>
+    <P>Nothing may modify the data in the <TT>struct mtd_info</TT> after
+      it is registered with the MTD system.</P>
+    <P>The <TT>read</TT>, <TT>write</TT> and <TT>erase</TT> routines are
+      mandatory. Also <TT>read_oob</TT> and <TT>write_oob</TT> if the MTD
+      device indicates that it has such capability.</P>
+    <P>The <TT>sync</TT> routine is <EM>not</EM> mandatory, and users should
+      check that the vector is non-NULL before attempting to use it.</P>
+
+
+    <hr>
+    <address><a href="mailto:dwmw2@infradead.org">David Woodhouse</a></address>
+$Id: mtd_info.html,v 1.1 2005/03/12 13:43:49 gleixner Exp $
+  </body>
+</html>

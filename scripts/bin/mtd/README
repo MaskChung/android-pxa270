@@ -1,0 +1,86 @@
+I figured it was about time for me to write some documentation for these
+drivers. They are heavily based on the memory subsystem developed by David 
+Hinds for his PCMCIA package.
+
+The main directory contains four kernel modules:
+
+mtd.o		Generic 'Memory Technology Device' subsystem.
+	This presents a character device interface on major #90
+
+physmem.o	Physical memory device driver.
+	This uses physical memory as a storage device. 
+	To use it, you must tell your kernel not to use all the RAM available
+	in your system. It's currently set up to use RAM between 96M and 128M -
+	as with a 128Mb machine booted with 'mem=96M'.
+
+flashcard.o	Driver for M-Systems' 4Mb ISA flash card.
+	This is hard-coded to use the ISA flash card at the exact memory
+	address I had originally set it up to use. It should be fairly easy to
+	modify it to auto-detect the cards, and also to use the Disk-on-Chip,
+	and other paging flash systems.
+
+ftl.o		Flash Translation Layer driver.
+	This is almost a straight copy of the FTL driver from David Hinds' 
+	PCMCIA distribution, except that it's now modified to allow partitions
+	on FTL devices. It scans all registered MTD devices for a flash 
+	filesystem, and makes them available as block devices on major #44.
+
+The system has now been ported to the 2.2.0-pre5 kernel, and vaguely tested.
+Unfortunately I no longer have access to any suitable flash devices, so have
+only tested the 'physmem' driver, along with the mtd and ftl modules.
+
+If you have spare hardware that you would like to donate/loan to me in order
+to complete the flash driver, please contact me at the address below.
+
+-----------
+
+There is also a copy of the ftl_format program from the PCMCIA distribution, 
+slightly modified to work with the MTD subsystem.
+
+This is an example of its usage:
+	
+devel2 /homes/dwmw2/working/mtd # insmod physmem
+mtd: Giving out device 0 to Raw memory
+Registered physmem device from 98304Kb to 131072Kb
+Mapped from 0xc6c77000 to 0xc8c77000
+devel2 /homes/dwmw2/working/mtd # ./ftl_format /dev/mtd0
+Partition size = 32 mb, erase unit size = 64 kb, 1 transfer units
+Reserved 5%, formatted size = 31072 kb
+Erasing all blocks...
++++++++*+++++++*+++++++*+++++++*
+Writing erase unit headers...
+format successful.
+devel2 /homes/dwmw2/working/mtd # insmod ftl
+Valid FTL partition found.
+ ftla: unknown partition table
+devel2 /homes/dwmw2/working/mtd # mkfs /dev/ftla
+mke2fs 1.12, 9-Jul-98 for EXT2 FS 0.5b, 95/08/09
+Linux ext2 filesystem format
+Filesystem label=
+7776 inodes, 31072 blocks
+1553 blocks (5.00%) reserved for the super user
+First data block=1
+Block size=1024 (log=0)
+Fragment size=1024 (log=0)
+4 block groups
+8192 blocks per group, 8192 fragments per group
+1944 inodes per group
+Superblock backups stored on blocks:
+        8193, 16385, 24577
+
+Writing inode tables: done
+Writing superblocks and filesystem accounting information: done
+devel2 /homes/dwmw2/working/mtd # mount /dev/ftla /mnt/spare
+devel2 /homes/dwmw2/working/mtd # 	
+
+----------
+
+The 'obsolete' directory contains some standalone drivers, and other stuff 
+that I can't remember much about, but might turn out to be useful one day.
+
+
+Happy Hacking.
+
+$Id: README,v 1.2 2000/03/30 11:38:48 dwmw2 Exp $
+
+David Woodhouse <Dave@imladris.demon.co.uk>

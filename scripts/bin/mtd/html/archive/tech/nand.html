@@ -1,0 +1,345 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+<title>Linux-MTD NAND FLASH</title>
+<STYLE TYPE="text/css">
+<!--
+body {
+font-family: Arial,Helvetica,Geneva,Swiss,SunSans-Regular; 
+}
+-->
+</STYLE>
+</head>
+
+<body >
+<img src="../images/mtdlogo.png">
+<h1>NAND FLASH</h1>
+<h2>NAND vs. NOR</h2>
+<p>Beside the different silicon cell design, the most important difference between 
+NAND and NOR Flash is the bus interface. NOR Flash is connected to a address / data
+ bus direct like other memory devices as SRAM etc. NAND Flash uses a multiplexed I/O 
+ Interface with some additional control pins. NAND flash is a sequential access device 
+ appropriate for mass storage applications, while NOR flash is a random access device 
+ appropriate for code storage application.NOR Flash can be used for code storage and 
+ code execution. Code stored on NAND Flash can't be executed frome there. It must be 
+ loaded into RAM memory and executed from there.</p>
+		
+<table border="1" cellpadding="2" cellspacing="0">
+<tr><td></td><td><b>NOR </b></td><td><b>NAND </b></td></tr>
+<tr><td>Interface </td><td>Bus </td><td>I/O </td></tr>
+<tr><td>Cell Size </td><td>Large </td><td>Small </td></tr>
+<tr><td>Cell Cost </td><td>High </td><td>Low </td></tr>
+<tr><td>Read Time </td><td>Fast </td><td>Slow </td></tr>
+<tr><td>Program Time single Byte</td><td>Fast </td><td>Slow </td></tr>
+<tr><td>Program Time multi Byte</td><td>Slow </td><td>Fast </td></tr>
+<tr><td>Erase Time </td><td>Slow </td><td>Fast </td></tr>
+<tr><td>Power consumption </td><td>High </td><td>Low, but requires additional RAM </td></tr>
+<tr><td>Can execute code </td><td>Yes </td><td>No, but newer chips can execute a small 
+loader out of the first page</td></tr>
+<tr><td>Bit twiddling </td><td>nearly unrestricted </td><td>1-3 times, also known as 
+"partial page program restriction"</td></tr>
+<tr><td>Bad blocks at ship time </td><td>No</td><td>Allowed</td></tr>
+</table>
+
+<p>Some facts about write speed. <br>
+NAND is typically faster than NOR for large writes. A typical NOR write is 10uS
+per word, which results in 1280uS per 512 bytes on a 32-bit bus. A typical NAND 
+write is 50nS per byte + 10uS page seek + 200uS program which results in 236uS 
+per 512 bytes on a 8 bit bus.</p>
+		
+<p>As NAND Flash is cheaper than NOR Flash and has a very slim interface it was 
+selected as the optimum solution for large nonvolatile storage applications such 
+as solid state file storage, digital audio/voice recorder, 
+digital still camera and portable applications requiring non-volatility.</p>
+
+<hr>
+		
+<h2>NAND Types</h2>
+<p>There are various types of NAND Flash available.
+Bare NAND chips, SmartMediaCards, DiskOnChip.</p>
+<p>SmartMediaCards are bare NAND chips covered by thin plastic. They are very common in
+digital cameras and MP3 players. The card itself contains nothing smart at all. It gets
+smart by software.</p>
+<p>DiskOnChip is NAND Flash with additional glue logic as a drop in replacement for NOR
+ Flash chips. The glue logic provides direct memory access to a small address window, 
+ which contains a boot loader stub, which loads the real boot code from the NAND device.
+ The logic contains also control registers for the static NAND chip control lines and a 
+ hardware ECC&nbsp;generator.</p>
+		
+<hr>
+		
+<h2>NAND technical view</h2>
+<p>The memory is arranged as an array of pages. A page consists of 256 / 512 Byte data 
+and 8 / 16 Byte spare (out of band) area. Newer chips have 2048 Bytes data and and 64 
+Bytes spare area sizes. The spare area is used to store ECC (error correction code), 
+bad block information and filesystem dependend data.
+n pages build one block. The read / write access to data is on a per page basis. 
+Erase is done on a per block basis. The commands to read / write / erase the chip 
+is given by writing to the chip with the Command Latch Enable pin high. Address is 
+given by writing with the Address Latch Enable pin high.</p>
+
+<p>There are only a few lines neccecary to access NAND Flashmemory.</p>
+<p>16 bit buswidth chips are supported.</p>
+<table border="1" cellpadding="2" cellspacing="0">
+<tr><td><b>Pin(s) </b></td><td><b>Function </b></td></tr>
+<tr><td>I/O 0-7(15)</td><td>Data Inputs/Outputs </td></tr>
+<tr><td>/CE </td><td>Chip Enable </td></tr>
+<tr><td>CLE </td><td>Command Latch Enable </td></tr>
+<tr><td>ALE </td><td>Address Latch Enable </td>	</tr>
+<tr><td>/RE </td><td>Read Enable </td></tr>
+<tr><td>/WE </td><td>Write Enable </td>	</tr>
+<tr><td>/WP </td><td>Write Protect </td></tr>
+<tr><td>/SE </td><td>Spare area Enable </td></tr>
+<tr><td>R/B </td><td>Ready / Busy Output </td></tr>
+</table>
+<p>As it is neccecary to use the spare area, the /SE (Spare area Enable) pin should 
+be tied to GND. /CE, CLE and ALE should be GPIO pins or latched signals. It's possible 
+to use address lines for ALE and CLE, but you have to take care about the timing 
+restrictions of the chip ! </p>
+<p>/RE and /WE can be tied to the corresponding lines of the CPU. Make sure, that 
+they are logicaly combined with the corresponding chipselect. You can also use two 
+different chipselects for /RE and /WE, but be aware of data hold time constraints 
+of your NAND chip. Data hold time after rising edge of /WE is different to data hold 
+time after rising edge of chipselect lines!</p>
+<p>I/O 0-7(15) are connected to the databus D0-D7(D15). The /WP pin can be used for write 
+protection or connected to VCC to enable writes unconditionally. As NAND flash uses 
+a command driven programming and erasing, an  accidential write or erase is not 
+likely to happen. The Ready / Busy output is not neccecary for operation, 
+ but it can be tied to a GPIO or an interrupt line. </p>
+	
+<hr>
+<h2>Filesystems supporting NAND</h2>
+<p>One major problem for using NAND Flash is, that you cannot write as often as you 
+want to a page. The consecutive writes to a page, before erasing it again, are 
+restricted to 1-3 writes, depending on the manufacturers specifications. This applies 
+similar to the spare area. This makes it neccecary for the filesystem to handle a writebuffer,
+which contains data, that is less than a page</p>
+<p>At the moment there are only a few filesystems, which support NAND</p>
+<ul>
+<li>JFFS2 and YAFFS for bare NAND Flash and SmartMediaCards </li>
+<li>NTFL for DiskOnChip devices </li>
+<li>TRUEFFS from M-Systems for DiskOnChip devices</li>
+<li>SmartMedia DOS-FAT as defined by the SSFDC Forum</li>
+</ul>
+<p>JFFS2 and NTFL are Open Source, while TRUEFFS is a proprietary solution. 
+SmartMedia DOS-Fat is a specification from SSFDC forum. It is somewhat open under a 
+non disclosure agreement with Toshiba, who owns all rights on this specifications. NTFL is 
+designed for the usage of DiskOnChip devices. JFFS2 supports raw NAND chips and 
+SmartMediaCards at the moment. A JFFS2 support for DiskOnChip devices, based on the 
+NAND code, is planned. There are some other Open Source projects for NAND filesystem 
+support, but there's no other working solution than JFFS2 and YAFFS at the moment of this writing. 
+YAFFS is available from <a href=http://www.aleph1.co.uk/armlinux/projects/yaffs>YAFFS-Homepage</a>.
+YAFFS is faster than JFFS2 and consumes less RAM, JFFS2 provides on the fly file compression and
+decompression, which is very helpfull for small FLASHs.</p>
+<p> There is currently no support for the wide spread SmartMedia DOS-FAT filesystem, 
+ mainly because it's not a reliable filesystem for industrial usage. It's ok for 
+ multimedia applications. The hardware support layer is designed to support an 
+ implementation of SmartMedia DOS-FAT. There are some efforts to implement it, but it's
+ in an early stage. There are a couple of SmartMedia Card adaptors for USB, PCMCIA, FireWire 
+ ... with Linux drivers available, which support the SmartMedia DOS-FAT. </p>
+<p>JFFS2 and YAFFS include bad block management, wear leveling, error correction and provide
+reliable filesystems for industrial use on top of NAND Flash.</p>
+
+<hr>
+<h2>JFFS2 specific information </h2>
+<h3>JFFS2 Out of Band usage</h3>
+<p>JFFS2 uses the default autoplacement scheme. The only JFFS2 specific usage of the oob
+area is the storage of the cleanmarker</p>
+
+<h4>Nand chips with 256 byte pagesize and 8 byte OOB size</h4>
+<table border="1" cellpadding="2" cellspacing="0">
+<tr><td><b>Offset</b></td><td><b>Content</b></td><td><b>Comment</b></td></tr>
+<tr><td>0x06</td><td>Clean marker byte 0</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased 
+this byte in the first page of a block is programmed to 0x85. In the remaining 
+pages this byte is reserved</td></tr>
+<tr><td>0x07</td><td>Clean marker byte 1</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased this 
+byte in the first page of a block is programmed to 0x19. In the remaining 
+pages this byte is reserved</td></tr>
+</table>
+		
+<h4>Nand chips with 512 byte pagesize and 16 byte OOB size</h4>
+		
+<table border="1" cellpadding="2" cellspacing="0">
+<tr><td><b>Offset</b></td><td><b>Content</b></td><td><b>Comment</b></td></tr>
+<tr><td>0x08</td><td>Clean marker byte 0</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased 
+this byte in the first page of a block is programmed to 0x85. In the remaining 
+pages this byte is reserved</td></tr>
+<tr><td>0x09</td><td>Clean marker byte 1</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased 
+this byte in the first page of a block is programmed to 0x19. In the remaining 
+pages this byte is reserved</td></tr>
+<tr><td>0x0a</td><td>Clean marker byte 2</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased 
+this byte in the first page of a block is programmed to 0x03. In the remaining 
+pages this byte is reserved</td></tr>
+<tr><td>0x0b</td><td>Clean marker byte 3</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased 
+this byte in the first page of a block is programmed to 0x20. In the remaining 
+pages this byte is reserved</td></tr>
+<tr><td>0x0c</td><td>Clean marker byte 4</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased 
+this byte in the first page of a block is programmed to 0x08. In the remaining 
+pages this byte is reserved</td></tr>
+<tr><td>0x0d</td><td>Clean marker byte 5</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased 
+this byte in the first page of a block is programmed to 0x00. In the remaining 
+pages this byte is reserved</td></tr>
+<tr><td>0x0e</td><td>Clean marker byte 6</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased 
+this byte in the first page of a block is programmed to 0x00. In the remaining 
+pages this byte is reserved</td></tr>
+<tr><td>0x0f</td><td>Clean marker byte 7</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased 
+this byte in the first page of a block is programmed to 0x00. In the remaining 
+pages this byte is reserved</td></tr>
+</table>
+
+<h4>Nand chips with 2048 byte pagesize and 64 byte OOB size</h4>
+		
+<table border="1" cellpadding="2" cellspacing="0">
+<tr><td><b>Offset</b></td><td><b>Content</b></td><td><b>Comment</b></td></tr>
+<tr><td>0x10</td><td>Clean marker byte 0</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased 
+this byte in the first page of a block is programmed to 0x85. In the remaining 
+pages this byte is reserved</td></tr>
+<tr><td>0x11</td><td>Clean marker byte 1</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased 
+this byte in the first page of a block is programmed to 0x19. In the remaining 
+pages this byte is reserved</td></tr>
+<tr><td>0x12</td><td>Clean marker byte 2</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased 
+this byte in the first page of a block is programmed to 0x03. In the remaining 
+pages this byte is reserved</td></tr>
+<tr><td>0x13</td><td>Clean marker byte 3</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased 
+this byte in the first page of a block is programmed to 0x20. In the remaining 
+pages this byte is reserved</td></tr>
+<tr><td>0x14</td><td>Clean marker byte 4</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased 
+this byte in the first page of a block is programmed to 0x08. In the remaining 
+pages this byte is reserved</td></tr>
+<tr><td>0x15</td><td>Clean marker byte 5</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased 
+this byte in the first page of a block is programmed to 0x00. In the remaining 
+pages this byte is reserved</td></tr>
+<tr><td>0x16</td><td>Clean marker byte 6</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased 
+this byte in the first page of a block is programmed to 0x00. In the remaining 
+pages this byte is reserved</td></tr>
+<tr><td>0x17</td><td>Clean marker byte 7</td><td>This byte indicates that a 
+block was erased under JFFS2 control. If the page was succesfully erased 
+this byte in the first page of a block is programmed to 0x00. In the remaining 
+pages this byte is reserved</td></tr>
+</table>
+		
+<hr>
+		
+<h2>HOWTO implement NAND support</h2>
+
+<h3>Where can you get the code ?</h3>
+<p>The latest changes to JFFS2 and the underlying NAND code are not in the 
+kernel code at the moment. The latest code is available from 
+<a href=http://www.linux-mtd.infradead.org>CVS and daily snapshots</a></p>
+
+<p>There are four layers of software</p>
+<ol>
+<li>JFFS2: filesystem driver</li>
+<li>MTD: Memory Technology Devices driver</li>
+<li>NAND: generic NAND driver </li>
+<li>Hardware specific driver </li>
+</ol>
+<p>the MTD driver just provides a mount point for JFFS2. The generic NAND 
+driver provides all functions, which are neccecary to identify, read, write 
+and erase NAND Flash. The hardware dependend functions are provided by 
+the hardware driver. They provide mainly the hardware access informations and
+functions for the generic NAND driver. For YAFFS applies the same.</p>
+
+<h3>API Documentation</h3>
+<p>A complete API documentation is available as DocBook template in the
+Documentation/DocBook directory of the MTD source tree. 
+</p>
+<p>Read the API documentation <a href="mtdnand/index.html">online</a>
+
+<h3>Supported chips</h3>
+<p>Most NAND chips actually available should be supported by the current code. 
+If you have a chip, which is not supported, you can easily add it by extending the chiplist in 
+drivers/mtd/nand/nand_ids.c. The chip name does not longer contain cryptic part numbers, as the device
+ID is just an information about size, erase block size, pagesize and operating voltage.
+Add an entry, which contains following information: <br>
+				
+{ name, id, pagesize, chipsize, erasesize, options }</p>
+<table border="1" cellpadding="2" cellspacing="0">
+<tr><td><b>ref</b></td>	<td><b>comment</b></td></tr>
+<tr><td>name</td><td>string: "NAND 'size' 'voltage' 'bus-width'" </td></tr>
+<tr><td>id</td><td>chip device code. This code is read during nand_scan. Check datasheet 
+for the code of your chip</td></tr>
+<tr><td>pagesize</td><td>Page size (0,256,512). 0 indicates that the pagesize can be
+read out from the chip in the extended ID</td></tr>
+<tr><td>chipsize</td><td>The total size of the chip in MiB</td></tr> 
+<tr><td>erasesize</td><td>the erasesize of your chip in bytes. 0 for chips with extended ID</td></tr>
+<tr><td>options</td><td>Options. Bitfield to enable chip specific options. See nand.h</td></tr>
+</table>
+
+<p>Please contact NAND driver maintainer to include it in the public source tree. </p>
+<p>Manufacturer codes are scanned during nand_scan too. If the code is one of the 
+known codes in the manufacturer ID table, the name of the manufacturer is printed out, 
+else "Unknown" is printed. This happens when your hardware driver 
+is loaded and calls nand_scan. Add codes, which are new and contact NAND driver 
+maintainer to include it</p>
+
+<h3>Config settings</h3>
+<p>The following config switches have to be set. JFFS2 on NAND <b>does not</b> work, 
+if one of these settings is missing.</p>
+				
+<p>CONFIG_MTD=y<br>
+CONFIG_MTD_PARTITIONS=y<br>
+CONFIG_MTD_CHAR=y<br>
+CONFIG_MTD_BLOCK=y<br>
+CONFIG_MTD_NAND=y<br>
+CONFIG_MTD_NAND_YOURBOARD=y<br>
+CONFIG_JFFS2_FS=y<br>
+CONFIG_JFFS2_FS_DEBUG=0<br>
+CONFIG_JFFS2_FS_NAND=y</p>
+<p>Make sure that fs/Config.in contains the following lines:<br>
+dep_tristate 'Journalling Flash File System v2 (JFFS2) support' CONFIG_JFFS2_FS $CONFIG_MTD<br>
+if [ "$CONFIG_JFFS2_FS" = "y" -o "$CONFIG_JFFS2_FS" = "m" ] ; then<br>
+   int 'JFFS2 debugging verbosity (0 = quiet, 2 = noisy)' CONFIG_JFFS2_FS_DEBUG 0<br>
+   bool 'JFFS2 support for NAND chips' CONFIG_JFFS2_FS_NAND<br>
+fi</p>
+		
+<hr>
+		
+<h2>FAQ</h2>
+<p>Please see the NAND section in <a href="faq.html">MTD FAQ's</a></p>
+<hr>
+		
+<h2>References:</h2>
+<h3>Open Source</h3>
+<p>JFFS2 and NTFL are located on this <a href=http://www.linux-mtd.infradead.org> website</a>.<br>
+YAFFS is located at <a href=http://www.aleph1.co.uk/armlinux/projects/yaffs>YAFFS-Homepage</a>.</p>
+<h3>Hardware</h3>
+<p><a href=http://www.toshiba.com/taec/>Toshiba</a></p>
+<p><a href=http://samsungelectronics.com/>Samsung</a></p>
+<p><a href=http://www.ssfdc.or.jp>SSFDC Forum</a></p>
+<p><a href=http://www.m-sys.com>M-Systems</a></p>
+		
+<hr>
+		
+<h2>Maintainers</h2>
+<p>JFFS2 is maintained by David Woodhouse</p>
+<p>The generic NAND driver is maintained by Thomas Gleixner</p>
+<p>Please don't contact them direct. Ask your questions on the 
+<a href=http://www.linux-mtd.infradead.org>mtd-mailing-list</a>.</p>
+<p>Any suggestions, improvements, bug-reports and bug-fixes are welcome</p>
+		
+<hr>
+		
+<address><a href="mailto:tglx@linutronix.de">Thomas Gleixner</a></address>
+		
+$Id: nand.html,v 1.1 2005/03/12 13:43:49 gleixner Exp $
+
+</body>
+</html>

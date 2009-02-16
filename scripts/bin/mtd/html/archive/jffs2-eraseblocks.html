@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>JFFS2 & erase block size</title>
+  </head>
+
+  <body>
+    <h1>JFFS2 & erase block size</h1>
+
+    <P>Unlike the original JFFS, JFFS2 treats each erase block of the
+    flash separately. It will never write nodes which cross from one
+    erase block to another, and will not cope if it encounters a file
+    system with such nodes. Any node which crosses an erase block
+    boundary will be ignored by JFFS2, and the data it contains will
+    be lost, causing the file system to be corrupted.</P>
+
+    <P>If there's not enough space at the end of the current erase
+    block to write a whole node, JFFS2 will leave it blank and
+    continue writing to a new erase block.</P>
+
+    <P>Also, JFFS2 always starts writing at the beginning of an erase
+    block, and does not expect to find free space in the middle. Any
+    free space in an erase block should go all the way to the end of
+    the erase block. JFFS2 will print a complaint such as:
+<PRE>
+jffs2_scan_empty(): Empty block at 0x0012fffc ends at 0x00130000 (with 0xe0021985)! Marking dirty
+</PRE>
+    if it finds free space in between the nodes in an erase
+    block. This situation is harmless though - it's just a little bit
+    of wasted space, that's all.</P>
+
+    <P>Both of these situations can occur if you create a JFFS2 image
+      with <TT>mkfs.jffs2</TT> using the wrong value for the erase
+      block size (the <tt>-e</TT> option). The default is 64KiB,
+      because that's the smallest erase block size you're likely to
+      encounter often, and creating an image with smaller eraseblock
+      size than the actual hardware is harmless -- it just gives
+      annoying messages. If you see the messages mentioned above,
+      check the erase block size of your device (look in
+      <tt>/proc/mtd</tt> if you don't know), and create your JFFS2
+      image for it with the correct <tt>-e</tt> option.</P>
+
+
+    <hr>
+    <address><a href="mailto:dwmw2@infradead.org">David Woodhouse</a></address>
+    $Id: jffs2-eraseblocks.html,v 1.1 2005/03/12 13:43:48 gleixner Exp $
+  </body>
+</html>

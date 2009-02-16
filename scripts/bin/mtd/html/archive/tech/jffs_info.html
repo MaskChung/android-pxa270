@@ -1,0 +1,27 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+  <head>
+    <title>struct mtd_info</title>
+  </head>
+
+  <body bgcolor="white">
+<P>JFFS is purely log-structured. The 'filesystem' is just a huge list of 'nodes' on the flash media. Each node (struct jffs_node) contains some information about the file (aka inode) which it is part of, may also contain a name for that file, and possibly also some data. In the cases where data are present, the jffs_node will contain a field saying at what location in the file those data should appear. In this way, newer data can overwrite older data.</P>
+
+<P>Aside from the normal inode information, the jffs_node contains a field which says how much data to _delete_ from the file at the node's given offset. This is used for truncating files, etc.</P>
+
+<P>Each node also has a 'version' number, which starts at 1 with the first node written in an file, and increases by one each time a new node is written for that file. The (physical) ordering of those nodes really doesn't matter at all, but just to keep the erases level, we start at the beginning and just keep writing till we hit the end.</P>
+
+<P>To recreate the contents of a file, you scan the entire media (see jffs_scan_flash() which is called on mount) and put the individual nodes in order of increasing 'version'. Interpret the instructions in each as to where you should insert/delete data. The current filename is that attached to the most recent node which contained a name field.</P>
+
+<P>(Note this is not trivial. For example, if you have a file with 1024 bytes of data, then you write 512 bytes to offset 256 in that file, you'll end up with two nodes for it - one with data_offset 0 and data_length 1024, and another with data_offset 256, data_length 512 and removed_size 512. Your first node actually appears in two places in the file - locations 0-256 and 768-1024. The current JFFS code uses struct jffs_node_ref to represent this and keeps a list of the partial nodes which make up each file.)</P>
+
+<P>This is all fairly simple, until your big list of nodes hits the end of the media. At that point, we have to start again at the beginning. Of the nodes in the first erase block, some may have been obsoleted by later nodes. So before we actually reach the end of the flash and fill the filesystem completely, we copy all nodes from that first block which are still valid, and erase the original block. Hopefully, that makes us some more space. If not, we continue to the next block, etc. This is called garbage collection.</P>
+
+<P>Note that we must ensure that we never get into a state where we run out of empty space between the 'head' where we're writing the new nodes, and the 'tail' where the oldest nodes are. That would mean that we can't actually continue with garbage collection at all, so the filesystem can be stuck even if there are obsolete nodes somewhere in it.</P>
+
+<P>Although we currently just start at the beginning and continue to the end, we _should_ be treating the erase blocks individually, and just keeping a list of erase blocks in various states (free/filling/full/obsoleted/erasing/ bad). In general, blocks will proceed through that list from free->erasing and then obviously back to free. (They go from full to obsoleted by rewriting any still-valid nodes into the 'filling' node).</P>
+    <address><a href="mailto:dwmw2@infradead.org">David Woodhouse</a></address>
+Bj&ouml;rn Eriksson gleaned this from a mail by dwmw2@infradead.org, Tue, 26 Sep 2000 15:31:43 +0100<BR>
+$Id: jffs_info.html,v 1.1 2005/03/12 13:43:48 gleixner Exp $
+  </body>
+</html>

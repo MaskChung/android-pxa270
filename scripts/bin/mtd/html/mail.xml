@@ -1,0 +1,54 @@
+<PAGE>
+	<VAR match="VAR_ORIGIN" replace="" />
+	<VAR match="VAR_CVSID" replace="$Id: mail.xml,v 1.1 2005/03/12 13:48:21 gleixner Exp $"/>
+	<INCLUDE file="inc/header.tmpl" />
+
+	<VAR match="VAR_SEL_MAIL" replace="selected" />
+	<PARSE file="menu1.xml" />
+	
+	<INCLUDE file="inc/content.tmpl" />
+
+    	<h2>Mailing lists</h2>
+	<div>
+	<ul>
+  	<li><p>There is a mailing list for discussion of MTD development:<b><i>
+		<a href="http://www.infradead.org/~dwmw2/email.html">linux-mtd@lists.infradead.org</a></i></b>.
+	    </p>
+	    <p>Please do not post to the mailing list without first reading</p>
+	    <ul>
+		<li>my <a href="http://www.infradead.org/~dwmw2/email.html">notes on etiquette</a>.</li> 
+		<li>the section about <a href="source.html#kernelversions">kernel versions</a></li>
+		<li>the <a href="faq/general.html">MTD-FAQ</a></li>
+		<li>the available <a href="doc/general.html">documentation</a></li>
+		<li>the mailing list archives at <a href="http://lists.infradead.org/pipermail/linux-mtd/">
+			http://lists.infradead.org/pipermail/linux-mtd/</a></li>
+	    </ul>
+	   <p>To subscribe, go <a 
+		      href="http://lists.infradead.org/mailman/listinfo/linux-mtd/">
+		here</a> or send &quot;<tt>subscribe</tt>&quot; in the body of a 
+	    	  mail to <i><a href="mailto:linux-mtd-request@lists.infradead.org">
+				  linux-mtd-request@lists.infradead.org</a></i>
+	    </p>
+	    <p><b>NOTE:</b><br />
+		Do not send your subscription request to the list itself.<br />
+		Send it to <a href="mailto:linux-mtd-request@lists.infradead.org">
+				  linux-mtd-request@lists.infradead.org</a>
+		as the above says.
+	     </p>
+	</li>
+    	<li>
+		<p>There is a CVS log mailing list to keep you informed of CVS commits. 
+		      To subscribe, go <a 
+    		  href="http://lists.infradead.org/mailman/listinfo/linux-mtd-cvs/">
+					here</a>
+	    	</p> 	
+		<p><b>NOTE:</b><br /> This list is read only. Do not post to this list!</p>
+	</li>
+	</ul>
+	</div>
+    	<hr size="2" />
+    	<h2>IRC</h2>
+    	<p>The IRC channel is <tt>#mtd</tt> on <tt>irc.ipv6.freenode.net</tt> or <tt>irc.freenode.net</tt></p>
+
+	<INCLUDE file="inc/footer.tmpl" />
+</PAGE>

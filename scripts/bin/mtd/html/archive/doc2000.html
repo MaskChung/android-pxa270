@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 3.2//EN">
+<html>
+  <head>
+    <title>M-Systems Disk-On-Chip 2000 and Linux</title>
+     <meta name="keywords" content="Disk-On-Chip, CompactFlash, Compact Flash, Disk On Chip, M-Systems, Linux, MTD, Flash, Memory Technology Device">
+  </head>
+
+  <body bgcolor="white">
+    <h1 align="center">M-Systems Disk-On-Chip 2000 and Linux</h1>
+    <HR>
+
+    
+    <P><B>Please reload this page often, or join the <A 
+	  HREF="./">Linux-MTD</A> mailing list to keep updated of
+	further developments. <A HREF="#latest">Latest news</A> is at the 
+	bottom of this page.</B><BR>
+      <A HREF="mailto:Dave@infradead.org">DW</A>.
+    </P>
+
+    <P>M-Systems' Disk-On-Chip 2000 is now supported by the
+      <A HREF="./">Linux Memory Technology Device subsystem</A>. 
+      M-Systems have provided me with complete specifications and sample 
+      hardware, and are also being very helpful when I ask them stupid 
+      questions.</P>
+    <P>We have recently received a large amount of new code for the NFTL
+      driver from Fabrice Bellard. The code now handles bad blocks and 
+      properly implements ECC, along with a number of other bug fixes.</P>
+    <P>Also, the DiskOnChip Millennium hardware is now supported, and the
+      <A HREF="http://www.acl.lanl.gov/linuxbios/index.html">LinuxBIOS</A>
+      project are using the DiskOnChip Millennium to hold their system 
+      image and also in many cases the root filesystem.</P>
+    <P>I haven't tested it myself recently, but I believe it should be
+      considered to be in late beta test. The only remaining issue that
+      I'm aware of, other than the need to clean up the code a little and 
+      provide some better documentation, is that it does all flash 
+      accesses with interrupts disabled, which is a little suboptimal. That
+      ought to be simple to fix.</P>
+
+    <HR>
+    <P>There is also a binary-only Linux driver for i386 systems available 
+      from M-Systems themselves, but this suffers the from well-known 
+      problems of binary drivers, in addition to which, if it is to be used
+      as a root filesystem, it must be statically linked into your kernel, 
+      which places <B><I>you</I></B> in blatant violation of the GPL if you 
+      distribute a solution using it.</P>
+
+    <P>If you aren't already aware of the nature of the the problems with 
+      binary-only drivers, then you can find more information in the ALSA
+      Project's <A HREF="http://www.alsa-project.org/call.html">Call to 
+	Hardware Vendors</A>. There is also <A 
+	HREF="http://lwn.net/1999/0211/kernel.phtml">a piece in the Linux
+	Weekly News</A> about Linus Torvalds' attitude to binary-only drivers
+      - why he insists that they will be broken, and often. In Linus' mails,
+      which are available <A 
+	HREF="http://lwn.net/1999/0211/a/lt-afs.html">here</A>, <A 
+	HREF="http://lwn.net/1999/0211/a/lt-idc.html">here</A> and <A 
+        HREF="http://lwn.net/1999/0211/a/lt-binary.html">here</A>, he says:
+      <BLOCKQUOTE><I>
+	Basically, I want people to know that when they use binary-only 
+	modules, it's THEIR problem.  I want people to know that in their 
+	bones, and I want it shouted out from the rooftops.  I want people to 
+	wake up in a cold sweat every once in a while if they use binary-only
+	modules. 
+      </I></BLOCKQUOTE>
+
+    <HR>
+    <H2 ALIGN="center">Current Status</H2>
+    <P>
+      I haven't made a snapshot recently, but the latest CVS tree contains
+      all the above-mentioned code, and should be stable. Please test it
+      in either a 2.2 or 2.4 kernel and let me know how you get on.
+      <BR>
+      DW. 28/11/0
+    </P>
+    
+    <hr>
+    <H2 ALIGN=CENTER>Updates</H2>
+      <P><B>Update 6/7/99 9pm (BST): </B> I have now heard again from the 
+      President of M-Systems. He has not yet managed to arrange a meeting 
+      to discuss the issue internally, but he promised that he will get 
+      back to me by the end of the week with a proposal for a solution. 
+      He concludes with the following sentence:
+      <I>"We are looking forward to the success of Linux and we want to be part
+	of it."</I></P>
+    <P><B>Update 8/7/99: </B> I have received a message from the Vice President
+      of Research and Development at M-Systems, Amir Ban. He responds to some 
+      of the technical issues to which I refer above. I have included his 
+      comments after each of my points, with a response from myself if 
+      appropriate. However, this was limited to technical concerns - the 
+      legal problems and other difficulties arising from the binary-only nature
+      of the drivers were not addressed. We are still discussing possible
+      options with regard to those.</P>
+    <P><B>Update 9/7/99: </B> I have heard again from Amir Ban, explaining 
+      their reasoning and their concerns. His mail can be found <A 
+	HREF="msys-response.html">here</A>, along with my response to it,
+      and my interpretation of the patent issues.</P>
+    <P><B>Update 19/7/99: </B> The latest word from M-Systems seems to be that 
+      they are willing to give me enough details to write a driver capable of
+      reading, writing and erasing the Disk-On-Chip 2000 hardware. The 
+      programming spec currently exists <I>&quot;only as an internal paper 
+	and is being worked on to be suitable for distribution.&quot;</I>
+      They haven't yet given an expected timescale for this.<BR>
+      They're extremely reluctant to release details of the NFTL filesystem,
+      so we may have to come up with an alternative before the Disk-On-Chip
+      is actually usable under Linux.</P>
+    <P><B>Update 25/7/99: </B> The <A 
+	HREF="http://www.linuxjournal.com/issue64/">August issue of Linux 
+	Journal</A> has just arrived, and incorrectly states that the driver
+      developed by IGEL for the DiskOnChip 2000 is available under GPL from
+      M-Systems' web site. I have responded to the Editor, Marjorie Richardson,
+      about this, and I hope that a correction will be published in the
+      next issue.</P>
+    <P><B>Update 1/8/99: </B> Despite sending another reminder, I still have
+      not heard from Linux Journal regarding their article on IGEL which 
+      mentions the Disk-On-Chip. This is surprising, considering the 
+      seriousness of their mistake. I hope that they contact me soon.</P>
+    <P><B>Update 2/8/99: </B>I have heard again from M-Systems. They have
+      provided me with the NFTL specification, and also the data sheet and
+      programming specification for the Disk-On-Chip Millennium. I expect to 
+      be able to produce a GPL'd Linux driver for them very shortly. With
+      this, every objection I have to using the Disk-On-Chip under Linux has
+      gone. M-Systems have responded genuinely to our concerns, and have 
+      provided us with documentation which contains their hard-earned 
+      intellectual property. I can now wholeheartedly recommend their products
+      for use under Linux. Now, I must get my head down and produce some code.
+    </P>
+    <P><B>Update 10/8/99: </B>A preliminary read-only driver for the 
+      DiskOnChip 2000 and NFTL has been incorporated into the latest release
+      of the MTD code. In addition to complete documentation and a contact 
+      point for further questions, M-Systems have provided me with sample 
+      hardware for the DiskOnChip 2000 and DiskOnChip Millennium. These
+      devices will soon be completely supported by Linux.
+    </P>
+    <P><B>Update 17/8/99: </B>I now have the ECC error 
+      detection working. It's taken longer than I expected, because there are 
+      subtle differences between the DiskOnChip 2000 (with which I'm testing)
+      and the DiskOnChip Millennium (for which I have the specs). M-Systems 
+      are being extremely helpful and pointing out the places where I've gone
+      wrong, however. Now this is working, I can get on with implementing the
+      write support, first in the DiskOnChip hardware itself, and then in the 
+      NFTL layer.
+      </P>
+    <P><B>Update 20/8/99: </B>At last I have some form
+      of write support for NFTL. It seems to work OK on the NFTL filesystems
+      that I've formatted myself, but it gets confused on the NFTL filesystems
+      which are produced by M-Systems' drivers. I need to correctly handle
+      the cases where there are multiple Chains for the same Virtual Unit; 
+      which isn't covered in the spec, but it's not possible to replace a Chain
+      without having the device in this state for a short period of time.
+    </P>
+    <P><B>Update 1/11/99: </B>I can now write to the NFTL
+      repeatedly without confusing the M-Systems driver - I can bash on it 
+      for a long time, and it doesn't seem to leave it in a state where their
+      driver no longer understands it. I'm not sure whether this is a good 
+      thing or not - I'm not aware that I did anything to fix it, and I don't
+      like bugs that just mysteriously disappear. <B>More testing and feedback
+	is required - please.</B> 
+      </P>
+    <P><B>Update 31/1/00: </B>We can now boot Grub from
+      a DiskOnChip - we can replace the DiskOnChip firmware with a version
+      of Grub, which will be automatically started from the flash.<BR>
+      That's the good news. The not-so-good news is that we haven't yet 
+      got Grub itself to support the DiskOnChip, so it's fairly pointless
+      for now - but it's a good start. Necessary, but not sufficient.</B>
+    </P>
+    <P><B><A NAME="latest">Update 28/11/0: </A></B>People seem to be linking
+      to this page so I suppose I'd best update it. I think the NFTL and 
+      DiskOnChip driver code is basically almost complete now. All that remains
+      is some final cleanups and a large amount of testing. I'll see if I
+      can get it into the 2.4 release.<BR>
+      In related news - Grub is also reported to be working completely
+      with the DiskOnChip 2000, and someone's working on getting it to
+      work with the Millennium.
+    </P>
+      
+    <HR>
+    <address><a href="mailto:dwmw2@infradead.org">David Woodhouse</a></address>
+   $Id: doc2000.html,v 1.1 2005/03/12 13:43:48 gleixner Exp $
+  </body>
+</html>

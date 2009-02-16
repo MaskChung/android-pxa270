@@ -1,0 +1,25 @@
+--- linux-2.4.26.org/lib/Config.in	2003-11-28 19:26:21.000000000 +0100
++++ linux-2.4.26.mtd/lib/Config.in	2004-06-17 15:09:36.000000000 +0200
+@@ -41,6 +41,22 @@
+   fi
+ fi
+ 
++if [ "$CONFIG_MTD_DOCPROBE" = "y" -o \
++     "$CONFIG_MTD_NAND_RTC_FROM4" = "y" -o \
++     "$CONFIG_MTD_NAND_DISKONCHIP" = "y" ]; then
++   define_tristate CONFIG_REED_SOLOMON y
++   define_tristate CONFIG_REED_SOLOMON_DEC16 y
++else
++  if [ "$CONFIG_MTD_DOCPROBE" = "m" -o \
++     "$CONFIG_MTD_NAND_RTC_FROM4" = "m" -o \
++     "$CONFIG_MTD_NAND_DISKONCHIP" = "m" ]; then
++     define_tristate CONFIG_REED_SOLOMON m
++     define_tristate CONFIG_REED_SOLOMON_DEC16 y
++  else
++     define_tristate CONFIG_REED_SOLOMON n
++  fi
++fi
++
+ if [ "$CONFIG_EXPERIMENTAL" = "y" -a \
+      "$CONFIG_HOTPLUG" = "y" ]; then
+    tristate 'Hotplug firmware loading support (EXPERIMENTAL)' CONFIG_FW_LOADER

@@ -1,0 +1,33 @@
+<PAGE>
+	<VAR match="VAR_ORIGIN" replace="" />
+	<VAR match="VAR_CVSID" replace="$Id: index.xml,v 1.1 2005/03/12 13:48:21 gleixner Exp $"/>
+	<INCLUDE file="inc/header.tmpl" />
+
+	<VAR match="VAR_SEL_INDEX" replace="selected" />
+	<PARSE file="menu1.xml" />
+	
+	<INCLUDE file="inc/content.tmpl" />
+
+	<h2>Design aims</h2>
+	<p>We're working on a generic Linux subsystem for memory devices, 
+ 		especially Flash devices.
+	</p>
+	<p>The aim of the system is to make it simple to provide a driver for new
+	hardware, by providing a generic interface between the hardware drivers
+	and the upper layers of the system.
+	</p>
+	<p>Hardware drivers need to know nothing about the storage formats used,
+	  such as FTL, FFS2, etc., but will only need to provide simple routines	
+	  for <tt>read</tt>, <tt>write</tt> and <tt>erase</tt>.
+	Presentation of the device's contents to the user in an appropriate form
+	will be handled by the upper layers of the system.
+	</p>
+	<hr size="2" />
+	<h2>News</h2>
+	<ul>
+	<li>Linux 2.4 support <a href="source.html#kernelversions">dropped</a></li>
+	<li><a href="doc/jffs3.html">JFFS3</a> development started</li>
+	</ul>
+
+	<INCLUDE file="inc/footer.tmpl" />
+</PAGE>

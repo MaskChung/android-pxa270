@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>JFFS2 & erase block size</title>
+  </head>
+
+  <body>
+    <h1>JFFS2 & erase block size</h1>
+
+    <P>Unlike the original JFFS, JFFS2 treats each erase block of the
+    flash separately. It will never write nodes which cross from one
+    erase block to another, and will not cope if it encounters a file
+    system with such nodes. Any node which crosses an erase block
+    boundary will be ignored by JFFS2, and the data it contains will
+    be lost, causing the file system to be corrupted. If there's not
+    enough space at the end of the current erase block to write a whole
+    node, JFFS2 will leave it blank and continue writing to a new
+    erase block. Also, JFFS2 always starts writing at the beginning
+    of an erase block, and does not expect to find free space in the
+    middle. Any free space in an erase block should go all the way to
+    the end of the erase block.
+
+    <P>One more thing to know is that JFFS2 may use multiple physical
+    erasable blocks as one (virtual) eraseblock if the flash partition
+    size is large enough. This implies that if one of physical blocks
+    within the JFFS2 eraseblock becomes bad, the whole JFFS2 eraseblock
+    is regarded as bad, thus wasting one or more good physical
+    eraseblocks. Albeit this is a drawback, it makes the eraseblocks
+    accounting very simple.</P>
+
+    <hr>
+    <address><a href="mailto:dwmw2@infradead.org">David Woodhouse</a></address>
+    $Id: jffs2-eraseblocks.html,v 1.2 2005/06/29 10:44:09 dedekind Exp $
+  </body>
+</html>

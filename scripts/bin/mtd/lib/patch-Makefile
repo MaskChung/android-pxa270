@@ -1,0 +1,18 @@
+--- linux.org/lib/Makefile	Tue Sep 18 00:31:15 2001
++++ linux.rmk/lib/Makefile	Tue Nov 26 21:28:44 2002
+@@ -19,4 +19,15 @@
+   obj-y += dec_and_lock.o
+ endif
+ 
++ifeq ($(CONFIG_JFFS2_FS),y)
++CONFIG_ZLIB_INFLATE := y
++CONFIG_ZLIB_DEFLATE := y
++endif
++
++subdir-$(CONFIG_ZLIB_INFLATE) += zlib_inflate
++subdir-$(CONFIG_ZLIB_DEFLATE) += zlib_deflate
++
++# Include the subdirs, if necessary.
++obj-y += $(join $(subdir-y),$(subdir-y:%=/%.o))
++
+ include $(TOPDIR)/Rules.make

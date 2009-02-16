@@ -1,0 +1,321 @@
+	$Id: README,v 1.4 2005/03/29 21:01:54 dbrown Exp $
+
+DOCBoot -- A simple Linux bootloader for DiskOnChip
+
+Author:
+  Dan Brown <dan_brown@ieee.org>
+DiskOnChip Millennium Plus and BIOS extension support:
+  Kalev Lember <kalev@smartlink.ee>
+
+-----------------------------------------------------------------------------
+
+DOCBoot replaces the M-Systems BIOS driver on your DOC with a small boot stub
+and your Linux kernel image.  It allows you to boot Linux directly without the
+need for an (I)NFTL partition on your device.
+
+DOCBoot is based on the first-stage Grub bootloader written by David
+Woodhouse.  Instead of loading Grub, it loads a Linux kernel.
+
+Like LILO and Grub, DOCBoot is a Linux bootloader.  It dispenses with many of
+the amenities provided by other bootloaders, however.  Command line editing,
+multiple image support, serial port boot interaction, fancy prompts and menus,
+timeouts, and all kinds of error checking are not present.  Unlike Grub,
+DOCBoot does not understand filesystems, nor can it load a kernel scattered
+throughout the blocks of a filesystem like LILO.  Instead, DOCBoot reads your
+kernel directly from a contiguous section of the DiskOnChip.
+
+DOCBoot supports kernel versions 2.4.0-test3-pre3 or later.  Bad things may
+happen if you try it with an earlier version.
+
+DOCBoot supports the new INFTL-based DiskOnChip 2000 parts by default.  These
+are sometimes also known as DOC Alon or DOC 2000 TSOP.  Support has also been
+added for DOC Millennium Plus 16 MB devices and for some older (NFTL) DOC 2000
+devices (you'll have to edit a file to build DOCBoot for these other devices).
+
+It might work on DOC Millenium (which behaves similarly to the DOC 2000 TSOP),
+but I haven't tested this.
+
+It does not (at this time) support DOC Millennium Plus 32 MB, or very old DOC
+2000 devices with 256-byte pages.
+
+DOCBoot now supports INITRD image loading.
+
+
+Quick Start
+-----------
+
+For DOC 2000TSOP/Alon parts, no configuration is needed and the steps below
+should work.  Otherwise, see the Configuration section.
+
+ 1. Get the diskonchip driver loaded.  (perhaps via "modprobe diskonchip")
+ 2. Ensure that your first BDK partition is large enough to hold your bzImage
+    plus 1k.  If it currently holds the M-Systems BIOS code, it probably isn't.
+    To resize that partition, and for the definition of a BDK partition, please
+    refer to M-Systems' DOS-based utilities and associated documentation.
+    (Hint: dformat /win:xxxx /bdkl0:x)
+    You can also resize partitions with the docfdisk utility from the mtd util
+    directory.
+ 2. Copy a kernel bzImage or vmlinuz into this directory.  Name it 'bzImage'.
+ 3. Edit the file 'cmdline' to taste.
+ 4. Generate the doc_spl image:
+      make
+ 5. Assuming your first BDK partition is /dev/mtd1:
+      flash_eraseall /dev/mtd1
+      nandwrite -o /dev/mtd1 doc_spl
+    DONT FORGET the -o flag to nandwrite!
+    IMPORTANT:  You must have mtd partition support compiled into your kernel/
+    modules!  If you run these commands on /dev/mtd0, you'll erase your entire
+    device!
+ 6. Reboot.  DOCBoot will run if no other drives (floppy, CD, HD, etc) are
+    bootable.  (This behavior can be altered, see DOC_BIOS_HOOK below).
+
+
+Make Options
+------------
+
+There are a few options that can be given to the 'make' command in step 4
+above:
+
+KERN=<file>		Allows you to specify the location and name of your
+			kernel image, instead of using the default "./bzImage".
+
+INITRD=<file>		Configures DOCBoot to load the specified initrd image.
+			The initrd data will be added to the end of doc_spl.
+			Depending on your initrd, this can make doc_spl quite
+			large -- be sure your partition is large enough!
+
+Example:
+
+  make KERN=/usr/src/linux/arch/i386/boot/bzImage INITRD=../../initrd.gz
+
+
+How it works
+------------
+
+The DiskOnChip has a piece of code called the IPL stored in the first
+eraseblock (if yours doesn't, the M-Systems tools can replace it).  When
+powered on, the DOC loads the IPL into a small onboard RAM, which is mapped
+into the address space assigned to the DOC.  The system BIOS scans this
+address space and recognizes the IPL as a BIOS extension, so it runs it.
+
+The IPL searches the DOC for the next stage, called the SPL.  The SPL is
+identified with a special code in the out-of-band (OOB) area of the first
+eraseblock of the SPL.  This allows the IPL to simply scan the device, rather
+than understanding any kind of partitioning scheme.
+
+The IPL loads 0x3000 bytes from the start of the SPL, and computes a checksum.
+If the checksum is equal to 0x55, it then executes the SPL.
+
+(Note:  The description above is valid for the Millenium and 2000TSOP parts.
+Other variants behave slightly differently.)
+
+The SPL in turn is responsible for loading the rest of the firmware from the 
+DiskOnChip. Normally, this steals some memory for itself, and installs an
+INT 13h (Disk BIOS) handler to emulate disk access.
+
+We change this. Instead of installing an INT 13h handler, we install an
+INT 18h (diskless boot) or INT 19h (bootstrap loader) handler. This is very
+small, and is held entirely within the first 1024 bytes of the SPL with the
+code which installs it. 
+
+The INT 18h handler is called when no bootable device can be found by the BIOS.
+The default handler (built into the BIOS) normally prints an error message and
+prompts you to insert a bootable disk.
+
+Using the INT 18h handler, DOCBoot will be called by the BIOS if all other boot
+devices fail.  If you would rather have DOCBoot be the first (rather than last)
+device to boot, configure DOCBoot as an INT 19h handler instead.  (See the
+Configuration section).
+
+When executed, our replacement interrupt handler loads the Linux kernel (and
+optionally initrd) into memory.  Adopting the same technique as the IPL, it
+finds your kernel/initrd by scanning the DOC for a special signature in the OOB
+area.  This code marks every block containing the kernel or initrd (this is
+very important, as it allows us to skip over bad blocks).
+
+As with any x86 Linux bootloader, DOCBoot loads a small section of the kernel
+(the real mode setup code) into low memory (below the 1Mbyte mark) and the rest
+into high memory.  It then sets up some variables to let the kernel find the
+commandline and initrd, and jumps to the kernel setup code it just loaded.  The
+rest is up to Linux.
+
+
+Configuration
+-------------
+
+You can alter DOCB behaviour by uncommenting or modifying special #defines
+at the end of doc_bootstub.h:
+
+#define MILPLUS:        Uncomment this to enable DiskOnChip Millennium Plus
+                        support and disable DOC 2000 / Millennium.
+
+#define DOC_BIOS_HOOK:  Change this to either 0x18 to hook the Diskless Boot
+                        Interrupt or to 0x19 the hook the Bootstrap Loader
+                        Interrupt.
+
+#define DOC_ADDRESS:    This is used to specify the memory address at which
+                        the Diskonchip is located.  If this is undefined,
+                        DOCBoot relies on the standard IPL to pass this
+                        information in the DS register.  If your IPL doesn't
+                        do this, or for some other reason you want to hard-
+                        code the address, define this.
+
+#define BIOS_EXTENSION: Uncomment this to make a standard PC BIOS extension
+                        instead of the SPL image.  This is explained in more
+                        detail in the "Bios Extension Support" section below.
+
+#define OLD_DOC2K:	Uncomment this to compile DOCBoot for older (NFTL)
+			DOC 2000 devices.  It doesn't make sense to use this
+			and MILPLUS at the same time; DOCBoot supports only
+			one type of device at a time.  See the "Older (NFTL)
+			DOC 2000 Devices" section for detailed usage info.
+
+
+Keyboard Abort
+--------------
+
+When the interrupt handler is installed, the message "Installing DOCBoot." will
+be printed to the screen.  If you do NOT want DOCBoot to run, hold down any
+shift, control, or alt key during your system bootup.  If DOCBoot detects any
+of these keys are depressed (at the point in the bootup sequence where the
+"Installing DOCBoot." message gets printed), installation of the interrupt
+handler will not take place, and the message will not be printed.
+
+This only works at the point in time where the interrupt handler is about to be
+installed.  The interrupt handler itself (the code that prints "Loading
+kernel...") does not check the keyboard.
+
+The ability to abort is particularly important if you have DOC_BIOS_HOOK set to
+0x19 (bootstrap loader).  If your Linux system on the DOC is unusable due to a
+broken installation (either of DOCBoot itself, your kernel, your commandline,
+your initrd, etc) and DOC_BIOS_HOOK is set to 0x19, it can be very hard to fix
+your installation.  Since the INT 19h handler makes DOCBoot the first (and
+only) boot device, the only way to boot from some other device (so you can go
+in and fix your installation!) is to disable or remove the DOC.  But if you do
+that, the DOC is not available from Linux and you can't fix the problem.  The
+author has actually been forced to solve this problem by physically inserting
+his DiskOnChip into the socket after BIOS scan but before the Linux kernel
+starts (NOT a recommended practice!)  Keyboard abort removes the need for that
+kind of insanity.
+
+
+BIOS Extension Support
+----------------------
+
+Normally, the makefile uses the program 'makespl' to combine the DOCBoot
+executable, your commandline information, and your kernel+initrd into a single
+file which you can then write to your device.  This is appropriate when using
+the standard M-Systems IPL.
+
+In applications which use a custom BIOS, you may instead want to use DOCBoot as
+a BIOS extension (loaded with your BIOS), rather than as a SPL (loaded by the
+M-Systems IPL).
+
+To do this you must (1) #define BIOS_EXTENSION in doc_bootstub.h, and
+(2) run 'make bios' rather than 'make'.  This will produce two files:
+
+'doc_spl' contains your kernel+initrd image in a form suitable for writing to
+your device with nandwrite -o.  Unlike in the normal build method, this does
+not contain DOCBoot itself.
+
+'bios_ext' is a 1024-byte file containing DOCBoot and your commandline info,
+formatted as a standard PC BIOS extension.  Merging this into your BIOS is up
+to you.
+
+
+Older (NFTL) DOC 2000 Devices
+-----------------------------
+
+NFTL-based DOC2000 parts are a bit trickier to use with DOCBoot.  The biggest
+issue is that the NFTL format does not really support partitions, at least not
+in the flexible way used by INFTL.  An INFTL device is organized as follows:
+
+  IPL
+  Media Header
+  Partition 0 (BDK or BDTL)
+  (optional) Partition 1 (BDK or BDTL)
+  . . . up to at most Partition 3
+
+Under Linux, MTD partitions (subdevices) are created for each partition listed
+in the INFTL partition table.  Thus up to five MTD devices will be created:
+
+  /dev/mtd0 is the entire device
+  /dev/mtd1 is Partition 0
+  . . . /dev/mtd4 is Partition 3
+
+No partitions are created for the IPL or Media Header (they are accessible
+through the "whole device" entry, /dev/mtd0).
+
+When using DOCBoot with an INFTL device, we generally write the DOCBoot image to
+partition 0 and create a filesystem such as jffs2 on paritition 1.  This is
+similar to what the M-Systems firmware does: the firware (BDK) goes in
+partition 0, and the INFTL filesystem (BDTL) goes in partition 1.  So far, so
+good.
+
+By contrast, an NFTL device is organized as follows:
+
+  Firmware
+  Media Header
+  BDTL Data
+
+Under Linux, normally two MTD devices will be created:
+
+  /dev/mtd0 is the entire device
+  /dev/mtd1 is the BDTL filesystem
+
+Recall steps 2 and 5 from the "Quick Start" section of this document:
+
+ 2. Ensure that your first BDK partition is large enough to hold your bzImage
+    plus 1k.
+
+ 5. Assuming your first BDK partition is /dev/mtd1:
+      flash_eraseall /dev/mtd1
+      nandwrite -o /dev/mtd1 doc_spl
+
+How do we accomplish these tasks when NFTL doesn't have partitions?
+
+It turns out the M-Systems DOS utility DFORMAT is willing to pretend that the
+Firmware section of the device is a BDK partition.  So the command referred to
+in the Quick Start:
+
+    dformat /win:xxxx /bdkl0:x
+
+Will work for NFTL devices.  Properly used, this will resize the Firmware
+section to be large enough for your DOCBoot image.
+
+However, early versions of the Linux diskonchip driver (prior to April 2005)
+didn't scan the entire device when looking for the Media Header section.  They
+only scanned the first 128K or so.  Thus, older version of the diskonchip
+driver will refuse to work with NFTL devices if the Firmware has been resized
+enough for DOCBoot.  An up-to-date version of the driver will fix this problem.
+
+The other problem is the flash_eraseall command in step 5 of the Quick Start. We
+want to erase just the Firmware section, but our only choices are /dev/mtd0
+(the entire device), or /dev/mtd1 (our filesystem).  To solve this, recent
+versions of the diskonchip driver add a new module parameter, used as follows:
+
+  modprobe diskonchip show_firmware_partition=1
+
+Linux will now create three MTD devices instead of two:
+
+  /dev/mtd0 is the entire device
+  /dev/mtd1 is the Firmware and Media Header sections
+  /dev/mtd2 is the BDTL filesystem
+
+(With INFTL devices, this option will create a new partition for the IPL +
+Media Header section).  This option is safe to use all the time; it is not the
+default because it would unexpectedly break device naming for existing users.
+We can now use:
+
+  flash_eraseall /dev/mtd1
+
+To erase the firmware.  Although the Media Header is part of this device, it is
+write-protected in Linux and will not be destroyed.  When it tries to erase the
+Media Header, flash_eraseall will produce error messages about failure to erase
+"bad blocks", these should be ignored.
+
+One final note: show_firmware_partition=1 is only needed when you want to
+(re)write your DOCBoot image.  It is not needed for DOCBoot to work, nor for
+normal filesystem operations under Linux.  You might choose to leave the
+Firmware section hidden most of the time and only create a partition for it when
+you need to update it.
