@@ -1,0 +1,1739 @@
+diff -uNr grub-clean/configure grub/configure
+--- grub-clean/configure	Wed Nov 15 04:30:22 2000
++++ grub/configure	Sun Dec  3 19:48:09 2000
+@@ -32,6 +32,8 @@
+ ac_help="$ac_help
+   --disable-reiserfs      disable ReiserFS support in Stage 2"
+ ac_help="$ac_help
++  --enable-diskonchip     enable DiskOnChip 2000 support in Stage 2"
++ac_help="$ac_help
+   --disable-gunzip        disable decompression in Stage 2"
+ ac_help="$ac_help
+   --disable-md5-password  disable MD5 password support in Stage 2"
+@@ -665,7 +667,7 @@
+ # SVR4 /usr/ucb/install, which tries to use the nonexistent group "staff"
+ # ./install, which can be erroneously created by make from ./install.sh.
+ echo $ac_n "checking for a BSD compatible install""... $ac_c" 1>&6
+-echo "configure:669: checking for a BSD compatible install" >&5
++echo "configure:671: checking for a BSD compatible install" >&5
+ if test -z "$INSTALL"; then
+ if eval "test \"`echo '$''{'ac_cv_path_install'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+@@ -718,7 +720,7 @@
+ test -z "$INSTALL_DATA" && INSTALL_DATA='${INSTALL} -m 644'
+ 
+ echo $ac_n "checking whether build environment is sane""... $ac_c" 1>&6
+-echo "configure:722: checking whether build environment is sane" >&5
++echo "configure:724: checking whether build environment is sane" >&5
+ # Just in case
+ sleep 1
+ echo timestamp > conftestfile
+@@ -790,7 +792,7 @@
+ # Extract the first word of "$ac_prog", so it can be a program name with args.
+ set dummy $ac_prog; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:794: checking for $ac_word" >&5
++echo "configure:796: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_AWK'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -820,7 +822,7 @@
+ done
+ 
+ echo $ac_n "checking whether ${MAKE-make} sets \${MAKE}""... $ac_c" 1>&6
+-echo "configure:824: checking whether ${MAKE-make} sets \${MAKE}" >&5
++echo "configure:826: checking whether ${MAKE-make} sets \${MAKE}" >&5
+ set dummy ${MAKE-make}; ac_make=`echo "$2" | sed 'y%./+-%__p_%'`
+ if eval "test \"`echo '$''{'ac_cv_prog_make_${ac_make}_set'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+@@ -946,7 +948,7 @@
+ fi
+ 
+ echo $ac_n "checking host system type""... $ac_c" 1>&6
+-echo "configure:950: checking host system type" >&5
++echo "configure:952: checking host system type" >&5
+ 
+ host_alias=$host
+ case "$host_alias" in
+@@ -980,7 +982,7 @@
+ #
+ 
+ echo $ac_n "checking whether to enable maintainer-specific portions of Makefiles""... $ac_c" 1>&6
+-echo "configure:984: checking whether to enable maintainer-specific portions of Makefiles" >&5
++echo "configure:986: checking whether to enable maintainer-specific portions of Makefiles" >&5
+     # Check whether --enable-maintainer-mode or --disable-maintainer-mode was given.
+ if test "${enable_maintainer_mode+set}" = set; then
+   enableval="$enable_maintainer_mode"
+@@ -1006,7 +1008,7 @@
+   # Extract the first word of "perl", so it can be a program name with args.
+ set dummy perl; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1010: checking for $ac_word" >&5
++echo "configure:1012: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_path_PERL'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1053,7 +1055,7 @@
+ #
+ 
+ echo $ac_n "checking build system type""... $ac_c" 1>&6
+-echo "configure:1057: checking build system type" >&5
++echo "configure:1059: checking build system type" >&5
+ 
+ build_alias=$build
+ case "$build_alias" in
+@@ -1079,7 +1081,7 @@
+ # Extract the first word of "${ac_tool_prefix}gcc", so it can be a program name with args.
+ set dummy ${ac_tool_prefix}gcc; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1083: checking for $ac_word" >&5
++echo "configure:1085: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_CC'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1111,7 +1113,7 @@
+ # Extract the first word of "gcc", so it can be a program name with args.
+ set dummy gcc; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1115: checking for $ac_word" >&5
++echo "configure:1117: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_CC'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1141,7 +1143,7 @@
+   # Extract the first word of "cc", so it can be a program name with args.
+ set dummy cc; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1145: checking for $ac_word" >&5
++echo "configure:1147: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_CC'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1192,7 +1194,7 @@
+       # Extract the first word of "cl", so it can be a program name with args.
+ set dummy cl; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1196: checking for $ac_word" >&5
++echo "configure:1198: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_CC'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1224,7 +1226,7 @@
+ fi
+ 
+ echo $ac_n "checking whether the C compiler ($CC $CFLAGS $LDFLAGS) works""... $ac_c" 1>&6
+-echo "configure:1228: checking whether the C compiler ($CC $CFLAGS $LDFLAGS) works" >&5
++echo "configure:1230: checking whether the C compiler ($CC $CFLAGS $LDFLAGS) works" >&5
+ 
+ ac_ext=c
+ # CFLAGS is not in ac_cpp because -g, -O, etc. are not valid cpp options.
+@@ -1235,12 +1237,12 @@
+ 
+ cat > conftest.$ac_ext << EOF
+ 
+-#line 1239 "configure"
++#line 1241 "configure"
+ #include "confdefs.h"
+ 
+ main(){return(0);}
+ EOF
+-if { (eval echo configure:1244: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:1246: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   ac_cv_prog_cc_works=yes
+   # If we can't run a trivial program, we are probably using a cross compiler.
+   if (./conftest; exit) 2>/dev/null; then
+@@ -1266,12 +1268,12 @@
+   { echo "configure: error: installation or configuration problem: C compiler cannot create executables." 1>&2; exit 1; }
+ fi
+ echo $ac_n "checking whether the C compiler ($CC $CFLAGS $LDFLAGS) is a cross-compiler""... $ac_c" 1>&6
+-echo "configure:1270: checking whether the C compiler ($CC $CFLAGS $LDFLAGS) is a cross-compiler" >&5
++echo "configure:1272: checking whether the C compiler ($CC $CFLAGS $LDFLAGS) is a cross-compiler" >&5
+ echo "$ac_t""$ac_cv_prog_cc_cross" 1>&6
+ cross_compiling=$ac_cv_prog_cc_cross
+ 
+ echo $ac_n "checking whether we are using GNU C""... $ac_c" 1>&6
+-echo "configure:1275: checking whether we are using GNU C" >&5
++echo "configure:1277: checking whether we are using GNU C" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_gcc'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1280,7 +1282,7 @@
+   yes;
+ #endif
+ EOF
+-if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:1284: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
++if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:1286: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
+   ac_cv_prog_gcc=yes
+ else
+   ac_cv_prog_gcc=no
+@@ -1299,7 +1301,7 @@
+ ac_save_CFLAGS="$CFLAGS"
+ CFLAGS=
+ echo $ac_n "checking whether ${CC-cc} accepts -g""... $ac_c" 1>&6
+-echo "configure:1303: checking whether ${CC-cc} accepts -g" >&5
++echo "configure:1305: checking whether ${CC-cc} accepts -g" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_cc_g'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1332,7 +1334,7 @@
+ 
+ 
+ echo $ac_n "checking how to run the C preprocessor""... $ac_c" 1>&6
+-echo "configure:1336: checking how to run the C preprocessor" >&5
++echo "configure:1338: checking how to run the C preprocessor" >&5
+ # On Suns, sometimes $CPP names a directory.
+ if test -n "$CPP" && test -d "$CPP"; then
+   CPP=
+@@ -1347,13 +1349,13 @@
+   # On the NeXT, cc -E runs the code through the compiler's parser,
+   # not just through cpp.
+   cat > conftest.$ac_ext <<EOF
+-#line 1351 "configure"
++#line 1353 "configure"
+ #include "confdefs.h"
+ #include <assert.h>
+ Syntax Error
+ EOF
+ ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+-{ (eval echo configure:1357: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
++{ (eval echo configure:1359: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
+ if test -z "$ac_err"; then
+   :
+@@ -1364,13 +1366,13 @@
+   rm -rf conftest*
+   CPP="${CC-cc} -E -traditional-cpp"
+   cat > conftest.$ac_ext <<EOF
+-#line 1368 "configure"
++#line 1370 "configure"
+ #include "confdefs.h"
+ #include <assert.h>
+ Syntax Error
+ EOF
+ ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+-{ (eval echo configure:1374: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
++{ (eval echo configure:1376: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
+ if test -z "$ac_err"; then
+   :
+@@ -1381,13 +1383,13 @@
+   rm -rf conftest*
+   CPP="${CC-cc} -nologo -E"
+   cat > conftest.$ac_ext <<EOF
+-#line 1385 "configure"
++#line 1387 "configure"
+ #include "confdefs.h"
+ #include <assert.h>
+ Syntax Error
+ EOF
+ ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+-{ (eval echo configure:1391: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
++{ (eval echo configure:1393: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
+ if test -z "$ac_err"; then
+   :
+@@ -1420,7 +1422,7 @@
+ depcc="$CC"
+ depcpp="$CPP"
+ echo $ac_n "checking dependency style of $depcc""... $ac_c" 1>&6
+-echo "configure:1424: checking dependency style of $depcc" >&5
++echo "configure:1426: checking dependency style of $depcc" >&5
+ if eval "test \"`echo '$''{'am_cv_CC_dependencies_compiler_type'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1476,7 +1478,7 @@
+   # Extract the first word of "ranlib", so it can be a program name with args.
+ set dummy ranlib; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1480: checking for $ac_word" >&5
++echo "configure:1482: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_path_RANLIB'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1513,7 +1515,7 @@
+   # Extract the first word of "ranlib", so it can be a program name with args.
+ set dummy ranlib; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1517: checking for $ac_word" >&5
++echo "configure:1519: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_RANLIB'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1553,7 +1555,7 @@
+     STAGE1_CFLAGS="-O2"
+     GRUB_CFLAGS="-O2"
+     echo $ac_n "checking whether optimization for size works""... $ac_c" 1>&6
+-echo "configure:1557: checking whether optimization for size works" >&5
++echo "configure:1559: checking whether optimization for size works" >&5
+ if eval "test \"`echo '$''{'size_flag'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1561,14 +1563,14 @@
+       saved_CFLAGS=$CFLAGS
+       CFLAGS="-Os -g"
+       cat > conftest.$ac_ext <<EOF
+-#line 1565 "configure"
++#line 1567 "configure"
+ #include "confdefs.h"
+ 
+ int main() {
+ 
+ ; return 0; }
+ EOF
+-if { (eval echo configure:1572: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
++if { (eval echo configure:1574: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+   rm -rf conftest*
+   size_flag=yes
+ else
+@@ -1600,7 +1602,7 @@
+ CPPFLAGS="$CPPFLAGS -Wpointer-arith"
+ 
+ echo $ac_n "checking whether -Wundef works""... $ac_c" 1>&6
+-echo "configure:1604: checking whether -Wundef works" >&5
++echo "configure:1606: checking whether -Wundef works" >&5
+ if eval "test \"`echo '$''{'undef_flag'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1608,14 +1610,14 @@
+   saved_CPPFLAGS=$CPPFLAGS
+   CPPFLAGS="-Wundef"
+   cat > conftest.$ac_ext <<EOF
+-#line 1612 "configure"
++#line 1614 "configure"
+ #include "confdefs.h"
+ 
+ int main() {
+ 
+ ; return 0; }
+ EOF
+-if { (eval echo configure:1619: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
++if { (eval echo configure:1621: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+   rm -rf conftest*
+   undef_flag=yes
+ else
+@@ -1642,7 +1644,7 @@
+   # Extract the first word of "objcopy", so it can be a program name with args.
+ set dummy objcopy; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1646: checking for $ac_word" >&5
++echo "configure:1648: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_path_OBJCOPY'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1678,7 +1680,7 @@
+   # Extract the first word of "${ac_tool_prefix}objcopy", so it can be a program name with args.
+ set dummy ${ac_tool_prefix}objcopy; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1682: checking for $ac_word" >&5
++echo "configure:1684: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_OBJCOPY'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1712,7 +1714,7 @@
+ # Defined in acinclude.m4.
+ 
+ echo $ac_n "checking if C symbols get an underscore after compilation""... $ac_c" 1>&6
+-echo "configure:1716: checking if C symbols get an underscore after compilation" >&5
++echo "configure:1718: checking if C symbols get an underscore after compilation" >&5
+ if eval "test \"`echo '$''{'grub_cv_asm_uscore'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1725,7 +1727,7 @@
+ }
+ EOF
+ 
+-if { ac_try='${CC-cc} ${CFLAGS} -S conftest.c'; { (eval echo configure:1729: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } && test -s conftest.s; then
++if { ac_try='${CC-cc} ${CFLAGS} -S conftest.c'; { (eval echo configure:1731: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } && test -s conftest.s; then
+   true
+ else
+   { echo "configure: error: ${CC-cc} failed to produce assembly code" 1>&2; exit 1; }
+@@ -1751,7 +1753,7 @@
+ echo "$ac_t""$grub_cv_asm_uscore" 1>&6
+ 
+ echo $ac_n "checking whether ${OBJCOPY} works for absolute addresses""... $ac_c" 1>&6
+-echo "configure:1755: checking whether ${OBJCOPY} works for absolute addresses" >&5
++echo "configure:1757: checking whether ${OBJCOPY} works for absolute addresses" >&5
+ if eval "test \"`echo '$''{'grub_cv_prog_objcopy_absolute'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1763,21 +1765,21 @@
+ }
+ EOF
+ 
+-if { (eval echo configure:1767: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; } && test -s conftest.o; then :
++if { (eval echo configure:1769: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; } && test -s conftest.o; then :
+ else
+   { echo "configure: error: ${CC-cc} cannot compile C source code" 1>&2; exit 1; }
+ fi
+ grub_cv_prog_objcopy_absolute=yes
+ for link_addr in 2000 8000 7C00; do
+-  if { ac_try='${CC-cc} ${CFLAGS} -nostdlib -Wl,-N -Wl,-Ttext -Wl,$link_addr conftest.o -o conftest.exec'; { (eval echo configure:1773: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; }; then :
++  if { ac_try='${CC-cc} ${CFLAGS} -nostdlib -Wl,-N -Wl,-Ttext -Wl,$link_addr conftest.o -o conftest.exec'; { (eval echo configure:1775: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; }; then :
+   else
+     { echo "configure: error: ${CC-cc} cannot link at address $link_addr" 1>&2; exit 1; }
+   fi
+-  if { ac_try='${OBJCOPY-objcopy} -O binary conftest.exec conftest'; { (eval echo configure:1777: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; }; then :
++  if { ac_try='${OBJCOPY-objcopy} -O binary conftest.exec conftest'; { (eval echo configure:1779: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; }; then :
+   else
+     { echo "configure: error: ${OBJCOPY-objcopy} cannot create binary files" 1>&2; exit 1; }
+   fi
+-  if test ! -f conftest.old || { ac_try='cmp -s conftest.old conftest'; { (eval echo configure:1781: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; }; then
++  if test ! -f conftest.old || { ac_try='cmp -s conftest.old conftest'; { (eval echo configure:1783: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; }; then
+     mv -f conftest conftest.old
+   else
+     grub_cv_prog_objcopy_absolute=no
+@@ -1794,7 +1796,7 @@
+ 
+ 
+ echo $ac_n "checking whether addr32 must be in the same line as the instruction""... $ac_c" 1>&6
+-echo "configure:1798: checking whether addr32 must be in the same line as the instruction" >&5
++echo "configure:1800: checking whether addr32 must be in the same line as the instruction" >&5
+ if eval "test \"`echo '$''{'grub_cv_asm_prefix_requirement'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1803,7 +1805,7 @@
+ l1:	addr32	movb	%al, l1
+ EOF
+ 
+-if { ac_try='${CC-cc} ${CFLAGS} -c conftest.s'; { (eval echo configure:1807: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } && test -s conftest.o; then
++if { ac_try='${CC-cc} ${CFLAGS} -c conftest.s'; { (eval echo configure:1809: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } && test -s conftest.o; then
+   grub_cv_asm_prefix_requirement=yes
+ else
+   grub_cv_asm_prefix_requirement=no
+@@ -1835,7 +1837,7 @@
+ 
+ 
+ echo $ac_n "checking for .code16 addr32 assembler support""... $ac_c" 1>&6
+-echo "configure:1839: checking for .code16 addr32 assembler support" >&5
++echo "configure:1841: checking for .code16 addr32 assembler support" >&5
+ if eval "test \"`echo '$''{'grub_cv_asm_addr32'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1850,7 +1852,7 @@
+   sed -e s/@ADDR32@/addr32\;/ < conftest.s.in > conftest.s
+ fi
+ 
+-if { ac_try='${CC-cc} ${CFLAGS} -c conftest.s'; { (eval echo configure:1854: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } && test -s conftest.o; then
++if { ac_try='${CC-cc} ${CFLAGS} -c conftest.s'; { (eval echo configure:1856: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } && test -s conftest.o; then
+   grub_cv_asm_addr32=yes
+ else
+   grub_cv_asm_addr32=no
+@@ -1867,7 +1869,7 @@
+ 
+ 
+ echo $ac_n "checking whether an absolute indirect call/jump must not be prefixed with an asterisk""... $ac_c" 1>&6
+-echo "configure:1871: checking whether an absolute indirect call/jump must not be prefixed with an asterisk" >&5
++echo "configure:1873: checking whether an absolute indirect call/jump must not be prefixed with an asterisk" >&5
+ if eval "test \"`echo '$''{'grub_cv_asm_absolute_without_asterisk'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1878,7 +1880,7 @@
+ 	.word	0
+ EOF
+ 
+-if { ac_try='${CC-cc} ${CFLAGS} -c conftest.s'; { (eval echo configure:1882: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } && test -s conftest.o; then
++if { ac_try='${CC-cc} ${CFLAGS} -c conftest.s'; { (eval echo configure:1884: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } && test -s conftest.o; then
+   grub_cv_asm_absolute_without_asterisk=no
+ else
+   grub_cv_asm_absolute_without_asterisk=yes
+@@ -1899,19 +1901,19 @@
+ 
+ 
+ echo $ac_n "checking if start is defined by the compiler""... $ac_c" 1>&6
+-echo "configure:1903: checking if start is defined by the compiler" >&5
++echo "configure:1905: checking if start is defined by the compiler" >&5
+ if eval "test \"`echo '$''{'grub_cv_check_start_symbol'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   cat > conftest.$ac_ext <<EOF
+-#line 1908 "configure"
++#line 1910 "configure"
+ #include "confdefs.h"
+ 
+ int main() {
+ asm ("incl start")
+ ; return 0; }
+ EOF
+-if { (eval echo configure:1915: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:1917: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   rm -rf conftest*
+   grub_cv_check_start_symbol=yes
+ else
+@@ -1935,19 +1937,19 @@
+ 
+ 
+ echo $ac_n "checking if _start is defined by the compiler""... $ac_c" 1>&6
+-echo "configure:1939: checking if _start is defined by the compiler" >&5
++echo "configure:1941: checking if _start is defined by the compiler" >&5
+ if eval "test \"`echo '$''{'grub_cv_check_uscore_start_symbol'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   cat > conftest.$ac_ext <<EOF
+-#line 1944 "configure"
++#line 1946 "configure"
+ #include "confdefs.h"
+ 
+ int main() {
+ asm ("incl _start")
+ ; return 0; }
+ EOF
+-if { (eval echo configure:1951: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:1953: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   rm -rf conftest*
+   grub_cv_check_uscore_start_symbol=yes
+ else
+@@ -1976,19 +1978,19 @@
+ 
+ 
+ echo $ac_n "checking if __bss_start is defined by the compiler""... $ac_c" 1>&6
+-echo "configure:1980: checking if __bss_start is defined by the compiler" >&5
++echo "configure:1982: checking if __bss_start is defined by the compiler" >&5
+ if eval "test \"`echo '$''{'grub_cv_check_uscore_uscore_bss_start_symbol'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   cat > conftest.$ac_ext <<EOF
+-#line 1985 "configure"
++#line 1987 "configure"
+ #include "confdefs.h"
+ 
+ int main() {
+ asm ("incl __bss_start")
+ ; return 0; }
+ EOF
+-if { (eval echo configure:1992: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:1994: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   rm -rf conftest*
+   grub_cv_check_uscore_uscore_bss_start_symbol=yes
+ else
+@@ -2012,19 +2014,19 @@
+ 
+ 
+ echo $ac_n "checking if _edata is defined by the compiler""... $ac_c" 1>&6
+-echo "configure:2016: checking if _edata is defined by the compiler" >&5
++echo "configure:2018: checking if _edata is defined by the compiler" >&5
+ if eval "test \"`echo '$''{'grub_cv_check_uscore_edata_symbol'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   cat > conftest.$ac_ext <<EOF
+-#line 2021 "configure"
++#line 2023 "configure"
+ #include "confdefs.h"
+ 
+ int main() {
+ asm ("incl _edata")
+ ; return 0; }
+ EOF
+-if { (eval echo configure:2028: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:2030: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   rm -rf conftest*
+   grub_cv_check_uscore_edata_symbol=yes
+ else
+@@ -2048,19 +2050,19 @@
+ 
+ 
+ echo $ac_n "checking if edata is defined by the compiler""... $ac_c" 1>&6
+-echo "configure:2052: checking if edata is defined by the compiler" >&5
++echo "configure:2054: checking if edata is defined by the compiler" >&5
+ if eval "test \"`echo '$''{'grub_cv_check_edata_symbol'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   cat > conftest.$ac_ext <<EOF
+-#line 2057 "configure"
++#line 2059 "configure"
+ #include "confdefs.h"
+ 
+ int main() {
+ asm ("incl edata")
+ ; return 0; }
+ EOF
+-if { (eval echo configure:2064: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:2066: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   rm -rf conftest*
+   grub_cv_check_edata_symbol=yes
+ else
+@@ -2090,19 +2092,19 @@
+ 
+ 
+ echo $ac_n "checking if end is defined by the compiler""... $ac_c" 1>&6
+-echo "configure:2094: checking if end is defined by the compiler" >&5
++echo "configure:2096: checking if end is defined by the compiler" >&5
+ if eval "test \"`echo '$''{'grub_cv_check_end_symbol'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   cat > conftest.$ac_ext <<EOF
+-#line 2099 "configure"
++#line 2101 "configure"
+ #include "confdefs.h"
+ 
+ int main() {
+ asm ("incl end")
+ ; return 0; }
+ EOF
+-if { (eval echo configure:2106: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:2108: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   rm -rf conftest*
+   grub_cv_check_end_symbol=yes
+ else
+@@ -2126,19 +2128,19 @@
+ 
+ 
+ echo $ac_n "checking if _end is defined by the compiler""... $ac_c" 1>&6
+-echo "configure:2130: checking if _end is defined by the compiler" >&5
++echo "configure:2132: checking if _end is defined by the compiler" >&5
+ if eval "test \"`echo '$''{'grub_cv_check_uscore_end_symbol'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   cat > conftest.$ac_ext <<EOF
+-#line 2135 "configure"
++#line 2137 "configure"
+ #include "confdefs.h"
+ 
+ int main() {
+ asm ("incl _end")
+ ; return 0; }
+ EOF
+-if { (eval echo configure:2142: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:2144: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   rm -rf conftest*
+   grub_cv_check_uscore_end_symbol=yes
+ else
+@@ -2176,7 +2178,7 @@
+ # Get the filename or the whole disk and open it.
+ # Known to work on NetBSD.
+ echo $ac_n "checking for opendisk in -lutil""... $ac_c" 1>&6
+-echo "configure:2180: checking for opendisk in -lutil" >&5
++echo "configure:2182: checking for opendisk in -lutil" >&5
+ ac_lib_var=`echo util'_'opendisk | sed 'y%./+-%__p_%'`
+ if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+@@ -2184,7 +2186,7 @@
+   ac_save_LIBS="$LIBS"
+ LIBS="-lutil  $LIBS"
+ cat > conftest.$ac_ext <<EOF
+-#line 2188 "configure"
++#line 2190 "configure"
+ #include "confdefs.h"
+ /* Override any gcc2 internal prototype to avoid an error.  */
+ /* We use char because int might match the return type of a gcc2
+@@ -2195,7 +2197,7 @@
+ opendisk()
+ ; return 0; }
+ EOF
+-if { (eval echo configure:2199: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:2201: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   rm -rf conftest*
+   eval "ac_cv_lib_$ac_lib_var=yes"
+ else
+@@ -2223,7 +2225,7 @@
+ # Unless the user specify --without-curses, check for curses.
+ if test "x$with_curses" != "xno"; then
+   echo $ac_n "checking for wgetch in -lncurses""... $ac_c" 1>&6
+-echo "configure:2227: checking for wgetch in -lncurses" >&5
++echo "configure:2229: checking for wgetch in -lncurses" >&5
+ ac_lib_var=`echo ncurses'_'wgetch | sed 'y%./+-%__p_%'`
+ if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+@@ -2231,7 +2233,7 @@
+   ac_save_LIBS="$LIBS"
+ LIBS="-lncurses  $LIBS"
+ cat > conftest.$ac_ext <<EOF
+-#line 2235 "configure"
++#line 2237 "configure"
+ #include "confdefs.h"
+ /* Override any gcc2 internal prototype to avoid an error.  */
+ /* We use char because int might match the return type of a gcc2
+@@ -2242,7 +2244,7 @@
+ wgetch()
+ ; return 0; }
+ EOF
+-if { (eval echo configure:2246: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:2248: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   rm -rf conftest*
+   eval "ac_cv_lib_$ac_lib_var=yes"
+ else
+@@ -2265,7 +2267,7 @@
+ else
+   echo "$ac_t""no" 1>&6
+ echo $ac_n "checking for wgetch in -lcurses""... $ac_c" 1>&6
+-echo "configure:2269: checking for wgetch in -lcurses" >&5
++echo "configure:2271: checking for wgetch in -lcurses" >&5
+ ac_lib_var=`echo curses'_'wgetch | sed 'y%./+-%__p_%'`
+ if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+@@ -2273,7 +2275,7 @@
+   ac_save_LIBS="$LIBS"
+ LIBS="-lcurses  $LIBS"
+ cat > conftest.$ac_ext <<EOF
+-#line 2277 "configure"
++#line 2279 "configure"
+ #include "confdefs.h"
+ /* Override any gcc2 internal prototype to avoid an error.  */
+ /* We use char because int might match the return type of a gcc2
+@@ -2284,7 +2286,7 @@
+ wgetch()
+ ; return 0; }
+ EOF
+-if { (eval echo configure:2288: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:2290: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   rm -rf conftest*
+   eval "ac_cv_lib_$ac_lib_var=yes"
+ else
+@@ -2319,17 +2321,17 @@
+ do
+ ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
+ echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+-echo "configure:2323: checking for $ac_hdr" >&5
++echo "configure:2325: checking for $ac_hdr" >&5
+ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   cat > conftest.$ac_ext <<EOF
+-#line 2328 "configure"
++#line 2330 "configure"
+ #include "confdefs.h"
+ #include <$ac_hdr>
+ EOF
+ ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+-{ (eval echo configure:2333: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
++{ (eval echo configure:2335: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
+ if test -z "$ac_err"; then
+   rm -rf conftest*
+@@ -2414,6 +2416,18 @@
+   FSYS_CFLAGS="$FSYS_CFLAGS -DFSYS_REISERFS=1"
+ fi
+ 
++# Check whether --enable-diskonchip or --disable-diskonchip was given.
++if test "${enable_diskonchip+set}" = set; then
++  enableval="$enable_diskonchip"
++  :
++fi
++
++
++if test x"$enable_diskonchip" = xyes; then
++  FSYS_CFLAGS="$FSYS_CFLAGS -DBDEV_DISKONCHIP=1"
++fi
++
++
+ 
+ # Check whether --enable-gunzip or --disable-gunzip was given.
+ if test "${enable_gunzip+set}" = set; then
+@@ -2935,7 +2949,7 @@
+ }
+ EOF
+ 
+-if { ac_try='${CC-cc} ${CFLAGS} conftest.c -o conftest'; { (eval echo configure:2939: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } && test -s conftest; then
++if { ac_try='${CC-cc} ${CFLAGS} conftest.c -o conftest'; { (eval echo configure:2953: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } && test -s conftest; then
+   grub_tmp_value=`./conftest < "$enable_preset_menu"`
+ else
+   { echo "configure: error: ${CC-cc} failed to produce an executable file" 1>&2; exit 1; }
+diff -uNr grub-clean/configure.in grub/configure.in
+--- grub-clean/configure.in	Wed Nov 15 04:30:23 2000
++++ grub/configure.in	Sun Dec  3 19:48:09 2000
+@@ -216,6 +216,14 @@
+   FSYS_CFLAGS="$FSYS_CFLAGS -DFSYS_REISERFS=1"
+ fi
+ 
++AC_ARG_ENABLE(diskonchip,
++  [  --enable-diskonchip     enable DiskOnChip 2000 support in Stage 2])
++
++if test x"$enable_diskonchip" = xyes; then
++  FSYS_CFLAGS="$FSYS_CFLAGS -DBDEV_DISKONCHIP=1"
++fi
++
++
+ dnl AC_ARG_ENABLE(tftp,
+ dnl [  --enable-tftp           enable TFTP support in Stage 2])
+ dnl 
+diff -uNr grub-clean/stage2/Makefile.am grub/stage2/Makefile.am
+--- grub-clean/stage2/Makefile.am	Thu Oct 19 22:10:42 2000
++++ grub/stage2/Makefile.am	Sun Dec  3 19:48:09 2000
+@@ -72,7 +72,7 @@
+ pre_stage2_exec_SOURCES = asm.S bios.c boot.c builtins.c common.c \
+ 	char_io.c cmdline.c disk_io.c gunzip.c fsys_ext2fs.c \
+ 	fsys_fat.c fsys_ffs.c fsys_minix.c fsys_reiserfs.c serial.c \
+-	smp-imps.c stage2.c md5.c
++	smp-imps.c stage2.c md5.c bdev_diskonchip.c
+ pre_stage2_exec_CFLAGS = $(STAGE2_COMPILE) $(FSYS_CFLAGS)
+ pre_stage2_exec_LDFLAGS = $(PRE_STAGE2_LINK)
+ 
+diff -uNr grub-clean/stage2/bdev_diskonchip.c grub/stage2/bdev_diskonchip.c
+--- grub-clean/stage2/bdev_diskonchip.c	Thu Jan  1 01:00:00 1970
++++ grub/stage2/bdev_diskonchip.c	Sun Dec  3 19:48:09 2000
+@@ -0,0 +1,819 @@
++/*
++ *  GRUB  --  GRand Unified Bootloader
++ *  Copyright (C) 1996  Erich Boleyn  <erich@uruk.org>
++ *  Copyright (C) 1999  Free Software Foundation, Inc.
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#ifdef BDEV_DISKONCHIP
++
++/* #define DOC_DEBUG */
++
++#include "shared.h"
++
++#define DoC_M_CDSN_IO 0x800
++
++#define DoC_ChipID 0x1000
++#define DoC_DOCStatus 0x1001
++#define DoC_DOCControl 0x1002
++#define DoC_FloorSelect 0x1003
++#define DoC_CDSNControl 0x1004
++#define DoC_CDSNDeviceSelect 0x1005
++#define DoC_ECCConf 0x1006
++#define DoC_2k_ECCStatus 0x1007
++
++#define DoC_CDSNSlowIO 0x100d
++#define DoC_ECCSyndrome0 0x1010
++#define DoC_ECCSyndrome1 0x1011
++#define DoC_ECCSyndrome2 0x1012
++#define DoC_ECCSyndrome3 0x1013
++#define DoC_ECCSyndrome4 0x1014
++#define DoC_ECCSyndrome5 0x1015
++#define DoC_AliasResolution 0x101b
++#define DoC_ConfigInput 0x101c
++#define DoC_ReadPipeInit 0x101d
++#define DoC_WritePipeTerm 0x101e
++#define DoC_LastDataRead 0x101f
++#define DoC_NOP 0x1020
++
++#define DoC_2k_CDSN_IO 0x1800
++
++#define DOC_MODE_RESET 0
++#define DOC_MODE_NORMAL 1
++#define DOC_MODE_RESERVED1 2
++#define DOC_MODE_RESERVED2 3
++
++#define DOC_MODE_MDWREN 4
++#define DOC_MODE_CLR_ERR 0x80
++
++#define DOC_ChipID_Doc2k 0x20
++#define DOC_ChipID_DocMil 0x30
++
++#define CDSN_CTRL_FR_B 0x80
++#define CDSN_CTRL_ECC_IO 0x20
++#define CDSN_CTRL_FLASH_IO 0x10
++#define CDSN_CTRL_WP 8
++#define CDSN_CTRL_ALE 4
++#define CDSN_CTRL_CLE 2
++#define CDSN_CTRL_CE 1
++
++#define DOC_ECC_RESET 0
++#define DOC_ECC_ERROR 0x80
++#define DOC_ECC_RW 0x20
++#define DOC_ECC__EN 0x08
++#define DOC_TOGGLE_BIT 0x04
++#define DOC_ECC_RESV 0x02
++/* We have to also set the reserved bit 1 for enable */
++#define DOC_ECC_EN (DOC_ECC__EN | DOC_ECC_RESV)
++
++#define MAX_FLOORS 4
++#define MAX_CHIPS 4
++
++#define NAND_CMD_READ0 0
++#define NAND_CMD_READ1 1
++#define NAND_CMD_PAGEPROG 0x10
++#define NAND_CMD_READOOB 0x50
++#define NAND_CMD_ERASE1 0x60
++#define NAND_CMD_STATUS 0x70
++#define NAND_CMD_SEQIN 0x80
++#define NAND_CMD_READID 0x90
++#define NAND_CMD_ERASE2 0xd0
++#define NAND_CMD_RESET 0xff
++
++#define NAND_MFR_TOSHIBA 0x98
++#define NAND_MFR_SAMSUNG 0xec
++
++#define ERASE_SIZE 0x2000
++#define ERASE_SECT (ERASE_SIZE >> 9)
++#define MAX_NFTLS 16
++
++#define ERASE_MARK 0x3c69
++#define BLOCK_FREE 0xffff
++#define BLOCK_USED 0x5555
++#define BLOCK_IGNORE 0x1111
++#define BLOCK_DELETED 0x0000
++
++struct NFTLMediaHeader
++{
++  char DataOrgID[6];
++  unsigned short NumEraseUnits;
++  unsigned short FirstPhysicalEUN;
++  unsigned long FormattedSize;
++  unsigned char UnitSizeFactor;
++} __attribute__((packed));
++
++struct NFTLrecord
++{
++  unsigned short MediaUnit, SpareMediaUnit;
++  struct NFTLMediaHeader MediaHdr;
++  unsigned short numvunits;
++  unsigned short lastEUN; /* last + 1 */
++};
++
++/* Block Control Information */
++
++struct nftl_bci
++{
++  unsigned char ECCSig[6];
++  unsigned short Status;
++} __attribute__((packed));
++
++/* Unit Control Information */
++
++struct nftl_uci0
++{
++  unsigned short VirtUnitNum;
++  unsigned short ReplUnitNum;
++  unsigned short SpareVirtUnitNum;
++  unsigned short SpareReplUnitNum;
++} __attribute__((packed));
++
++struct nftl_uci1
++{
++  unsigned long WearInfo;
++  unsigned short EraseMark;
++  unsigned short EraseMark1;
++} __attribute__((packed));
++
++struct nftl_uci2
++{
++  unsigned long WriteInh;
++  unsigned long unused;
++} __attribute__((packed));
++
++union nftl_uci
++{
++  struct nftl_uci0 a;
++  struct nftl_uci1 b;
++  struct nftl_uci2 c;
++};
++
++struct nftl_oob
++{
++  struct nftl_bci b;
++  union nftl_uci u;
++};
++
++static int doc_inited = 0;
++static volatile unsigned char *docloc = NULL;
++static int numchips[MAX_FLOORS];
++static int totalchips=0;
++static int chipshift=0;
++static unsigned char nftlbuf[512];
++
++static struct NFTLrecord NFTLs[MAX_NFTLS];
++static int nNFTLs = 0;
++
++/* badtable cache */
++static unsigned char badtableblock[512];
++static int badtablestart = -1;
++static int badtablenftl = -1;
++
++static int _DoC_WaitReady(void)
++{
++	short c=-1;
++
++	while (!(docloc[DoC_CDSNControl] & CDSN_CTRL_FR_B) && --c)
++		;
++
++	if (c == 0)
++		grub_printf("_DoC_WaitReady timed out\n");
++
++	return (c==0);
++}
++
++static inline int DoC_WaitReady(void)
++{
++	volatile unsigned char dummy;
++	int ret = 0;
++
++	dummy = docloc[DoC_CDSNControl];
++	dummy = docloc[DoC_CDSNControl];
++	dummy = docloc[DoC_CDSNControl];
++	dummy = docloc[DoC_CDSNControl];
++
++	if (!(docloc[DoC_CDSNControl] & CDSN_CTRL_FR_B))
++		ret = _DoC_WaitReady();
++
++	dummy = docloc[DoC_CDSNControl];
++	dummy = docloc[DoC_CDSNControl];
++
++	return ret;
++}
++
++static inline void DoC_Command(unsigned char command, unsigned char xtraflags)
++{
++	docloc[DoC_CDSNControl] = 
++		CDSN_CTRL_FLASH_IO | xtraflags | CDSN_CTRL_CLE | CDSN_CTRL_CE;
++	
++	docloc[DoC_2k_CDSN_IO] = command;
++
++	docloc[DoC_CDSNControl] = 
++		CDSN_CTRL_FLASH_IO | xtraflags | CDSN_CTRL_CE;
++}
++
++static int DoC_IdentChip(unsigned char floor, unsigned char chip)
++{
++	int mfr, id, thischipshift=0;
++
++	docloc[DoC_FloorSelect] = floor;
++	docloc[DoC_CDSNDeviceSelect] = chip;
++
++	DoC_Command(NAND_CMD_RESET, CDSN_CTRL_WP);
++
++	if (DoC_WaitReady())
++		return 0;
++
++	DoC_Command(NAND_CMD_READID, CDSN_CTRL_WP);
++
++
++	/* Send a zero address */
++	docloc[DoC_CDSNControl] = 
++		CDSN_CTRL_FLASH_IO | CDSN_CTRL_WP | CDSN_CTRL_ALE | CDSN_CTRL_CE;
++	docloc[DoC_2k_CDSN_IO] = 0;
++
++	docloc[DoC_CDSNControl] = 
++		CDSN_CTRL_FLASH_IO | CDSN_CTRL_WP | CDSN_CTRL_CE;
++	
++	mfr = docloc[DoC_2k_CDSN_IO];
++	id = docloc[DoC_2k_CDSN_IO];
++
++        /*
++        if (mfr != NAND_MFR_TOSHIBA && mfr != NAND_MFR_SAMSUNG)
++		return 0;
++        */
++        switch (mfr)
++        {
++          case NAND_MFR_TOSHIBA:
++            grub_printf("floor %d, chip %d; ", floor, chip);
++            grub_printf("manufacturer: Toshiba\n");
++            break;
++          case NAND_MFR_SAMSUNG:
++            grub_printf("floor %d, chip %d; ", floor, chip);
++            grub_printf("manufacturer: Samsung\n");
++            break;
++          default:
++            /* grub_printf("unknown manufacturer code: 0x%x\n", mfr); */
++            return 0;
++        }
++
++	switch (id) {
++	case 0x64:
++	case 0xea:
++		thischipshift = 21;
++		break;
++		
++	case 0x6b:
++	case 0xe5:
++	case 0xe3:
++		thischipshift = 22;
++		break;
++		
++	case 0xe6: 
++		thischipshift = 23;
++		break;
++		
++	case 0x73: 
++		thischipshift = 24;
++		break;
++		
++	case 0x75: 
++		thischipshift = 25;
++		break;
++		
++	default:
++	}
++	
++	if (!chipshift) {
++		chipshift = thischipshift;
++                grub_printf("chipshift: %d\n", chipshift);
++		grub_printf("DiskOnChip NAND chip size: %x Mb\n", 1 << 
++			    (chipshift - 20));
++	}
++	
++	return 1;
++}
++
++static void DoC_ScanChips(void)
++{
++	unsigned char floor, chip;
++	int ret;
++
++	for (floor = 0; floor < MAX_FLOORS; floor++) {
++		ret = 1;
++		numchips[floor]=0;
++		for (chip = 0; chip < MAX_CHIPS && ret != 0; chip++) {
++			ret = DoC_IdentChip(floor, chip);
++			if (ret) {
++				numchips[floor]++;
++				totalchips++;
++			}
++		}
++	}
++}
++
++
++static int DoC_Probe(volatile unsigned char *loc)
++{
++	unsigned char tmp;
++	unsigned char ChipID;
++#ifndef DOC_PASSIVE_PROBE
++	unsigned char tmp2;
++#endif
++
++	if ((loc[0] != 0x55) || (loc[1] != 0xaa))
++	    return 0;
++	
++#ifndef DOC_PASSIVE_PROBE
++	tmp2 = loc[DoC_DOCControl];
++
++	loc[DoC_DOCControl] = 
++		DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_RESET;
++	loc[DoC_DOCControl] = 
++		DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_RESET;
++
++	loc[DoC_DOCControl] = 
++		DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_NORMAL;
++	loc[DoC_DOCControl] = 
++		DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_NORMAL;
++#endif
++
++	ChipID = loc[DoC_ChipID];
++
++	if (ChipID == DOC_ChipID_DocMil) {
++		grub_printf("DiskOnChip Millennium found at %x but not supported yet\n",
++			    (unsigned int)loc);
++		return 0;
++	}
++
++	if (ChipID != DOC_ChipID_Doc2k) {
++#ifndef DOC_PASSIVE_PROBE
++		loc[DoC_DOCControl] = tmp2;
++#endif
++		return 0;
++	}
++
++	/* See if the TOGGLE bit is toggling */
++
++	tmp = loc[DoC_2k_ECCStatus] & DOC_TOGGLE_BIT;
++	if (tmp == (loc[DoC_2k_ECCStatus] & DOC_TOGGLE_BIT)) {
++#ifndef DOC_PASSIVE_PROBE
++		loc[DoC_DOCControl] = tmp2;
++#endif
++		return 0;
++	}
++
++	/* OK. We're fairly sure it's a DiskOnChip now. */
++	grub_printf("DiskOnChip 2000 found at %x\n", (unsigned int)loc);
++	docloc = loc;
++
++	DoC_ScanChips();
++
++	if (!totalchips)
++		return 0;
++	grub_printf("Total of %d chips found - total capacity %d Mb\n",
++		    totalchips, totalchips * ( 1 << (chipshift -20)));
++	return 1;
++}
++
++static int doc_read_oob(unsigned long sector, void *buf)
++{
++	unsigned char chip, floor;
++	int di;
++
++	chip = sector >> (chipshift - 9);
++	floor = 0;
++
++	while (chip >= numchips[floor]) {
++		chip -= numchips[floor];
++		floor++;
++		if (floor == MAX_FLOORS)
++			return -1;
++	}
++		
++	/* grub_printf("sector 0x%x is on floor %d, chip %d\n",
++		    sector, floor, chip); */
++
++	docloc[DoC_FloorSelect] = floor;
++	docloc[DoC_CDSNDeviceSelect] = chip;
++
++	DoC_Command(NAND_CMD_READOOB, CDSN_CTRL_WP);
++
++	DoC_WaitReady();
++
++	docloc[DoC_CDSNControl] = 
++		CDSN_CTRL_FLASH_IO |CDSN_CTRL_WP | CDSN_CTRL_ALE | CDSN_CTRL_CE;
++
++	docloc[DoC_2k_CDSN_IO] = 0;
++	docloc[DoC_2k_CDSN_IO] = sector & 0xff;
++	docloc[DoC_2k_CDSN_IO] = (sector >> 8) & 0xff;
++
++	docloc[DoC_CDSNControl] = 
++		CDSN_CTRL_FLASH_IO |CDSN_CTRL_WP | CDSN_CTRL_CE;
++
++	DoC_WaitReady();
++
++	for (di=0; di < 16; di++) {
++		((unsigned char *)buf)[di] = docloc[DoC_2k_CDSN_IO];
++	}
++
++        return 0;
++}
++
++static int doc_read_sector(unsigned long sector, unsigned char *buf)
++{
++	unsigned char chip, floor;
++	int di;
++
++	chip = sector >> (chipshift - 9);
++	floor = 0;
++
++	//	grub_printf("sector %d\n", sector);
++
++	while (chip >= numchips[floor]) {
++		//		grub_printf("Chip %d Not on floor %d (%d chips)\n", chip, floor, numchips[floor]);
++		chip -= numchips[floor];
++		floor++;
++		if (floor == MAX_FLOORS)
++			return -1;
++	}
++		
++	//	grub_printf("sector 0x%x is on floor %d, chip %d\n", 
++	//    sector, floor, chip);
++	
++	docloc[DoC_FloorSelect] = floor;
++	docloc[DoC_CDSNDeviceSelect] = chip;
++
++	DoC_Command(NAND_CMD_READ0, CDSN_CTRL_WP);
++
++	DoC_WaitReady();
++
++	docloc[DoC_CDSNControl] = 
++		CDSN_CTRL_FLASH_IO |CDSN_CTRL_WP | CDSN_CTRL_ALE | CDSN_CTRL_CE;
++
++	docloc[DoC_2k_CDSN_IO] = 0;
++	docloc[DoC_2k_CDSN_IO] = sector & 0xff;
++	docloc[DoC_2k_CDSN_IO] = (sector >> 8) & 0xff;
++
++	docloc[DoC_CDSNControl] = 
++		CDSN_CTRL_FLASH_IO |CDSN_CTRL_WP | CDSN_CTRL_CE;
++
++	DoC_WaitReady();
++
++	for (di=0; di < 512; di++) {
++		buf[di] = docloc[DoC_2k_CDSN_IO];
++	}
++
++        return 0;
++}
++
++static
++void NFTL_setup(unsigned long sect, struct NFTLMediaHeader *hdr)
++{
++  int i;
++  unsigned int eun = sect / ERASE_SECT;
++  struct NFTLrecord *nftl;
++
++  for (i=0; i<nNFTLs; i++)
++  {
++    if (NFTLs[i].MediaHdr.FirstPhysicalEUN == hdr->FirstPhysicalEUN)
++    {
++      /* This is a Spare Media Header for an NFTL we've already found */
++      printf("Spare Media Header for NFTL %d found in flash sector %d\n",
++        i, sect);
++      NFTLs[i].SpareMediaUnit = eun;
++      return;
++    }
++  }
++  printf("NFTL Media Header found in flash sector %d\n", sect);
++
++  if (hdr->UnitSizeFactor != 0xff)
++  {
++    printf("Sorry, we don't support UnitSizeFactor of != 1 yet\n");
++    return;
++  }
++
++  if (nNFTLs >= MAX_NFTLS)
++  {
++    printf("Maximum of NFTLs is exceeded\n");
++    return;
++  }
++
++  nftl = &NFTLs[nNFTLs++];
++  nftl->MediaHdr = *hdr;
++  nftl->MediaUnit = eun;
++  nftl->SpareMediaUnit = 0xffff;
++  nftl->numvunits = hdr->FormattedSize / ERASE_SIZE;
++
++  nftl->lastEUN =
++    nftl->MediaHdr.NumEraseUnits + nftl->MediaHdr.FirstPhysicalEUN;
++}
++
++/* read badtable
++*/
++static
++int isbad(unsigned int nftl_num, int eun)
++{
++  int flag = 0;
++  int offset = eun / 512;
++  if (badtablenftl != nftl_num)
++    flag = 1;
++  else if (badtablestart != offset)
++    flag = 1;
++  if (flag)
++  {
++    doc_read_sector(
++      NFTLs[nftl_num].MediaUnit * ERASE_SECT + offset + 1, badtableblock
++    );
++    badtablenftl = nftl_num;
++    badtablestart = offset;
++  }
++  return badtableblock[eun % 512] == 0xff ? 0 : 1;
++}
++
++/* virtual block -> physical block hash
++*/
++#define max_blk_hash 4096
++#define blk_hash_func(a, b) ((b) & 0x0fff)
++static
++struct blk_hash_entry
++{
++  int vblock;
++  int pblock;
++  char nftl;
++} __attribute__((packed)) blk_hash[max_blk_hash];
++
++/* VUN -> firstEUN hash
++*/
++#define max_eun_hash 1024
++#define eun_hash_func(a, b) ((b) & 0x03ff)
++static
++struct eun_hash_entry
++{
++  unsigned short vun;
++  unsigned short eun;
++  char nftl;
++} __attribute__((packed)) eun_hash[max_eun_hash];
++
++static
++int nftl_findsect(unsigned int nftl_num, int block)
++{
++  struct NFTLrecord *nftl;
++  unsigned short vun, eun, save_stat, save_eun;
++  unsigned long sect;
++  struct nftl_oob oob, oob1;
++  unsigned int k, n;
++
++  if (nftl_num >= nNFTLs)
++    return -1;
++
++  nftl = &NFTLs[nftl_num];
++
++  k = blk_hash_func(nftl_num, block);
++  if (blk_hash[k].nftl == nftl_num &&
++      blk_hash[k].vblock == block)
++    return blk_hash[k].pblock;
++
++  blk_hash[k].nftl = nftl_num;
++  blk_hash[k].vblock = block;
++  blk_hash[k].pblock = -1;
++
++  /* printf("find virtual sector %d\n", block); */
++  vun = block / ERASE_SECT;
++  block = block % ERASE_SECT;
++  /* printf("virtual unit number %d, offset %d\n", vun, block); */
++
++  /* find first eun in a chain */
++  n = eun_hash_func(nftl_num, vun);
++  if (eun_hash[n].nftl == nftl_num && eun_hash[n].vun == vun)
++  {
++    eun = eun_hash[n].eun;
++    if (eun == 0xffff)
++      return -1;
++    sect = eun * ERASE_SECT;
++    /* Read Unit Control Information #0 */
++    if (doc_read_oob(sect, &oob) < 0)
++      return -1;
++  }
++  else
++  {
++    eun_hash[n].nftl = nftl_num;
++    eun_hash[n].vun = vun;
++    eun_hash[n].eun = 0xffff;
++    eun = nftl->MediaHdr.FirstPhysicalEUN;
++    sect = eun * ERASE_SECT;
++    for (; eun<nftl->lastEUN; eun++, sect += ERASE_SECT)
++    {
++      if (isbad(nftl_num, eun))
++      { printf("eun %d is bad\n", eun);
++        continue;
++      }
++      /* Read Unit Control Information #0 */
++      if (doc_read_oob(sect, &oob) < 0)
++        return -1;
++      if (oob.u.a.VirtUnitNum != oob.u.a.SpareVirtUnitNum)
++        continue;
++      if (oob.u.a.ReplUnitNum != oob.u.a.SpareReplUnitNum)
++        continue;
++      /* find first only! */
++      if (oob.u.a.VirtUnitNum == vun)
++        break;
++    }
++    if (eun == nftl->lastEUN)
++      return -1;
++    eun_hash[n].eun = eun;
++    /* printf("was found first eun %d\n", eun); */
++  }
++
++  /* walk throw the chain */
++  save_stat = BLOCK_FREE;
++  save_eun = eun;
++  for (;;)
++  {
++    /* read block status */
++    if (doc_read_oob(sect + block, &oob1) < 0)
++      return -1;
++    /* end of block chain? */
++    if (oob1.b.Status == BLOCK_FREE)
++    { /* printf("block %d in eun %d is BLOCK_FREE\n", block, eun); */
++      break;
++    }
++    /* remember last 'active' status and EUN */
++    if (oob1.b.Status == BLOCK_USED ||
++        oob1.b.Status == BLOCK_DELETED)
++    {
++      save_stat = oob1.b.Status;
++      save_eun = eun;
++      /* printf("block %d in eun %d is %s\n",
++        block, eun, save_stat == BLOCK_USED ? "BLOCK_USED" : "BLOCK_DELETED");
++      */
++    }
++    /* is it last in eun chain? */
++    if (oob.u.a.ReplUnitNum == 0xffff)
++    { /* printf("eun %d is last in the chain\n", eun); */
++      break;
++    }
++    /* read next eun in the chain */
++    eun = oob.u.a.ReplUnitNum;
++    sect = eun * ERASE_SECT;
++    /* printf("read block in next eun %d\n", eun); */
++    if (doc_read_oob(sect, &oob) < 0)
++      return -1;
++    if (oob.u.a.VirtUnitNum != oob.u.a.SpareVirtUnitNum)
++      return -1;
++    if (oob.u.a.ReplUnitNum != oob.u.a.SpareReplUnitNum)
++      return -1;
++  }
++
++  if (save_stat == BLOCK_USED)
++  { /* printf("was found block %d in eun %d\n",
++      save_eun * ERASE_SECT + block, save_eun);
++    */
++    return
++      blk_hash[k].pblock = save_eun * ERASE_SECT + block;
++  }
++
++  return -1;
++}
++
++static
++void NFTL_Scan(void)
++{
++  unsigned long sector;
++  struct NFTLMediaHeader *hdr = (struct NFTLMediaHeader *)nftlbuf;
++
++  /* total size in sectors */
++  unsigned long ssize = totalchips * (1 << (chipshift - 9));
++
++  printf("Scanning for NFTL Media Header\n");
++
++  /* Scan for NFTL partitions */
++  for (sector=0; sector<ssize; sector+=ERASE_SECT)
++  {
++    if (doc_read_sector(sector, nftlbuf) < 0)
++      continue;      
++    if (!strcmp(hdr->DataOrgID, "ANAND"))
++    {
++      /* printf("NFTL Media Header found in flash sector %d\n", sector); */
++      /* printf("NumEraseUnits: %d\n", hdr->NumEraseUnits);
++      printf("FirstPhysicalEUN: %d\n", hdr->FirstPhysicalEUN);
++      printf("FormattedSize: %d\n", hdr->FormattedSize);
++      printf("UnitSizeFactor: %d\n", hdr->UnitSizeFactor); */
++      NFTL_setup(sector, hdr);
++    }
++  }
++}
++
++static void doc_find(void)
++{
++	unsigned long probeloc = 0xc8000;
++	doc_inited = 1;
++	
++
++	for (probeloc = 0xc8000; probeloc < 0xf0000; probeloc += 0x2000) {
++		if (DoC_Probe((unsigned char *)probeloc)) {
++			NFTL_Scan();
++			return;
++		}
++	}
++	
++	grub_printf("No DiskOnChip found\n");
++	return;
++}
++		
++int nftl_rawread(int drive, int sector, int byte_offset, int byte_len, char *buf)
++{
++  int size, block;
++
++#ifdef DOC_DEBUG
++  printf(
++    "nftl_rawread(%d, %d, %d, %d)\n", drive, sector, byte_offset, byte_len
++  );
++#endif
++  if (byte_len < 0 || !buf || drive < 0 || drive >= MAX_NFTLS)
++  { errnum = ERR_BAD_ARGUMENT; return 0;
++  }
++
++  /* If this is the first time we've been called, 
++     we need to go searching for a DiskOnChip
++  */
++  if (!doc_inited)
++  {
++    int i;
++    doc_find();
++
++    if (!docloc)
++    { errnum = ERR_NO_DISK; return 0;
++    }
++
++    for (i=0; i<max_blk_hash; i++)
++    {
++      blk_hash[i].nftl = -1;
++      blk_hash[i].vblock = -1;
++      blk_hash[i].pblock = -1;
++    }
++    
++    for (i=0; i<max_eun_hash; i++)
++    {
++      eun_hash[i].nftl = -1;
++      eun_hash[i].vun = 0xffff;
++      eun_hash[i].eun = 0xffff;
++    }
++  }
++
++  if (!docloc)
++  { errnum = ERR_NO_DISK; return 0;
++  }
++
++  if (drive < 0 || drive >= nNFTLs)
++  { errnum = ERR_NO_DISK; return 0;
++  }
++
++  sector += (byte_offset >> 9);
++  byte_offset &= 511;
++
++  while (byte_len)
++  {
++    size = 512 - byte_offset;
++    if (byte_len < size) size = byte_len;
++
++    /* virtual unit number */
++    block = nftl_findsect(drive, sector);
++    if (block < 0)
++    { errnum = ERR_FSYS_CORRUPT; return 0;
++    }
++
++    if (doc_read_sector(block, nftlbuf) < 0)
++    { errnum = ERR_FSYS_CORRUPT; return 0;
++    }
++
++    memcpy(buf, nftlbuf + byte_offset, size);
++#ifdef DOC_DEBUG
++    printf("readed sector %d (%d), bytes %d..%d\n",
++      sector, block, byte_offset, byte_offset + size - 1);
++#endif
++    sector++;
++    byte_offset = 0;
++    byte_len -= size;
++    buf += size;
++  }
++
++  errnum = ERR_NONE;
++  return 1;
++}
++
++#endif /* BDEV_DISKONCHIP */
++
+diff -uNr grub-clean/stage2/builtins.c grub/stage2/builtins.c
+--- grub-clean/stage2/builtins.c	Tue Nov 21 16:36:21 2000
++++ grub/stage2/builtins.c	Sun Dec  3 19:48:09 2000
+@@ -2912,6 +2912,19 @@
+       /* Network drive.  */
+       grub_printf (" (nd):");
+     }
++  else if (saved_drive == DISK_ON_CHIP)
++    {
++      /* DiskOnChip 2000 */
++      grub_printf (" (dc%d", saved_drive & 0x0F);
++
++      if ((saved_partition & 0xFF0000) != 0xFF0000)
++	grub_printf (",%d", saved_partition >> 16);
++
++      if ((saved_partition & 0x00FF00) != 0x00FF00)
++	grub_printf (",%c", ((saved_partition >> 8) & 0xFF) + 'a');
++
++      grub_printf ("):");
++    }
+   else if (saved_drive & 0x80)
+     {
+       /* Hard disk drive.  */
+diff -uNr grub-clean/stage2/disk_io.c grub/stage2/disk_io.c
+--- grub-clean/stage2/disk_io.c	Wed Nov  8 17:33:41 2000
++++ grub/stage2/disk_io.c	Sun Dec  3 19:48:09 2000
+@@ -115,6 +115,13 @@
+   if (byte_len <= 0)
+     return 1;
+ 
++#ifdef BDEV_DISKONCHIP
++  if ((drive & 0xfffffff0) == DISK_ON_CHIP)
++    return nftl_rawread(
++      drive & 0x0000000f, sector, byte_offset, byte_len, buf
++    );
++#endif
++
+   while (byte_len > 0 && !errnum)
+     {
+       int soff, num_sect, bufaddr, track, size = byte_len;
+@@ -268,7 +275,8 @@
+     return 1;
+   
+   if (!(current_partition & 0xFF000000uL)
+-      && (current_drive & 0xFFFFFF7F) < 8
++      && ((current_drive & 0xFFFFFF7F) < 8 
++	  || (current_drive & 0xFFFFFFF0) == DISK_ON_CHIP)
+       && (current_partition & 0xFF) == 0xFF
+       && ((current_partition & 0xFF00) == 0xFF00
+ 	  || (current_partition & 0xFF00) < 0x800)
+@@ -849,19 +857,32 @@
+ 		return device + 2;
+ 	    }
+ 
+-	  if ((*device == 'f' || *device == 'h' || *device == 'n')
+-	      && (device += 2, (*(device - 1) != 'd')))
+-	    errnum = ERR_NUMBER_PARSING;
++	  device += 2;
+ 
+-	  if (ch == 'n')
+-	    current_drive = NETWORK_DRIVE;
+-	  else
++#define MK16(a,b) ( ((a)<<8) + (b) )
++
++	  switch (MK16(ch, *(device-1)))
+ 	    {
++	    case MK16('n','d'):
++	      current_drive = NETWORK_DRIVE;
++	      break;
++	      
++	    case MK16('d','c'):
+ 	      safe_parse_maxint (&device, (int *) &current_drive);
++	      disk_choice = 0;
++	      current_drive += DISK_ON_CHIP;
++	      break;
+ 	      
++	    case MK16('h','d'):
++	    case MK16('f','d'):
++	      safe_parse_maxint (&device, (int *) &current_drive);
+ 	      disk_choice = 0;
+ 	      if (ch == 'h')
+ 		current_drive += 0x80;
++	      break;
++	      
++	    default:
++	      errnum = ERR_NUMBER_PARSING;
+ 	    }
+ 	}
+ 
+diff -uNr grub-clean/stage2/shared.h grub/stage2/shared.h
+--- grub-clean/stage2/shared.h	Sat Nov  4 16:15:26 2000
++++ grub/stage2/shared.h	Sun Dec  3 19:48:09 2000
+@@ -182,7 +182,7 @@
+ 
+ /* Not bad, perhaps.  */
+ #define NETWORK_DRIVE	0x20
+-
++#define DISK_ON_CHIP	0xE0
+ /*
+  *  GRUB specific information
+  *    (in LSB order)
+@@ -999,6 +999,12 @@
+ #endif
+ 
+ void init_bios_info (void);
++
++#ifdef BDEV_DISKONCHIP
++extern int nftl_rawread(
++  int drive, int sector, int byte_offset, int byte_len, char *buf
++);
++#endif
+ 
+ #endif /* ASM_FILE */
+ 
+--- grub-clean/stage2/Makefile.in	Thu Oct 19 22:10:42 2000
++++ grub/stage2/Makefile.in	Sun Dec  3 19:55:36 2000
+@@ -152,7 +152,7 @@
+ pre_stage2_exec_SOURCES = asm.S bios.c boot.c builtins.c common.c \
+ 	char_io.c cmdline.c disk_io.c gunzip.c fsys_ext2fs.c \
+ 	fsys_fat.c fsys_ffs.c fsys_minix.c fsys_reiserfs.c serial.c \
+-	smp-imps.c stage2.c md5.c
++	smp-imps.c stage2.c md5.c bdev_diskonchip.c
+ 
+ pre_stage2_exec_CFLAGS = $(STAGE2_COMPILE) $(FSYS_CFLAGS)
+ pre_stage2_exec_LDFLAGS = $(PRE_STAGE2_LINK)
+@@ -307,7 +307,7 @@
+ pre_stage2_exec-fsys_ffs.o pre_stage2_exec-fsys_minix.o \
+ pre_stage2_exec-fsys_reiserfs.o pre_stage2_exec-serial.o \
+ pre_stage2_exec-smp-imps.o pre_stage2_exec-stage2.o \
+-pre_stage2_exec-md5.o
++pre_stage2_exec-md5.o pre_stage2_exec-bdev_diskonchip.o
+ pre_stage2_exec_OBJECTS =  $(am_pre_stage2_exec_OBJECTS)
+ @NETBOOT_SUPPORT_TRUE@pre_stage2_exec_DEPENDENCIES =  \
+ @NETBOOT_SUPPORT_TRUE@../netboot/libdrivers.a
+@@ -586,6 +586,7 @@
+ pre_stage2_exec-smp-imps.o: smp-imps.c
+ pre_stage2_exec-stage2.o: stage2.c
+ pre_stage2_exec-md5.o: md5.c
++pre_stage2_exec-bdev_diskonchip.o: bdev_diskonchip.c
+ 
+ pre_stage2.exec: $(pre_stage2_exec_OBJECTS) $(pre_stage2_exec_DEPENDENCIES)
+ 	@rm -f pre_stage2.exec
+@@ -1357,6 +1358,14 @@
+ @AMDEP@	depfile='$(DEPDIR)/pre_stage2_exec-md5.Po' tmpdepfile='$(DEPDIR)/pre_stage2_exec-md5.TPo' @AMDEPBACKSLASH@
+ @AMDEP@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+ 	$(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pre_stage2_exec_CFLAGS) $(CFLAGS) -c -o pre_stage2_exec-md5.o `test -f md5.c || echo '$(srcdir)/'`md5.c
++
++@AMDEP@CCDEPMODE = @CCDEPMODE@
++
++pre_stage2_exec-bdev_diskonchip.o: bdev_diskonchip.c
++@AMDEP@	source='bdev_diskonchip.c' object='pre_stage2_exec-bdev_diskonchip.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP@	depfile='$(DEPDIR)/pre_stage2_exec-bdev_diskonchip.Po' tmpdepfile='$(DEPDIR)/pre_stage2_exec-bdev_diskonchip.TPo' @AMDEPBACKSLASH@
++@AMDEP@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++	$(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pre_stage2_exec_CFLAGS) $(CFLAGS) -c -o pre_stage2_exec-bdev_diskonchip.o `test -f bdev_diskonchip.c || echo '$(srcdir)/'`bdev_diskonchip.c
+ 
+ @AMDEP@CCDEPMODE = @CCDEPMODE@
+ 

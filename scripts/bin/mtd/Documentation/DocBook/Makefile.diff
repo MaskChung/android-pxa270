@@ -1,0 +1,12 @@
+diff -urN linux-2.6.9-rc2/Documentation/DocBook/Makefile linux-2.6.9-rc2-doc/Documentation/DocBook/Makefile
+--- linux-2.6.9-rc2/Documentation/DocBook/Makefile	2004-09-16 22:10:36.000000000 +0200
++++ linux-2.6.9-rc2-doc/Documentation/DocBook/Makefile	2004-10-02 11:39:57.000000000 +0200
+@@ -11,7 +11,7 @@
+ 	    mousedrivers.sgml deviceiobook.sgml procfs-guide.sgml \
+ 	    tulip-user.sgml writing_usb_driver.sgml scsidrivers.sgml \
+ 	    sis900.sgml kernel-api.sgml journal-api.sgml lsm.sgml usb.sgml \
+-	    gadget.sgml libata.sgml
++	    gadget.sgml libata.sgml mtdnand.sgml librs.sgml
+
+ ###
+ # The build process is as follows (targets):

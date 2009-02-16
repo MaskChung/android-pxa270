@@ -1,0 +1,1782 @@
+Index: configure.in
+===================================================================
+RCS file: /usr/local/cvsroot/grub/configure.in,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -u -r1.1.1.1 -r1.2
+--- configure.in	2001/10/27 00:32:08	1.1.1.1
++++ configure.in	2001/10/27 00:44:41	1.2
+@@ -226,6 +226,14 @@
+   FSYS_CFLAGS="$FSYS_CFLAGS -DFSYS_VSTAFS=1"
+ fi
+ 
++AC_ARG_ENABLE(diskonchip,
++  [  --enable-diskonchip     enable DiskOnChip 2000 support in Stage 2])
++
++if test x"$enable_diskonchip" = xyes; then
++  FSYS_CFLAGS="$FSYS_CFLAGS -DBDEV_DISKONCHIP=1"
++fi
++
++
+ dnl AC_ARG_ENABLE(tftp,
+ dnl [  --enable-tftp           enable TFTP support in Stage 2])
+ dnl 
+Index: stage2/Makefile.am
+===================================================================
+RCS file: /usr/local/cvsroot/grub/stage2/Makefile.am,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -u -r1.1.1.1 -r1.2
+--- stage2/Makefile.am	2001/10/27 00:32:09	1.1.1.1
++++ stage2/Makefile.am	2001/10/27 00:44:41	1.2
+@@ -78,7 +78,8 @@
+ pre_stage2_exec_SOURCES = asm.S bios.c boot.c builtins.c common.c \
+ 	char_io.c cmdline.c disk_io.c gunzip.c fsys_ext2fs.c \
+ 	fsys_fat.c fsys_ffs.c fsys_minix.c fsys_reiserfs.c \
+-	fsys_vstafs.c hercules.c serial.c smp-imps.c stage2.c md5.c
++	fsys_vstafs.c hercules.c serial.c smp-imps.c stage2.c md5.c \
++	bdev_diskonchip.c
+ pre_stage2_exec_CFLAGS = $(STAGE2_COMPILE) $(FSYS_CFLAGS)
+ pre_stage2_exec_ASFLAGS = $(STAGE2_COMPILE) $(FSYS_CFLAGS)
+ pre_stage2_exec_LDFLAGS = $(PRE_STAGE2_LINK)
+Index: stage2/Makefile.in
+===================================================================
+RCS file: /usr/local/cvsroot/grub/stage2/Makefile.in,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -u -r1.1.1.1 -r1.2
+--- stage2/Makefile.in	2001/10/27 00:32:09	1.1.1.1
++++ stage2/Makefile.in	2001/10/27 00:44:41	1.2
+@@ -160,7 +160,8 @@
+ pre_stage2_exec_SOURCES = asm.S bios.c boot.c builtins.c common.c \
+ 	char_io.c cmdline.c disk_io.c gunzip.c fsys_ext2fs.c \
+ 	fsys_fat.c fsys_ffs.c fsys_minix.c fsys_reiserfs.c \
+-	fsys_vstafs.c hercules.c serial.c smp-imps.c stage2.c md5.c
++	fsys_vstafs.c hercules.c serial.c smp-imps.c stage2.c md5.c \
++	bdev_diskonchip.c
+ 
+ pre_stage2_exec_CFLAGS = $(STAGE2_COMPILE) $(FSYS_CFLAGS)
+ pre_stage2_exec_ASFLAGS = $(STAGE2_COMPILE) $(FSYS_CFLAGS)
+@@ -384,7 +385,8 @@
+ 	pre_stage2_exec-hercules.$(OBJEXT) \
+ 	pre_stage2_exec-serial.$(OBJEXT) \
+ 	pre_stage2_exec-smp-imps.$(OBJEXT) \
+-	pre_stage2_exec-stage2.$(OBJEXT) pre_stage2_exec-md5.$(OBJEXT)
++	pre_stage2_exec-stage2.$(OBJEXT) pre_stage2_exec-md5.$(OBJEXT) \
++	pre_stage2_exec-bdev_diskonchip.$(OBJEXT)
+ pre_stage2_exec_OBJECTS = $(am_pre_stage2_exec_OBJECTS)
+ @NETBOOT_SUPPORT_TRUE@pre_stage2_exec_DEPENDENCIES = \
+ @NETBOOT_SUPPORT_TRUE@	../netboot/libdrivers.a
+@@ -667,6 +669,7 @@
+ pre_stage2_exec-smp-imps.$(OBJEXT): smp-imps.c
+ pre_stage2_exec-stage2.$(OBJEXT): stage2.c
+ pre_stage2_exec-md5.$(OBJEXT): md5.c
++pre_stage2_exec-bdev_diskonchip.$(OBJEXT): bdev_diskonchip.c
+ pre_stage2.exec$(EXEEXT): $(pre_stage2_exec_OBJECTS) $(pre_stage2_exec_DEPENDENCIES)
+ 	@rm -f pre_stage2.exec$(EXEEXT)
+ 	$(LINK) $(pre_stage2_exec_LDFLAGS) $(pre_stage2_exec_OBJECTS) $(pre_stage2_exec_LDADD) $(LIBS)
+@@ -1843,6 +1846,18 @@
+ @AMDEP_TRUE@	depfile='$(DEPDIR)/pre_stage2_exec-md5.Po' tmpdepfile='$(DEPDIR)/pre_stage2_exec-md5.TPo' @AMDEPBACKSLASH@
+ @AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+ 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pre_stage2_exec_CFLAGS) $(CFLAGS) -c -o pre_stage2_exec-md5.obj `cygpath -w md5.c`
++
++pre_stage2_exec-bdev_diskonchip.o: bdev_diskonchip.c
++@AMDEP_TRUE@	source='bdev_diskonchip.c' object='pre_stage2_exec-bdev_diskonchip.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@	depfile='$(DEPDIR)/pre_stage2_exec-bdev_diskonchip.Po' tmpdepfile='$(DEPDIR)/pre_stage2_exec-bdev_diskonchip.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pre_stage2_exec_CFLAGS) $(CFLAGS) -c -o pre_stage2_exec-bdev_diskonchip.o `test -f bdev_diskonchip.c || echo '$(srcdir)/'`bdev_diskonchip.c
++
++pre_stage2_exec-bdev_diskonchip.obj: bdev_diskonchip.c
++@AMDEP_TRUE@	source='bdev_diskonchip.c' object='pre_stage2_exec-bdev_diskonchip.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@	depfile='$(DEPDIR)/pre_stage2_exec-bdev_diskonchip.Po' tmpdepfile='$(DEPDIR)/pre_stage2_exec-bdev_diskonchip.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pre_stage2_exec_CFLAGS) $(CFLAGS) -c -o pre_stage2_exec-bdev_diskonchip.obj `cygpath -w bdev_diskonchip.c`
+ 
+ reiserfs_stage1_5_exec-common.o: common.c
+ @AMDEP_TRUE@	source='common.c' object='reiserfs_stage1_5_exec-common.o' libtool=no @AMDEPBACKSLASH@
+Index: stage2/asm.S
+===================================================================
+RCS file: /usr/local/cvsroot/grub/stage2/asm.S,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -u -r1.1.1.1 -r1.2
+--- stage2/asm.S	2001/10/27 00:32:09	1.1.1.1
++++ stage2/asm.S	2001/10/27 00:50:00	1.2
+@@ -134,7 +134,7 @@
+ 
+ 	sti		/* we're safe again */
+ 
+-#ifndef SUPPORT_DISKLESS
++#if !defined(SUPPORT_DISKLESS) && !defined(BDEV_DISKONCHIP)
+ 	/* save boot drive reference */
+ 	ADDR32	movb	%dl, EXT_C(boot_drive)
+ 
+@@ -2186,8 +2186,10 @@
+ 	.long	PROTSTACKINIT
+ 
+ VARIABLE(boot_drive)
+-#ifdef SUPPORT_DISKLESS
++#if defined(SUPPORT_DISKLESS)
+ 	.long	NETWORK_DRIVE
++#elif defined(BDEV_DISKONCHIP)
++	.long	DISK_ON_CHIP
+ #else
+ 	.long	0
+ #endif
+Index: stage2/bdev_diskonchip.c
+===================================================================
+RCS file: bdev_diskonchip.c
+diff -N bdev_diskonchip.c
+--- /dev/null	Tue May  5 16:32:27 1998
++++ stage2/bdev_diskonchip.c	Sat Nov 24 17:50:16 2001
+@@ -0,0 +1,1002 @@
++/*
++ *  GRUB  --  GRand Unified Bootloader
++ *  Copyright (C) 1996  Erich Boleyn  <erich@uruk.org>
++ *  Copyright (C) 1999  Free Software Foundation, Inc.
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#ifdef BDEV_DISKONCHIP
++
++#include "shared.h"
++
++#define DoC_ChipID 0x1000
++#define DoC_DOCStatus 0x1001
++#define DoC_DOCControl 0x1002
++#define DoC_FloorSelect 0x1003
++#define DoC_CDSNControl 0x1004
++#define DoC_CDSNDeviceSelect 0x1005
++#define DoC_ECCConf 0x1006
++#define DoC_2k_ECCStatus 0x1007
++
++#define DoC_CDSNSlowIO 0x100d
++#define DoC_ECCSyndrome0 0x1010
++#define DoC_ECCSyndrome1 0x1011
++#define DoC_ECCSyndrome2 0x1012
++#define DoC_ECCSyndrome3 0x1013
++#define DoC_ECCSyndrome4 0x1014
++#define DoC_ECCSyndrome5 0x1015
++#define DoC_AliasResolution 0x101b
++#define DoC_ConfigInput 0x101c
++#define DoC_ReadPipeInit 0x101d
++#define DoC_WritePipeTerm 0x101e
++#define DoC_LastDataRead 0x101f
++#define DoC_NOP 0x1020
++
++#define DoC_2k_CDSN_IO 0x1800
++
++#define DOC_MODE_RESET 0
++#define DOC_MODE_NORMAL 1
++#define DOC_MODE_RESERVED1 2
++#define DOC_MODE_RESERVED2 3
++
++#define DOC_MODE_MDWREN 4
++#define DOC_MODE_CLR_ERR 0x80
++
++#define DOC_ChipID_Doc2k 0x20
++#define DOC_ChipID_DocMil 0x30
++#define DoC_is_Millennium(id) (id == DOC_ChipID_DocMil)
++
++#define CDSN_CTRL_FR_B 0x80
++#define CDSN_CTRL_ECC_IO 0x20
++#define CDSN_CTRL_FLASH_IO 0x10
++#define CDSN_CTRL_WP 8
++#define CDSN_CTRL_ALE 4
++#define CDSN_CTRL_CLE 2
++#define CDSN_CTRL_CE 1
++
++#define DOC_ECC_RESET 0
++#define DOC_ECC_ERROR 0x80
++#define DOC_ECC_RW 0x20
++#define DOC_ECC__EN 0x08
++#define DOC_TOGGLE_BIT 0x04
++#define DOC_ECC_RESV 0x02
++/* We have to also set the reserved bit 1 for enable */
++#define DOC_ECC_EN (DOC_ECC__EN | DOC_ECC_RESV)
++#define DOC_ECC_DIS (DOC_ECC_RESV)
++
++#define MAX_FLOORS 4
++#define MAX_CHIPS 4
++
++#define NAND_CMD_READ0 0
++#define NAND_CMD_READ1 1
++#define NAND_CMD_PAGEPROG 0x10
++#define NAND_CMD_READOOB 0x50
++#define NAND_CMD_ERASE1 0x60
++#define NAND_CMD_STATUS 0x70
++#define NAND_CMD_SEQIN 0x80
++#define NAND_CMD_READID 0x90
++#define NAND_CMD_ERASE2 0xd0
++#define NAND_CMD_RESET 0xff
++
++#define NAND_MFR_TOSHIBA 0x98
++#define NAND_MFR_SAMSUNG 0xec
++
++/*
++ * NAND Flash Device ID Structure
++ *
++ * Structure overview:
++ *
++ *  name - Complete name of device
++ *
++ *  manufacture_id - manufacturer ID code of device.
++ *
++ *  model_id - model ID code of device.
++ *
++ *  chipshift - total number of address bits for the device which
++ *              is used to calculate address offsets and the total
++ *              number of bytes the device is capable of.
++ *
++ *  page256 - denotes if flash device has 256 byte pages or not.
++ *
++ *  pageadrlen - number of bytes minus one needed to hold the
++ *               complete address into the flash array. Keep in
++ *               mind that when a read or write is done to a
++ *               specific address, the address is input serially
++ *               8 bits at a time. This structure member is used
++ *               by the read/write routines as a loop index for
++ *               shifting the address out 8 bits at a time.
++ *
++ *  erasesize - size of an erase block in the flash device.
++ */
++struct nand_flash_dev {
++	char * name;
++	int manufacture_id;
++	int model_id;
++	int chipshift;
++	char page256;
++	char pageaddrlen;
++	unsigned long erasesize;
++};
++
++static struct nand_flash_dev nand_flash_ids[] = {
++	{"Toshiba TC5816BDC",     NAND_MFR_TOSHIBA, 0x64, 21, 1, 2, 0x1000},
++	{"Toshiba TC5832DC",      NAND_MFR_TOSHIBA, 0x6b, 22, 0, 2, 0x2000},
++	{"Toshiba TH58V128DC",    NAND_MFR_TOSHIBA, 0x73, 24, 0, 2, 0x4000},
++	{"Toshiba TC58256FT/DC",  NAND_MFR_TOSHIBA, 0x75, 25, 0, 2, 0x4000},
++	{"Toshiba TH58512FT",     NAND_MFR_TOSHIBA, 0x76, 26, 0, 3, 0x4000},
++	{"Toshiba TC58V32DC",     NAND_MFR_TOSHIBA, 0xe5, 22, 0, 2, 0x2000},
++	{"Toshiba TC58V64AFT/DC", NAND_MFR_TOSHIBA, 0xe6, 23, 0, 2, 0x2000},
++	{"Toshiba TC58V16BDC",    NAND_MFR_TOSHIBA, 0xea, 21, 1, 2, 0x1000},
++	{"Samsung KM29N16000",    NAND_MFR_SAMSUNG, 0x64, 21, 1, 2, 0x1000},
++	{"Samsung unknown 4Mb",   NAND_MFR_SAMSUNG, 0x6b, 22, 0, 2, 0x2000},
++	{"Samsung KM29U128T",     NAND_MFR_SAMSUNG, 0x73, 24, 0, 2, 0x4000},
++	{"Samsung KM29U256T",     NAND_MFR_SAMSUNG, 0x75, 25, 0, 2, 0x4000},
++	{"Samsung unknown 64Mb",  NAND_MFR_SAMSUNG, 0x76, 26, 0, 3, 0x4000},
++	{"Samsung KM29W32000",    NAND_MFR_SAMSUNG, 0xe3, 22, 0, 2, 0x2000},
++	{"Samsung unknown 4Mb",   NAND_MFR_SAMSUNG, 0xe5, 22, 0, 2, 0x2000},
++	{"Samsung KM29U64000",    NAND_MFR_SAMSUNG, 0xe6, 23, 0, 2, 0x2000},
++	{"Samsung KM29W16000",    NAND_MFR_SAMSUNG, 0xea, 21, 1, 2, 0x1000},
++	{NULL,}
++};
++
++
++#define MAX_NFTLS 16
++
++#define ERASE_MARK 0x3c69
++#define BLOCK_FREE 0xffff
++#define BLOCK_USED 0x5555
++#define BLOCK_IGNORE 0x1111
++#define BLOCK_DELETED 0x0000
++
++struct NFTLMediaHeader
++{
++  char DataOrgID[6];
++  unsigned short NumEraseUnits;
++  unsigned short FirstPhysicalEUN;
++  unsigned long FormattedSize;
++  unsigned char UnitSizeFactor;
++} __attribute__((packed));
++
++struct NFTLrecord
++{
++  unsigned short MediaUnit, SpareMediaUnit;
++  struct NFTLMediaHeader MediaHdr;
++  unsigned short numvunits;
++  unsigned short lastEUN; /* last + 1 */
++};
++
++/* Block Control Information */
++
++struct nftl_bci
++{
++  unsigned char ECCSig[6];
++  unsigned short Status;
++} __attribute__((packed));
++
++/* Unit Control Information */
++
++struct nftl_uci0
++{
++  unsigned short VirtUnitNum;
++  unsigned short ReplUnitNum;
++  unsigned short SpareVirtUnitNum;
++  unsigned short SpareReplUnitNum;
++} __attribute__((packed));
++
++struct nftl_uci1
++{
++  unsigned long WearInfo;
++  unsigned short EraseMark;
++  unsigned short EraseMark1;
++} __attribute__((packed));
++
++struct nftl_uci2
++{
++  unsigned long WriteInh;
++  unsigned long unused;
++} __attribute__((packed));
++
++union nftl_uci
++{
++  struct nftl_uci0 a;
++  struct nftl_uci1 b;
++  struct nftl_uci2 c;
++};
++
++struct nftl_oob
++{
++  struct nftl_bci b;
++  union nftl_uci u;
++};
++
++static int doc_inited = 0;
++static volatile unsigned char *docloc = NULL;
++static unsigned char docid = 0;
++static int numchips[MAX_FLOORS];
++static int totalchips = 0;
++static int chipshift = 0;
++static char page256 = 0;
++static char pageaddrlen = 0;
++static unsigned long erasesize = 0;
++static unsigned long erasesect = 0;
++static int current_floor = -1;
++static int current_chip = -1;
++static unsigned char nftlbuf[512];
++
++static struct NFTLrecord NFTLs[MAX_NFTLS];
++static int nNFTLs = 0;
++
++/* badtable cache */
++static unsigned char badtableblock[512];
++static int badtablestart = -1;
++static int badtablenftl = -1;
++
++/* Perform the required delay cycles by reading from the appropriate register */
++static void DoC_Delay(unsigned short cycles)
++{
++	volatile char dummy;
++	int i;
++	
++	for (i = 0; i < cycles; i++) {
++/*
++		if (DoC_is_Millennium(doc))
++			dummy = ReadDOC(doc->virtadr, NOP);
++		else
++*/
++			dummy = docloc[DoC_DOCStatus];
++	}
++	
++}
++
++static int _DoC_WaitReady(void)
++{
++	short c=-1;
++
++	while (!(docloc[DoC_CDSNControl] & CDSN_CTRL_FR_B) && --c)
++		;
++
++	if (c == 0)
++		printf("_DoC_WaitReady timed out\n");
++
++	return (c==0);
++}
++
++static inline int DoC_WaitReady(void)
++{
++	int ret = 0;
++
++	DoC_Delay(4);
++	if (!(docloc[DoC_CDSNControl] & CDSN_CTRL_FR_B))
++		ret = _DoC_WaitReady();
++	DoC_Delay(2);
++
++	return ret;
++}
++
++static inline void slow_write(unsigned char data)
++{
++	if (docid == DOC_ChipID_DocMil) {
++		docloc[DoC_CDSNSlowIO] = data;
++		DoC_Delay(4);
++	}
++
++	docloc[DoC_2k_CDSN_IO] = data;
++}
++
++static inline void DoC_Command(unsigned char command, unsigned char xtraflags)
++{
++	DoC_WaitReady();
++	docloc[DoC_CDSNControl] = 
++		CDSN_CTRL_FLASH_IO | xtraflags | CDSN_CTRL_CLE | CDSN_CTRL_CE;
++	DoC_Delay(4);
++
++	slow_write(command);
++
++	docloc[DoC_CDSNControl] = 
++		CDSN_CTRL_FLASH_IO | xtraflags | CDSN_CTRL_CE;
++	DoC_Delay(4);
++	DoC_WaitReady();
++}
++
++static int DoC_IdentChip(unsigned char floor, unsigned char chip)
++{
++	int dummy, mfr, id;
++	struct nand_flash_dev *mfr_id;
++
++	docloc[DoC_FloorSelect] = floor;
++	docloc[DoC_CDSNDeviceSelect] = chip;
++
++	DoC_Command(NAND_CMD_RESET, CDSN_CTRL_WP);
++
++	if (DoC_WaitReady())
++		return 0;
++
++	DoC_Command(NAND_CMD_READID, CDSN_CTRL_WP);
++
++
++	/* Send a zero address */
++	docloc[DoC_CDSNControl] = 
++		CDSN_CTRL_FLASH_IO | CDSN_CTRL_WP | CDSN_CTRL_ALE | CDSN_CTRL_CE;
++	DoC_Delay(4);
++
++	docloc[DoC_2k_CDSN_IO] = 0;
++	DoC_Delay(4);
++
++	docloc[DoC_CDSNControl] = 
++		CDSN_CTRL_FLASH_IO | CDSN_CTRL_WP | CDSN_CTRL_CE;
++	DoC_Delay(4);
++	
++	dummy = docloc[DoC_CDSNSlowIO];
++	DoC_Delay(2);
++	mfr = docloc[DoC_2k_CDSN_IO];
++
++	dummy = docloc[DoC_CDSNSlowIO];
++	DoC_Delay(2);
++	id = docloc[DoC_2k_CDSN_IO];
++
++	if (mfr == 0xff || mfr == 0)
++		return 0;
++
++	/*
++        if (mfr != NAND_MFR_TOSHIBA && mfr != NAND_MFR_SAMSUNG)
++		return 0;
++	*/
++
++        switch (mfr)
++        {
++          case NAND_MFR_TOSHIBA:
++            printf("floor %d, chip %d; ", floor, chip);
++            printf("manufacturer: Toshiba\n");
++            break;
++          case NAND_MFR_SAMSUNG:
++            printf("floor %d, chip %d; ", floor, chip);
++            printf("manufacturer: Samsung\n");
++            break;
++          default:
++            printf("unknown manufacturer code: 0x%x\n", mfr);
++            return 0;
++        }
++
++        for (mfr_id = nand_flash_ids; mfr_id->name != NULL; mfr_id++)
++        {
++          if (mfr_id->manufacture_id == mfr && mfr_id->model_id == id)
++            break;
++        }
++        if (mfr_id->name == NULL)
++        {
++           printf("unknown model id 0x%x\n", (int)id);
++           return 0;
++        }
++        chipshift = mfr_id->chipshift;
++        page256 = mfr_id->page256;
++        pageaddrlen = mfr_id->pageaddrlen;
++        erasesize = mfr_id->erasesize;
++        erasesect = erasesize >> 9;
++	
++        printf("Chip: %s, total size: %d MiB\n", 
++		mfr_id->name, (int) (1 << (chipshift - 20)));
++        printf("       erase unit: %d bytes, page: %d bytes\n", 
++		(int) erasesize, (int) (page256 ? 256 : 512));
++	
++	DoC_WaitReady();
++	docloc[DoC_ECCConf] = DOC_ECC_RESV;
++	DoC_WaitReady();
++	return 1;
++}
++
++static void DoC_ScanChips(void)
++{
++	unsigned char floor, chip;
++	int ret;
++
++	for (floor = 0; floor < MAX_FLOORS; floor++) {
++		ret = 1;
++		numchips[floor]=0;
++		for (chip = 0; chip < MAX_CHIPS && ret != 0; chip++) {
++			ret = DoC_IdentChip(floor, chip);
++			if (ret) {
++				numchips[floor]++;
++				totalchips++;
++			}
++		}
++	}
++}
++
++
++static int DoC_Probe(volatile unsigned char *loc)
++{
++	unsigned char tmp;
++	unsigned char ChipID;
++#ifndef DOC_PASSIVE_PROBE
++	unsigned char tmp2;
++#endif
++
++	if ((loc[0] != 0x55) || (loc[1] != 0xaa))
++	    return 0;
++	
++#ifndef DOC_PASSIVE_PROBE
++	tmp2 = loc[DoC_DOCControl];
++
++	loc[DoC_DOCControl] = 
++		DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_RESET;
++	loc[DoC_DOCControl] = 
++		DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_RESET;
++
++	loc[DoC_DOCControl] = 
++		DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_NORMAL;
++	loc[DoC_DOCControl] = 
++		DOC_MODE_CLR_ERR | DOC_MODE_MDWREN | DOC_MODE_NORMAL;
++#endif
++
++	ChipID = loc[DoC_ChipID];
++
++	if (ChipID == DOC_ChipID_DocMil) {
++		printf("DiskOnChip Millennium found at %x "
++			"but not supported yet\n", (unsigned int)loc);
++		return 0;
++	}
++
++	if (ChipID != DOC_ChipID_Doc2k) {
++#ifndef DOC_PASSIVE_PROBE
++		loc[DoC_DOCControl] = tmp2;
++#endif
++		return 0;
++	}
++
++	/* See if the TOGGLE bit is toggling */
++
++	tmp = loc[DoC_2k_ECCStatus] & DOC_TOGGLE_BIT;
++	if (tmp == (loc[DoC_2k_ECCStatus] & DOC_TOGGLE_BIT)) {
++#ifndef DOC_PASSIVE_PROBE
++		loc[DoC_DOCControl] = tmp2;
++#endif
++		return 0;
++	}
++
++	/* OK. We're fairly sure it's a DiskOnChip now. */
++	printf("DiskOnChip 2000 found at %x\n", (unsigned int)loc);
++	docloc = loc;
++	docid = ChipID;
++
++	DoC_ScanChips();
++
++	if (!totalchips)
++		return 0;
++	printf("Total of %d chips found - total capacity %d MiB\n",
++		    totalchips, totalchips * ( 1 << (chipshift -20)));
++	return 1;
++}
++
++static void doc_select_chip(int chip)
++{
++	docloc[DoC_CDSNControl] = CDSN_CTRL_WP;
++	DoC_Delay(4);
++	docloc[DoC_CDSNDeviceSelect] = chip;
++	current_chip = chip;
++	DoC_Delay(4);
++	docloc[DoC_CDSNControl] = CDSN_CTRL_CE | CDSN_CTRL_FLASH_IO | \
++				  CDSN_CTRL_WP;
++	DoC_Delay(4);
++	DoC_WaitReady();
++}
++
++static int doc_select_floor_chip(unsigned long sector)
++{
++	unsigned char chip, floor;
++
++	chip = sector >> (chipshift - 9);
++	floor = 0;
++
++	/* dprintf("sector %d\n", sector); */
++
++	while (chip >= numchips[floor]) {
++		dprintf("Chip %d Not on floor %d (%d chips)\n", 
++			chip, floor, numchips[floor]);
++		chip -= numchips[floor];
++		floor++;
++		if (floor == MAX_FLOORS)
++			return -1;
++	}
++		
++	/*
++	dprintf("sector 0x%x is on floor %d, chip %d\n", sector, floor, chip);
++	*/
++	
++	if (floor != current_floor) {
++		docloc[DoC_FloorSelect] = floor;
++		current_floor = floor;
++		DoC_WaitReady();
++		doc_select_chip(chip);
++	} else if (chip != current_chip) {
++		doc_select_chip(chip);
++	}
++
++	return 1;
++}
++
++static void doc_address(unsigned long address, unsigned char xtraflags1,
++	unsigned char xtraflags2, int read_cmd)
++{
++	if (read_cmd)
++		DoC_Command(address & 0x100 ? 
++			NAND_CMD_READ1 : NAND_CMD_READ0, CDSN_CTRL_WP);
++
++	xtraflags1 |= CDSN_CTRL_FLASH_IO;
++	docloc[DoC_CDSNControl] = xtraflags1 | CDSN_CTRL_ALE | CDSN_CTRL_CE;
++	DoC_Delay(4);
++
++	slow_write(address & 0xff);
++	address >>= 8;
++	if (!page256)
++		address >>= 1;
++	slow_write(address & 0xff);
++	address >>= 8;
++	slow_write(address & 0xff);
++	address >>= 8;
++	if (pageaddrlen > 2) {
++		slow_write(address & 0xff);
++	}
++	DoC_Delay(2);
++
++	docloc[DoC_CDSNControl] = xtraflags1 | xtraflags2 | CDSN_CTRL_CE;
++	DoC_Delay(4);
++
++	DoC_WaitReady();
++}
++
++static int doc_read_oob(unsigned long sector, void *buf)
++{
++	int di;
++	// printf("doc_read_oob %d\n", (unsigned int) sector);
++	doc_select_floor_chip(sector);
++	DoC_Command(NAND_CMD_READOOB, CDSN_CTRL_WP);
++	doc_address(sector << 9, CDSN_CTRL_WP, 0, 0);
++	for (di=0; di < 16; di++) {
++		((unsigned char *)buf)[di] = docloc[DoC_2k_CDSN_IO + di];
++	}
++	DoC_WaitReady();
++        return 0;
++}
++
++static int doc_read_sector(unsigned long sector, unsigned char *buf)
++{
++	int di;
++        unsigned long address = (sector << 9);
++	// printf("doc_read_sector %d\n", (unsigned int) sector);
++	doc_select_floor_chip(sector);
++	doc_address(address, CDSN_CTRL_WP, 0, 1);
++	for (di=0; di < 512; di++) {
++		buf[di] = docloc[DoC_2k_CDSN_IO + di];
++	}
++	DoC_WaitReady();
++        return 0;
++}
++
++static
++void NFTL_setup(unsigned long sect, struct NFTLMediaHeader *hdr)
++{
++  int i;
++  unsigned int eun = sect / erasesect;
++  struct NFTLrecord *nftl;
++
++  for (i=0; i<nNFTLs; i++)
++  {
++    if (NFTLs[i].MediaHdr.FirstPhysicalEUN == hdr->FirstPhysicalEUN)
++    {
++      /* This is a Spare Media Header for an NFTL we've already found */
++      printf("Spare Media Header for NFTL %d found in flash sector %d\n",
++        i, sect);
++      NFTLs[i].SpareMediaUnit = eun;
++      return;
++    }
++  }
++  printf("NFTL Media Header found in flash sector %d\n", sect);
++
++  if (hdr->UnitSizeFactor != 0xff)
++  {
++    printf("Sorry, we don't support UnitSizeFactor of != 1 yet\n");
++    return;
++  }
++
++  if (nNFTLs >= MAX_NFTLS)
++  {
++    printf("Maximum of NFTLs is exceeded\n");
++    return;
++  }
++
++  nftl = &NFTLs[nNFTLs++];
++  nftl->MediaHdr = *hdr;
++  nftl->MediaUnit = eun;
++  nftl->SpareMediaUnit = 0xffff;
++  nftl->numvunits = hdr->FormattedSize / erasesize;
++
++  nftl->lastEUN =
++    nftl->MediaHdr.NumEraseUnits + nftl->MediaHdr.FirstPhysicalEUN;
++}
++
++/* read badtable
++*/
++static
++int isbad(unsigned int nftl_num, int eun)
++{
++  int flag = 0;
++  int offset = eun / 512;
++  if (badtablenftl != nftl_num)
++    flag = 1;
++  else if (badtablestart != offset)
++    flag = 1;
++  if (flag)
++  {
++    doc_read_sector(
++      NFTLs[nftl_num].MediaUnit * erasesect + offset + 1, badtableblock
++    );
++    badtablenftl = nftl_num;
++    badtablestart = offset;
++  }
++  return badtableblock[eun % 512] == 0xff ? 0 : 1;
++}
++
++/* virtual block -> physical block hash
++*/
++#define max_blk_hash 4096
++#define blk_hash_func(a, b) ((b) & 0x0fff)
++static
++struct blk_hash_entry
++{
++  int vblock;
++  int pblock;
++  char nftl;
++} __attribute__((packed)) blk_hash[max_blk_hash];
++
++/* VUN -> firstEUN hash
++*/
++#define max_eun_hash 1024
++#define eun_hash_func(a, b) ((b) & 0x03ff)
++static
++struct eun_hash_entry
++{
++  unsigned short vun;
++  unsigned short eun;
++  char nftl;
++} __attribute__((packed)) eun_hash[max_eun_hash];
++
++static
++int nftl_findsect(unsigned int nftl_num, int block)
++{
++  struct NFTLrecord *nftl;
++  unsigned short vun, eun, save_stat, save_eun;
++  unsigned long sect;
++  struct nftl_oob oob, oob1;
++  unsigned int k, n;
++
++  if (nftl_num >= nNFTLs)
++    return -1;
++
++  nftl = &NFTLs[nftl_num];
++
++  k = blk_hash_func(nftl_num, block);
++  if (blk_hash[k].nftl == nftl_num &&
++      blk_hash[k].vblock == block)
++    return blk_hash[k].pblock;
++
++  blk_hash[k].nftl = nftl_num;
++  blk_hash[k].vblock = block;
++  blk_hash[k].pblock = -1;
++
++  /* dprintf("find virtual sector %d\n", block); */
++  vun = block / erasesect;
++  block = block % erasesect;
++  /* dprintf("virtual unit number %d, offset %d\n", vun, block); */
++
++  /* find first eun in a chain */
++  n = eun_hash_func(nftl_num, vun);
++  if (eun_hash[n].nftl == nftl_num && eun_hash[n].vun == vun)
++  {
++    eun = eun_hash[n].eun;
++    if (eun == 0xffff)
++      return -1;
++    sect = eun * erasesect;
++    /* Read Unit Control Information #0 */
++    if (doc_read_oob(sect, &oob) < 0)
++      return -1;
++  }
++  else
++  {
++    eun_hash[n].nftl = nftl_num;
++    eun_hash[n].vun = vun;
++    eun_hash[n].eun = 0xffff;
++    eun = nftl->MediaHdr.FirstPhysicalEUN;
++    sect = eun * erasesect;
++    for (; eun<nftl->lastEUN; eun++, sect += erasesect)
++    {
++      if (isbad(nftl_num, eun))
++      { dprintf("eun %d is bad\n", eun);
++        continue;
++      }
++      /* Read Unit Control Information #0 */
++      if (doc_read_oob(sect, &oob) < 0)
++        return -1;
++      if (oob.u.a.VirtUnitNum != oob.u.a.SpareVirtUnitNum)
++        continue;
++      if (oob.u.a.ReplUnitNum != oob.u.a.SpareReplUnitNum)
++        continue;
++      /* find first only! */
++      if (oob.u.a.VirtUnitNum == vun)
++        break;
++    }
++    if (eun == nftl->lastEUN)
++      return -1;
++    eun_hash[n].eun = eun;
++    /* dprintf("found first eun %d\n", eun); */
++  }
++
++  /* walk throw the chain */
++  save_stat = BLOCK_FREE;
++  save_eun = eun;
++  for (;;)
++  {
++    /* read block status */
++    if (doc_read_oob(sect + block, &oob1) < 0)
++      return -1;
++    /* end of block chain? */
++    if (oob1.b.Status == BLOCK_FREE)
++    { /* dprintf("block %d in eun %d is BLOCK_FREE\n", block, eun); */
++      break;
++    }
++    /* remember last 'active' status and EUN */
++    if (oob1.b.Status == BLOCK_USED ||
++        oob1.b.Status == BLOCK_DELETED)
++    {
++      save_stat = oob1.b.Status;
++      save_eun = eun;
++#if 0
++      dprintf("block %d in eun %d is %s\n",
++        block, eun, save_stat == BLOCK_USED ? "BLOCK_USED" : "BLOCK_DELETED");
++#endif
++    }
++    /* is it last in eun chain? */
++    if (oob.u.a.ReplUnitNum == 0xffff)
++    { /* dprintf("eun %d is last in the chain\n", eun); */
++      break;
++    }
++    /* read next eun in the chain */
++    eun = oob.u.a.ReplUnitNum;
++    sect = eun * erasesect;
++    /* dprintf("read block in next eun %d\n", eun); */
++    if (doc_read_oob(sect, &oob) < 0)
++      return -1;
++    if (oob.u.a.VirtUnitNum != oob.u.a.SpareVirtUnitNum)
++      return -1;
++    if (oob.u.a.ReplUnitNum != oob.u.a.SpareReplUnitNum)
++      return -1;
++  }
++
++  if (save_stat == BLOCK_USED)
++  { /* dprintf("found block %d in eun %d\n",
++      save_eun * erasesect + block, save_eun); */
++    return
++      blk_hash[k].pblock = save_eun * erasesect + block;
++  }
++
++  return -1;
++}
++
++static int doc_init(void);
++
++static
++void NFTL_Scan(void)
++{
++  unsigned long sector;
++  struct NFTLMediaHeader *hdr = (struct NFTLMediaHeader *)nftlbuf;
++
++  /* total size in sectors */
++  unsigned long ssize = totalchips * (1 << (chipshift - 9));
++
++  printf("Scanning for NFTL Media Header\n");
++
++  /* Scan for NFTL partitions */
++  for (sector=0; sector<ssize; sector+=erasesect)
++  {
++    if (doc_read_sector(sector, nftlbuf) < 0)
++      continue;      
++    if (!strcmp(hdr->DataOrgID, "ANAND"))
++    {
++      dprintf("NFTL Media Header found in flash sector %d\n", sector);
++      dprintf("NumEraseUnits: %d\n", hdr->NumEraseUnits);
++      dprintf("FirstPhysicalEUN: %d\n", hdr->FirstPhysicalEUN);
++      dprintf("FormattedSize: %d\n", hdr->FormattedSize);
++      dprintf("UnitSizeFactor: %d\n", hdr->UnitSizeFactor);
++      NFTL_setup(sector, hdr);
++    }
++  }
++}
++
++static void doc_find(void)
++{
++	unsigned long probeloc = 0xc8000;
++	
++
++	for (probeloc = 0xc8000; probeloc < 0xf0000; probeloc += 0x2000) {
++		if (DoC_Probe((unsigned char *)probeloc)) {
++			NFTL_Scan();
++			return;
++		}
++	}
++	
++	printf("No DiskOnChip found\n");
++	return;
++}
++		
++static int doc_init(void)
++{
++  /* If this is the first time we've been called, 
++     we need to go searching for a DiskOnChip
++  */
++  if (!doc_inited)
++  {
++    int i;
++
++    for (i=0; i<max_blk_hash; i++)
++    {
++      blk_hash[i].nftl = -1;
++      blk_hash[i].vblock = -1;
++      blk_hash[i].pblock = -1;
++    }
++    
++    for (i=0; i<max_eun_hash; i++)
++    {
++      eun_hash[i].nftl = -1;
++      eun_hash[i].vun = 0xffff;
++      eun_hash[i].eun = 0xffff;
++    }
++
++    current_floor = -1;
++    current_chip = -1;
++
++    doc_find();
++
++    doc_inited = 1;
++  }
++
++  if (docloc == NULL)
++  {
++    errnum = ERR_NO_DISK;
++    return 0;
++  }
++  return 1;
++}
++
++int nftl_rawread(int drive, int sector, int byte_offset, int byte_len, char *buf)
++{
++  int size, block;
++
++  /* dprintf("nftl_rawread(%d, %d, %d, %d)\n", 
++	drive, sector, byte_offset, byte_len); */
++  if (byte_len < 0 || !buf || drive < 0 || drive >= MAX_NFTLS)
++  { errnum = ERR_BAD_ARGUMENT; return 0;
++  }
++
++  if (!doc_init())
++    return 0;
++
++  if (drive < 0 || drive >= nNFTLs)
++  { errnum = ERR_NO_DISK; return 0;
++  }
++
++  sector += (byte_offset >> 9);
++  byte_offset &= 511;
++
++  while (byte_len)
++  {
++    size = 512 - byte_offset;
++    if (byte_len < size) size = byte_len;
++
++    /* virtual unit number */
++    block = nftl_findsect(drive, sector);
++    if (block < 0)
++    { errnum = ERR_FSYS_CORRUPT; return 0;
++    }
++
++    if (doc_read_sector(block, nftlbuf) < 0)
++    { errnum = ERR_FSYS_CORRUPT; return 0;
++    }
++
++#if 0 && defined(DOC_DEBUG)
++  {
++    /* int sec = 16352;
++    printf("nftl_rawread: reading sector %d\n", sector);
++    if (doc_read_sector(sec, nftlbuf) < 0) {
++      printf("error\n");
++    } else { */
++      int i = 0;
++      while (i < SECTOR_SIZE) {
++        printf("%x    "
++          "%b %b %b %b %b %b %b %b "
++          "%b %b %b %b %b %b %b %b\n",
++           i, 
++           nftlbuf[i + 0], nftlbuf[i + 1], nftlbuf[i + 2], nftlbuf[i + 3], 
++           nftlbuf[i + 4], nftlbuf[i + 5], nftlbuf[i + 6], nftlbuf[i + 7],
++           nftlbuf[i + 8], nftlbuf[i + 9], nftlbuf[i + 10], nftlbuf[i + 11],
++           nftlbuf[i + 12], nftlbuf[i + 13], nftlbuf[i + 14], nftlbuf[i + 15]);
++        i += 16;
++      }
++      printf("Press any key..."); getkey(); printf("\n");
++    // }
++  }
++#endif
++
++#if 0 && defined(DOC_DEBUG)
++    printf("memcpy(0x%x, 0x%x, 0x%x)\n", 
++      (int)buf, (int)(nftlbuf + byte_offset), (int)size);
++#endif
++    if (memcpy(buf, nftlbuf + byte_offset, size) == NULL) {
++	printf("nftl_rawread(): error %d in memcpy() or earlier,"
++		" press any key...", errnum);
++	getkey();
++        printf("\n");
++        errnum = ERR_FSYS_CORRUPT;
++        return 0;
++     }
++#if 0 && defined(DOC_DEBUG)
++  {
++    int i = 0;
++    while (i < SECTOR_SIZE) {
++      printf("%x    "
++        "%b %b %b %b %b %b %b %b "
++        "%b %b %b %b %b %b %b %b\n",
++         i, 
++         buf[i + 0], buf[i + 1], buf[i + 2], buf[i + 3], 
++         buf[i + 4], buf[i + 5], buf[i + 6], buf[i + 7],
++         buf[i + 8], buf[i + 9], buf[i + 10], buf[i + 11],
++         buf[i + 12], buf[i + 13], buf[i + 14], buf[i + 15]);
++      i += 16;
++    }
++    printf("Press any key..."); getkey(); printf("\n");
++  }
++#endif
++
++#if 0
++    dprintf("read sector %d (%d), bytes %d..%d\n",
++      sector, block, byte_offset, byte_offset + size - 1);
++#endif
++    sector++;
++    byte_offset = 0;
++    byte_len -= size;
++    buf += size;
++  }
++
++  errnum = ERR_NONE;
++  return 1;
++}
++
++int get_diskinfo_diskonchip (int drive, unsigned long *cylinders, 
++	unsigned long *heads, unsigned long *sectors)
++{
++  if (!doc_init())
++    return 1;		// bios.c functions return non-zero on error
++
++  if (drive < 0 || drive >= nNFTLs)
++  { errnum = ERR_NO_DISK; return 1;
++  }
++
++  *sectors = 1;
++  *heads = erasesect;
++  *cylinders = (NFTLs[drive].MediaHdr.FormattedSize >> 9) / (*heads);
++  return 0;
++}
++
++#endif /* BDEV_DISKONCHIP */
++
+Index: stage2/bios.c
+===================================================================
+RCS file: /usr/local/cvsroot/grub/stage2/bios.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -u -r1.1.1.1 -r1.2
+--- stage2/bios.c	2001/10/27 00:32:09	1.1.1.1
++++ stage2/bios.c	2001/10/27 00:50:00	1.2
+@@ -127,6 +127,26 @@
+   /* Clear the flags.  */
+   geometry->flags = 0;
+   
++#ifdef DOC_DEBUG
++  printf("get_diskinfo(): drive 0x%x, errnum %d\n", drive, errnum);
++#endif
++
++#ifdef BDEV_DISKONCHIP
++  if ((drive & 0xFFFFFFF0) == DISK_ON_CHIP)
++    {
++      err = get_diskinfo_diskonchip (drive & 0x0000000f,
++		   &geometry->cylinders,
++		   &geometry->heads,
++		   &geometry->sectors);
++      if (err)
++	return err;
++
++      geometry->total_sectors = (geometry->cylinders
++				 * geometry->heads
++				 * geometry->sectors);
++    }
++  else
++#endif
+   if (drive & 0x80)
+     {
+       /* hard disk */
+@@ -228,6 +248,11 @@
+ 				 * geometry->heads
+ 				 * geometry->sectors);
+     }
++
++#ifdef DOC_DEBUG
++  printf("get_diskinfo(): total sectors %d, errnum %d\n",
++		geometry->total_sectors, errnum);
++#endif
+ 
+   return 0;
+ }
+Index: stage2/boot.c
+===================================================================
+RCS file: /usr/local/cvsroot/grub/stage2/boot.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -u -r1.1.1.1 -r1.2
+--- stage2/boot.c	2001/10/27 00:32:09	1.1.1.1
++++ stage2/boot.c	2001/10/27 00:50:00	1.2
+@@ -62,6 +62,8 @@
+      buffer by default */
+   pu.aout = (struct exec *) buffer;
+ 
++  printf("Loading kernel image...\n");
++
+   if (!grub_open (kernel))
+     return KERNEL_TYPE_NONE;
+ 
+Index: stage2/builtins.c
+===================================================================
+RCS file: /usr/local/cvsroot/grub/stage2/builtins.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.3
+diff -u -r1.1.1.1 -r1.3
+--- stage2/builtins.c	2001/10/27 00:32:09	1.1.1.1
++++ stage2/builtins.c	2001/10/27 00:50:00	1.3
+@@ -878,15 +878,15 @@
+ {
+   if (mbi.flags & MB_INFO_APM_TABLE)
+     {
+-      grub_printf ("APM BIOS information:
+- Version:          0x%x
+- 32-bit CS:        0x%x
+- Offset:           0x%x
+- 16-bit CS:        0x%x
+- 16-bit DS:        0x%x
+- 32-bit CS length: 0x%x
+- 16-bit CS length: 0x%x
+- 16-bit DS length: 0x%x\n",
++      grub_printf ("APM BIOS information:\n"
++	" Version:          0x%x\n"
++	" 32-bit CS:        0x%x\n"
++	" Offset:           0x%x\n"
++	" 16-bit CS:        0x%x\n"
++	" 16-bit DS:        0x%x\n"
++	" 32-bit CS length: 0x%x\n"
++	" 16-bit CS length: 0x%x\n"
++	" 16-bit DS length: 0x%x\n",
+ 		   (unsigned) apm_bios_info.version,
+ 		   (unsigned) apm_bios_info.cseg,
+ 		   apm_bios_info.offset,
+@@ -1273,6 +1273,8 @@
+   char *ptr;
+ #endif
+ 
++  printf("geometry of device %s, drive %d\n", device, current_drive);
++
+   /* Get the device number.  */
+   set_device (device);
+   if (errnum)
+@@ -1285,56 +1287,62 @@
+       return 1;
+     }
+ 
+-  /* Attempt to read the first sector, because some BIOSes turns out not
+-     to support LBA even though they set the bit 0 in the support
+-     bitmap, only after reading something actually.  */
+-  if (biosdisk (BIOSDISK_READ, current_drive, &geom, 0, 1, SCRATCHSEG))
+-    {
+-      errnum = ERR_READ;
+-      return 1;
+-    }
++  if ((current_drive & 0xfffffff0) == DISK_ON_CHIP) {
++    msg = "Disk On Chip";
++  } else if (current_drive == NETWORK_DRIVE) {
++    msg = "Network Drive";
++  } else {
++    /* Attempt to read the first sector, because some BIOSes turns out not
++       to support LBA even though they set the bit 0 in the support
++       bitmap, only after reading something actually.  */
++    if (biosdisk (BIOSDISK_READ, current_drive, &geom, 0, 1, SCRATCHSEG))
++      {
++        errnum = ERR_READ;
++        return 1;
++      }
+ 
+ #ifdef GRUB_UTIL
+-  ptr = skip_to (0, device);
+-  if (*ptr)
+-    {
+-      char *cylinder, *head, *sector, *total_sector;
+-      int num_cylinder, num_head, num_sector, num_total_sector;
+-
+-      cylinder = ptr;
+-      head = skip_to (0, cylinder);
+-      sector = skip_to (0, head);
+-      total_sector = skip_to (0, sector);
+-      if (! safe_parse_maxint (&cylinder, &num_cylinder)
+-	  || ! safe_parse_maxint (&head, &num_head)
+-	  || ! safe_parse_maxint (&sector, &num_sector))
+-	return 1;
+-
+-      disks[current_drive].cylinders = num_cylinder;
+-      disks[current_drive].heads = num_head;
+-      disks[current_drive].sectors = num_sector;
+-
+-      if (safe_parse_maxint (&total_sector, &num_total_sector))
+-	disks[current_drive].total_sectors = num_total_sector;
+-      else
+-	disks[current_drive].total_sectors
+-	  = num_cylinder * num_head * num_sector;
+-      errnum = 0;
+-
+-      geom = disks[current_drive];
+-      buf_drive = -1;
+-    }
++      ptr = skip_to (0, device);
++      if (*ptr)
++      {
++        char *cylinder, *head, *sector, *total_sector;
++        int num_cylinder, num_head, num_sector, num_total_sector;
++
++        cylinder = ptr;
++        head = skip_to (0, cylinder);
++        sector = skip_to (0, head);
++        total_sector = skip_to (0, sector);
++        if (! safe_parse_maxint (&cylinder, &num_cylinder)
++  	  || ! safe_parse_maxint (&head, &num_head)
++  	  || ! safe_parse_maxint (&sector, &num_sector))
++  	return 1;
++
++        disks[current_drive].cylinders = num_cylinder;
++        disks[current_drive].heads = num_head;
++        disks[current_drive].sectors = num_sector;
++
++       if (safe_parse_maxint (&total_sector, &num_total_sector))
++	  disks[current_drive].total_sectors = num_total_sector;
++        else
++	  disks[current_drive].total_sectors
++	    = num_cylinder * num_head * num_sector;
++        errnum = 0;
++
++        geom = disks[current_drive];
++        buf_drive = -1;
++      }
+ #endif /* GRUB_UTIL */
+ 
+ #ifdef GRUB_UTIL
+-  msg = device_map[current_drive];
++    msg = device_map[current_drive];
+ #else
+-  if (geom.flags & BIOSDISK_FLAG_LBA_EXTENSION)
+-    msg = "LBA";
+-  else
+-    msg = "CHS";
++    if (geom.flags & BIOSDISK_FLAG_LBA_EXTENSION)
++      msg = "LBA";
++    else
++      msg = "CHS";
+ #endif
+ 
++  }
+   grub_printf ("drive 0x%x: C/H/S = %d/%d/%d, "
+ 	       "The number of sectors = %d, %s\n",
+ 	       current_drive,
+@@ -2955,6 +2963,19 @@
+     {
+       /* Network drive.  */
+       grub_printf (" (nd):");
++    }
++  else if ((saved_drive & 0xfffffff0) == DISK_ON_CHIP)
++    {
++      /* DiskOnChip 2000 */
++      grub_printf (" (dc%d", saved_drive & 0x0F);
++
++      if ((saved_partition & 0xFF0000) != 0xFF0000)
++	grub_printf (",%d", saved_partition >> 16);
++
++      if ((saved_partition & 0x00FF00) != 0x00FF00)
++	grub_printf (",%c", ((saved_partition >> 8) & 0xFF) + 'a');
++
++      grub_printf ("):");
+     }
+   else if (saved_drive & 0x80)
+     {
+Index: stage2/char_io.c
+===================================================================
+RCS file: /usr/local/cvsroot/grub/stage2/char_io.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -u -r1.1.1.1 -r1.2
+--- stage2/char_io.c	2001/10/27 00:32:09	1.1.1.1
++++ stage2/char_io.c	2001/10/27 00:50:00	1.2
+@@ -1270,6 +1270,9 @@
+ void
+ cls (void)
+ {
++#ifdef DOC_DEBUG
++    return;
++#else
+   if (terminal & TERMINAL_CONSOLE)
+     console_cls ();
+ #ifdef SUPPORT_HERCULES
+@@ -1280,6 +1283,7 @@
+   else if (terminal & TERMINAL_SERIAL)
+     serial_cls ();
+ #endif /* SUPPORT_SERIAL */
++#endif
+ }
+ 
+ #ifdef SUPPORT_SERIAL
+@@ -1378,6 +1382,7 @@
+ int
+ memcheck (int addr, int len)
+ {
++  int memerr = 0;
+ #ifdef GRUB_UTIL
+   static int start_addr (void)
+     {
+@@ -1401,23 +1406,37 @@
+       return ret;
+     }
+ 
+-  if (start_addr () <= addr && end_addr () > addr + len)
+-    return ! errnum;
++  if (start_addr () <= addr && end_addr () > addr + len) {
++    memerr = errnum = ERR_WONT_FIT;
++    return ! memerr;
++  }
+ #endif /* GRUB_UTIL */
+ 
++#if 0 && defined(DOC_DEBUG)
++  printf("memcheck(): errnum %d, addr 0x%x, len 0x%x,"
++	" mem_lower 0x%x, mem_upper 0x%x\n",
++	errnum, addr, len, mbi.mem_lower, mbi.mem_upper);
++#endif
++
+   if ((addr < RAW_ADDR (0x1000))
+       || (addr < RAW_ADDR (0x100000)
+ 	  && RAW_ADDR (mbi.mem_lower * 1024) < (addr + len))
+       || (addr >= RAW_ADDR (0x100000)
+-	  && RAW_ADDR (mbi.mem_upper * 1024) < ((addr - 0x100000) + len)))
+-    errnum = ERR_WONT_FIT;
++	  && RAW_ADDR (mbi.mem_upper * 1024) < ((addr - 0x100000) + len))) {
++    printf("memcheck(): error\n");
++    memerr = errnum = ERR_WONT_FIT;
++  }
+ 
+-  return ! errnum;
++  return ! memerr;
+ }
+ 
+ void *
+ grub_memmove (void *to, const void *from, int len)
+ {
++#if 0 && defined(DOC_DEBUG)
++   printf("grub_memmove(): errnum %d, to 0x%x, from 0x%x, len 0x%x\n",
++	errnum, (int) to, (int) from, len);
++#endif
+    if (memcheck ((int) to, len))
+      {
+        /* This assembly code is stolen from
+@@ -1448,6 +1467,9 @@
+ 	 }
+      }
+ 
++#if 0 && defined(DOC_DEBUG)
++   printf("grub_memmove(): errnum %d\n", errnum);
++#endif
+    return errnum ? NULL : to;
+ }
+ 
+Index: stage2/cmdline.c
+===================================================================
+RCS file: /usr/local/cvsroot/grub/stage2/cmdline.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -u -r1.1.1.1 -r1.2
+--- stage2/cmdline.c	2001/10/27 00:32:09	1.1.1.1
++++ stage2/cmdline.c	2001/10/27 00:50:00	1.2
+@@ -50,10 +50,10 @@
+ void
+ print_cmdline_message (int forever)
+ {
+-  printf ("\
+- [ Minimal BASH-like line editing is supported.  For the first word, TAB
+-   lists possible command completions.  Anywhere else TAB lists the possible
+-   completions of a device/filename.%s ]\n",
++  printf (
++  " [ Minimal BASH-like line editing is supported.  For the first word, TAB\n"
++  "   lists possible command completions.  Anywhere else TAB lists the possible\n"
++  "   completions of a device/filename.%s ]\n",
+ 	  (forever ? "" : "  ESC at any time exits."));
+ }
+ 
+Index: stage2/common.c
+===================================================================
+RCS file: /usr/local/cvsroot/grub/stage2/common.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -u -r1.1.1.1 -r1.2
+--- stage2/common.c	2001/10/27 00:32:09	1.1.1.1
++++ stage2/common.c	2001/10/27 00:50:00	1.2
+@@ -340,6 +340,7 @@
+   /* Set boot drive and partition.  */
+   saved_drive = boot_drive;
+   saved_partition = install_partition;
++  // printf("init_bios_info(): boot_drive 0x%x\n", boot_drive);
+ 
+   /* Start main routine here.  */
+   cmain ();
+Index: stage2/disk_io.c
+===================================================================
+RCS file: /usr/local/cvsroot/grub/stage2/disk_io.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.3
+diff -u -r1.1.1.1 -r1.3
+--- stage2/disk_io.c	2001/10/27 00:32:09	1.1.1.1
++++ stage2/disk_io.c	2001/10/27 00:50:00	1.3
+@@ -118,9 +118,24 @@
+ {
+   int slen = (byte_offset + byte_len + SECTOR_SIZE - 1) >> SECTOR_BITS;
+ 
++#if !defined(STAGE1_5)
++  if (debug)
++    {
++      printf("rawread: drive %d, sector %d, byte_offset %d,"
++	" byte_len %d, buf 0x%x\n", drive, sector, byte_offset, byte_len, buf);
++    }
++#endif
++
+   if (byte_len <= 0)
+     return 1;
+ 
++#ifdef BDEV_DISKONCHIP
++  if ((drive & 0xfffffff0) == DISK_ON_CHIP)
++    return nftl_rawread(
++      drive & 0x0000000f, sector, byte_offset, byte_len, buf
++    );
++#endif
++
+   while (byte_len > 0 && !errnum)
+     {
+       int soff, num_sect, bufaddr, track, size = byte_len;
+@@ -289,6 +304,15 @@
+ int
+ rawwrite (int drive, int sector, char *buf)
+ {
++
++#ifdef BDEV_DISKONCHIP
++  if ((drive & 0xfffffff0) == DISK_ON_CHIP)
++    errnum = ERR_WRITE;
++    return 0;
++//    return nftl_rawrite(
++//      drive & 0x0000000f, sector, buf);
++#endif
++
+   if (sector == 0)
+     {
+       if (biosdisk (BIOSDISK_READ, drive, &buf_geom, 0, 1, SCRATCHSEG))
+@@ -356,15 +380,20 @@
+     return 1;
+   
+   if (!(current_partition & 0xFF000000uL)
+-      && (current_drive & 0xFFFFFF7F) < 8
++      && ((current_drive & 0xFFFFFF7F) < 8 
++	  || (current_drive & 0xFFFFFFF0) == DISK_ON_CHIP)
+       && (current_partition & 0xFF) == 0xFF
+       && ((current_partition & 0xFF00) == 0xFF00
+ 	  || (current_partition & 0xFF00) < 0x800)
+       && ((current_partition >> 16) == 0xFF
+ 	  || (current_drive & 0x80)))
+-    return 1;
++    {
++      dprintf("sane_partition: yes\n");
++      return 1;
++    }
+ 
+   errnum = ERR_DEV_VALUES;
++  dprintf("sane_partition: no\n");
+   return 0;
+ }
+ #endif /* ! STAGE1_5 */
+@@ -590,14 +619,39 @@
+ 	  pc_slice_no = -1;
+ 	}
+ 
++      dprintf("next_pc_slice(): errnum %d\n", errnum);
++      dprintf("next_pc_slice(): reading MBR at sector 0x%x of drive 0x%x\n",
++		*offset, drive);
+       /* Read the MBR or the boot sector of the extended partition.  */
+       if (! rawread (drive, *offset, 0, SECTOR_SIZE, buf))
+-	return 0;
++	{
++	  printf("next_pc_slice: error reading MBR at sector %x"
++		" of drive %x\n", *offset, drive);
++	  return 0;
++	}
++
++#if 0 && defined(DOC_DEBUG)
++        {
++	  int i = 0;
++	  while (i < SECTOR_SIZE) {
++	    printf("%x    "
++		"%b %b %b %b %b %b %b %b "
++		"%b %b %b %b %b %b %b %b\n",
++		i, 
++		buf[i + 0], buf[i + 1], buf[i + 2], buf[i + 3], 
++		buf[i + 4], buf[i + 5], buf[i + 6], buf[i + 7],
++		buf[i + 8], buf[i + 9], buf[i + 10], buf[i + 11],
++		buf[i + 12], buf[i + 13], buf[i + 14], buf[i + 15]);
++	    i += 16;
++	  }
++        }
++#endif
+ 
+       /* Check if it is valid.  */
+       if (! PC_MBR_CHECK_SIG (buf))
+ 	{
+ 	  errnum = ERR_BAD_PART_TABLE;
++	  printf("next_pc_slice: invalid MBR\n");
+ 	  return 0;
+ 	}
+ 
+@@ -647,6 +701,9 @@
+ 
+   /* Start the body of this function.  */
+   
++  dprintf("next_partition(): drive %x, current_drive 0x%x\n",
++	drive, current_drive);
++
+ #ifndef STAGE1_5
+   if (current_drive == NETWORK_DRIVE)
+     return 0;
+@@ -904,6 +961,8 @@
+   current_drive = saved_drive;
+   current_partition = 0xFFFFFF;
+ 
++  dprintf("set_device(): device %s, drive %x\n", device, current_drive);
++
+   if (*device == '(' && !*(device + 1))
+     /* user has given '(' only, let disk_choice handle what disks we have */
+     return device + 1;
+@@ -929,19 +988,32 @@
+ 		return device + 2;
+ 	    }
+ 
+-	  if ((*device == 'f' || *device == 'h' || *device == 'n')
+-	      && (device += 2, (*(device - 1) != 'd')))
+-	    errnum = ERR_NUMBER_PARSING;
++	  device += 2;
+ 
+-	  if (ch == 'n')
+-	    current_drive = NETWORK_DRIVE;
+-	  else
++#define MK16(a,b) ( ((a)<<8) + (b) )
++
++	  switch (MK16(ch, *(device-1)))
+ 	    {
++	    case MK16('n','d'):
++	      current_drive = NETWORK_DRIVE;
++	      break;
++	      
++	    case MK16('d','c'):
+ 	      safe_parse_maxint (&device, (int *) &current_drive);
++	      disk_choice = 0;
++	      current_drive += DISK_ON_CHIP;
++	      break;
+ 	      
++	    case MK16('h','d'):
++	    case MK16('f','d'):
++	      safe_parse_maxint (&device, (int *) &current_drive);
+ 	      disk_choice = 0;
+ 	      if (ch == 'h')
+ 		current_drive += 0x80;
++	      break;
++	      
++	    default:
++	      errnum = ERR_NUMBER_PARSING;
+ 	    }
+ 	}
+ 
+@@ -1028,8 +1100,14 @@
+ int
+ open_device (void)
+ {
+-  if (open_partition ())
++  dprintf("open_device(): errnum %d, current_drive %x, current_partition %x\n",
++	errnum, current_drive, current_partition);
++  if (open_partition ()) {
++    dprintf("open_device(): open_partition() ok, attempt_mount()\n");
+     attempt_mount ();
++  }
++
++  dprintf("open_device(): errnum %d\n", errnum);
+ 
+   if (errnum != ERR_NONE)
+     return 0;
+@@ -1089,6 +1167,7 @@
+   
+ #else /* ! STAGE1_5 */
+   
++  dprintf("setup_part(): filename %s\n", filename);
+   if (*filename == '(')
+     {
+       if ((filename = set_device (filename)) == 0)
+@@ -1122,6 +1201,7 @@
+   
+ #endif /* ! STAGE1_5 */
+   
++  dprintf("setup_part(): errnum %d\n", errnum);
+   if (errnum && (*filename == '/' || errnum != ERR_FSYS_MOUNT))
+     return 0;
+   else
+@@ -1501,8 +1581,10 @@
+   print_possibilities = 0;
+ # endif
+ 
++  dprintf("grub_open(): errnum %d == 0 ? calling dir_func\n", errnum);
+   if (!errnum && (*(fsys_table[fsys_type].dir_func)) (filename))
+     {
++      dprintf("grub_open(): dir_func returned success\n");
+ #ifndef NO_DECOMPRESSION
+       return gunzip_test_header ();
+ #else /* NO_DECOMPRESSION */
+Index: stage2/shared.h
+===================================================================
+RCS file: /usr/local/cvsroot/grub/stage2/shared.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.3
+diff -u -r1.1.1.1 -r1.3
+--- stage2/shared.h	2001/10/27 00:32:09	1.1.1.1
++++ stage2/shared.h	2001/10/27 00:50:00	1.3
+@@ -28,6 +28,14 @@
+ 
+ #include <config.h>
+ 
++/* #define DOC_DEBUG */
++
++#ifdef DOC_DEBUG
++	#define dprintf(fmt...)  printf(fmt)
++#else
++	#define dprintf(fmt...)
++#endif
++
+ /* Add an underscore to a C symbol in assembler code if needed. */
+ #ifdef HAVE_ASM_USCORE
+ # define EXT_C(sym) _ ## sym
+@@ -184,7 +192,7 @@
+ 
+ /* Not bad, perhaps.  */
+ #define NETWORK_DRIVE	0x20
+-
++#define DISK_ON_CHIP	0xE0
+ /*
+  *  GRUB specific information
+  *    (in LSB order)
+@@ -1012,6 +1020,14 @@
+ #endif
+ 
+ void init_bios_info (void);
++
++#ifdef BDEV_DISKONCHIP
++extern int nftl_rawread(
++  int drive, int sector, int byte_offset, int byte_len, char *buf
++);
++extern int get_diskinfo_diskonchip (int drive, unsigned long *cylinders, 
++	unsigned long *heads, unsigned long *sectors);
++#endif
+ 
+ #endif /* ASM_FILE */
+ 
+Index: stage2/stage2.c
+===================================================================
+RCS file: /usr/local/cvsroot/grub/stage2/stage2.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -u -r1.1.1.1 -r1.2
+--- stage2/stage2.c	2001/10/27 00:32:09	1.1.1.1
++++ stage2/stage2.c	2001/10/27 00:50:00	1.2
+@@ -926,10 +926,20 @@
+       if (use_config_file)
+ #endif /* GRUB_UTIL */
+ 	{
++	  dprintf("opening %s\n", config_file);
+ 	  is_opened = grub_open (config_file);
+ 	  errnum = ERR_NONE;
+ 	  if (! is_opened)
+-	    is_opened = is_preset = open_preset_menu ();
++	    {
++	      if (saved_partition == 0x00FFFFFF)
++		{
++		  saved_partition = 0x0000FFFF;
++		  is_opened = grub_open (config_file);
++		}
++	      if (! is_opened)
++		is_opened = is_preset = open_preset_menu ();
++	    }
++	  dprintf("is_opened %d\n", is_opened);
+ 	}
+       
+       if (is_opened)

@@ -1,0 +1,9 @@
+<PAGE>
+	<STARTMENU level="2"/>
+	<MENU topic="General" link="general.html" mode="VAR_SEL_GENERAL" />
+	<MENU topic="NAND" link="nand.html" mode="VAR_SEL_NAND" />
+	<MENU topic="JFFS2" link="jffs2.html" mode="VAR_SEL_JFFS2" />
+	<MENU topic="JFFS3" link="jffs3.html" mode="VAR_SEL_JFFS3" />
+	<MENU topic="Logfs" link="logfs.html" mode="VAR_SEL_LOGFS" />
+	<ENDMENU />
+</PAGE>

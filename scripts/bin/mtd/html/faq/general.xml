@@ -1,0 +1,76 @@
+<PAGE>
+	<VAR match="VAR_ORIGIN" replace="../" />
+	<VAR match="VAR_CVSID" replace="$Id: general.xml,v 1.2 2006/03/31 14:57:32 jwboyer Exp $"/>
+	<INCLUDE file="../inc/header.tmpl" />
+
+	<VAR match="VAR_SEL_FAQ" replace="selected" />
+	<VAR match="VAR_SEL_GENERAL" replace="selected" />
+	<PARSE file="../menu1.xml" />
+
+	<INCLUDE file="../inc/content.tmpl" />
+
+
+	<h2>General MTD FAQ</h2>
+
+
+	<h3>Is a mtd device a block device or a char device ?</h3>
+
+	<p>First off, an mtd is a "memory technology device", so it's just "mtd.  
+	An "mtd device" is a pleonasm.</p>
+
+	<p>Unix traditionally only knew block devices and character devices.  
+	Character devices were things like keyboards or mice, that you could 
+	read current data from, but couldn't be seeked and didn't have a size. 
+	Block devices had a fixed size and could be seeked.  They also happened 
+	to be organized in blocks of multiple bytes, usually 512.</p>
+
+	<p>Flash doesn't match the description of either block or character devices.
+	 They behave similar to block device, but have differences.  For example, 
+	 block devices don't destinguish between write and erase operations.  
+	 Therefore, a special device type to match flash characteristics was created: mtd.</p>
+
+	<p>So mtd is neither a block nor a char device.  There are translations to 
+	use them, as if they were.  But those translations are nowhere near the original, 
+	just like translated chinese poems.</p>
+
+
+	<h3>What are the point() and unpoint() functions used for ?</h3>
+
+	<p>Mainly for NOR flash.  As long as the flash is only read, it
+	behaves just like normal memory.  The read() function for NOR chips is
+	essentially a memcpy().  For some purposes the extra memcpy() is a
+	waste of time, so things can be optimized.</p>
+
+	<p>So the point() function does just that, it returns a pointer to the
+	raw flash, so callers can operate directly on the flash.</p>
+
+	<p>But of course, things are a little more complicated than that.  NOR
+	flash chips can be in several different modes and only when in read
+	mode will the above work.  Therefore point() also locks the flash chip
+	in addition to returning a pointer.  And while locked, writes to the
+	same flash chips have to wait.  So callers have to call unpoint() soon
+	after to release the chip again.</p>
+
+	<h3>I keep getting errors whenever I try to write or erase to my MTD device</h3>
+	<p>Some NOR chips power on with all of the eraseblocks in a locked state.
+	The MTD layer doesn't unlock these devices by default.  If you are 
+	accessing these devices from userspace, you can use the flash_unlock tool
+	to unlock the MTD device(s).  If you are using the MTD device as a
+	write-able root filesystem you will either need to have the boot loader
+	unlock the eraseblocks before booting the kernel, or add code to the MTD
+	map driver for your board to unlock them.</p>
+
+	<p>Some chips that are known to have this behavior:</p>
+	<table cellpadding="5" cellspacing="0" border="1">
+	<tr><td>Manufacturer</td>
+	<td>Intel</td>
+	</tr>
+
+	<tr><td>Part Number</td>
+	<td>28FxxxP30</td>
+	</tr>
+	</table>
+
+	<INCLUDE file="../inc/footer.tmpl" />
+</PAGE>
+

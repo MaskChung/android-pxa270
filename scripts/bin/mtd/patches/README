@@ -1,0 +1,30 @@
+This file is meant to give an overview of the files contained in this
+directory.
+
+Howto use it ? Have a look at the file INSTALL in MTD top directory.
+
+FILE LIST
+---------
+* Configure.help - file containing documentation for all the options in
+                   MTD and JFFS. The first option in the file shows where
+                   to insert it into the main 'Configure.help' file in
+                   your kernel
+
+* grub-*.patch - patches for the GRUB bootloader to work with Disk On
+                 chip devices
+
+* lilo-mtd.tar.gz - patches for LILO to be able to access MTD devices
+                    during boot
+
+* mtd-2.2.*.patch - partial patch file for patching the kernel build
+                          system to bring in the MTD sub-system
+
+* mtd-sparc64-2.4.x.patch - ioctl conversions for sparc64 32-bit userland.
+                            This should be submitted to DaveM after MTD CVS
+                            has been merged into the mainline.
+
+* patchin.sh - handy shell script used to patch in the latest MTD file
+               when the kernel build system has already been patched
+	       works also on pristine kernels above 2.4.11
+
+

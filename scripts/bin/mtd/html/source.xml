@@ -1,0 +1,112 @@
+<PAGE>
+	<VAR match="VAR_ORIGIN" replace="" />
+	<VAR match="VAR_CVSID" replace="$Id: source.xml,v 1.10 2005/08/01 13:47:03 dwmw2 Exp $"/>
+	<INCLUDE file="inc/header.tmpl" />
+
+	<VAR match="VAR_SEL_SOURCE" replace="selected" />
+	<PARSE file="menu1.xml" />
+	
+	<INCLUDE file="inc/content.tmpl" />
+
+<h2>CVS vs. Linux 2.6.x</h2>
+<p>CVS contains development versions of the code which is in
+Linux 2.6. Latest bugfixes show usually up in CVS before going
+into mainline. Development only code like JFFS3 is in the CVS too.</p>
+
+<hr size="2" />
+
+<h2>Download and CVS</h2>
+<p>Your best option is to obtain the latest code from CVS, by following 
+the instructions below. We do break the CVS build occasionally, but we're 
+also fairly good at fixing it quickly when we do so. </p>
+
+<p>Anonymous CVS access is available, and full CVS access may also be
+granted to developers on request.<br />
+<i>cvs -d :pserver:anoncvs@cvs.infradead.org:/home/cvs login (password: anoncvs)</i><br />
+<i>cvs -d :pserver:anoncvs@cvs.infradead.org:/home/cvs co mtd</i><br />
+</p>
+
+<p>If you can't access anoncvs for some reason, daily snapshots 
+are also available at <a href="ftp://ftp.uk.linux.org/pub/people/dwmw2/mtd/cvs/">
+				ftp://ftp.uk.linux.org/pub/people/dwmw2/mtd/cvs/</a>
+</p>
+
+<hr size="2" />
+
+<h2>Patch submission</h2>
+
+<p>
+Please send MTD related patches to the MTD mailinglist.
+</p>
+<p>
+Have a look at our <a href="http://lists.infradead.org/pipermail/linux-mtd/2005-July/012985.html">
+patch submission format guidelines</a>
+</p>
+
+<hr size="2" />
+
+<h2><a name="kernelversions">Kernel versions</a></h2>
+<p>The MTD code in the linux kernel is updated from MTD CVS in kernel version <b>2.6.newest only</b>.</p>
+<p>As of March 2005 we dropped Linux 2.4 support from CVS head. This means we not longer care
+whether the CVS code can be used on Linux 2.4 or not. We will remove the compability hacks in the course of
+time <b>without further notice</b> - especially when they are in the way of adding new functionality.</p>
+<p>The latest snapshot which apparently works with 2.4 kernels >= 2.4.27 is the
+CVS snapshot of date 2005-03-04. To update your CVS tree to the snapshot, perform the checkout of the MTD tree as above and then run the following commands:<br />
+<i>cd mtd</i><br />
+<i>cvs update -dP -D 2005-03-04</i><br />
+</p>
+<P><B>NOTE:</B> That is just a snapshot. It isn't a release version
+or a branch; it's known to be broken in ways which will corrupt data,
+and we don't care. The bugs got fixed later but the patches will never
+be backported. The date quoted just happens to be the date at which the
+unstable development tree was last observed to compile for the ancient
+2.4 kernel. You should not use it, and you should not expect it to
+work.</P>
+<P>If you are using the ancient 2.4 kernel, that's probably
+because you're interested in stabliity -- it is old and long-tested
+code. If that's what you want, then you should use the original JFFS2
+code which is part of the 2.4 kernel. It's old and slow and doesn't
+support NAND flash, but it <em>is</em> stable, and is maintained.</P>
+<p>The MTD community is neither able nor interested to provide support for new MTD and JFFS2 code with ancient kernels. 
+Move yourself and update to a recent kernel. If you use a vendor supplied kernel, 
+please  get support from your kernel vendor.  Do not ask on the mailinglist for help with 
+ such problems. You are either ignored or you get a pointer to this text. 
+Please save the bandwidth and our time to sort out such questions.</p>
+
+<hr size="2" />
+
+<h2>Installation</h2>
+<p>Check out sources from CVS or download a snapshot and untar it. Change to the
+top directory and read INSTALL. Invoke patchkernel.sh from the top directory.
+You have at least to supply the directory of the kernel you want to
+patch. Command line options for various patch selections are available.
+Invoke the script without arguments for help.<br />
+This script applies all the neccecary changes to your kernel source
+The script takes following options: <br />
+<i>
+-c copy files into kernel tree instead of linking files<br />
+-2 include jffs2 filesystem<br />
+-3 include jffs3 filesystem<br />
+-y answer all questions with yes<br />
+</i>
+As last argument you have to give the path of your kernel tree. This must be an absolute
+path.</p>
+<p>The difference between linking and copying files into the kernel tree is, that copying 
+       gives you a modified kernel tree, which can be handled by CVS as it contains no symlinks.
+       Linking the files has two advantages. <br />
+       1. All your kernel trees can share the same MTD source.<br />
+       2. You can have more than one MTD source eg. a stable and an unstable and use it with
+       your kernel tree(s) by changing the link to the directories.
+       Assumed you have two MTD versions (stable and unstable) and those are located in source,
+       then the directory listing of source shows:<br />
+       <i>
+       mtd->/source/mtd.stable<br />
+       mtd.stable<br />
+       mtd.unstable<br />
+       </i>
+       If you want to build with your stable MTD source, set the mtd link to mtd.stable else to 
+       mtd.unstable. Don't forget to make clean, if you switch the links.   	       
+</p>
+
+	<INCLUDE file="inc/footer.tmpl" />
+</PAGE>

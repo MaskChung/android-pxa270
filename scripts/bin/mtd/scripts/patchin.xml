@@ -1,0 +1,198 @@
+<!-- Selection description for patchin.py 
+
+<OPTION name="jffs2" help="Include JFFS2" />
+name: Unique option name
+
+help: Helptext for this option
+
+Define commandline options for treewalk.py
+The options are given with -o opt1,opt2,opt3
+
+
+<CHECKTARGET file="Makefile" pattern="PATCHLEVEL = 6" 
+help="Linux-Kernel 2.6" />
+file:    Filename to check in the target directory
+
+pattern: Pattern to search in the file
+
+help:    Help text in case of error
+
+The targetcheck(s) are processed before the update. If
+one of the checks fails, the processing is stopped.
+
+
+<ACTION name="bk" depends="bk" except="rm">
+	rm -f $destfiles;
+	bk co -ql $destfiles;
+</ACTION>
+name:      Unique action name
+
+depends:   Dependency on option(s) seperated by ','
+
+except:    Except on option(s) seperated by ','
+
+mode:      Either 'single' or 'all'. Default is single
+           If mode == single, then the action is called 
+           for each file seperately and the $*files
+           arguments contain only a single file
+
+content:   The action shell command(s) seperated by ';'
+           Exported variables: 
+
+           $srcfiles  File(s) selected by update patterns in src path
+
+           $dstfiles  File(s) selected by update patterns in dest path
+               
+           $srcpath   Source path
+
+           $dstpath   Destination path
+
+           $options   Options given in the selection pattern
+
+
+<ACTIONORDER order="bk,rm,cp,ln" />
+order:     action processing order. Actions names seperated by ','
+
+Defines the processing order for default actions. Only the 
+actions in this config entity are available for default 
+action processing. You can override the default action per
+<SUBDIR>. Only enabled actions are eprocessed. Enabling 
+of an action happens by the config options and the depend/except 
+field in the <ACTION> config entity.
+
+
+<SUBDIR name="include" actions="cp" depends="jffs2" except="bk" recurse="no">
+name:      relative path name of the subdirectory
+
+actions:   actions in this subdir. If omitted the defaults are used
+           Actions are processed in the given order
+
+depends:   Dependency on option(s) seperated by ','
+
+except:    Except on option(s) seperated by ','
+
+recurse:   Recurse through subdirs. Either yes nor no. Default is no
+
+<UPDATE pattern="*.h" depends="jffs2" except="bk" options="bla" />
+<UPDATE pattern="Makefile.common" target="Makefile" />
+<EXCLUDE pattern="jffs2-user.h" except="jffs2" depends="bk" />
+pattern:   single filename or regular expression
+
+target:    single filename or regular expression
+
+depends:   Dependency on option(s) seperated by ','
+
+except:    Except on option(s) seperated by ','
+
+options:   Options for the action
+</SUBDIR>
+
+
+For all entities which use depends/extend the following rules apply:
+If depends contains more than one option, then all options must be 
+set to make the rule valid (logical AND)
+If except contains more than one option, then one option set make 
+the rule valid (logical OR)
+
+-->
+
+<PATCHROOT name="mtd">
+	<OPTION name="jffs2" help="Include JFFS2" />
+	<OPTION name="jffs3" help="Include JFFS3" />
+	<OPTION name="cp" help="copy into target tree" />
+	<OPTION name="ln" help="link into target tree" />
+	<OPTION name="rm" help="remove the patched files" />
+	<OPTION name="diff" help="diff files against target tree" />
+
+	<CHECKTARGET file="Makefile" pattern="PATCHLEVEL.=.6" 
+		help="Linux-Kernel 2.6" />
+
+	<ACTION name="cp" depends="cp" except="rm,ln">
+		rm -f $dstpath/$dstfiles;
+		cp -f $srcpath/$srcfiles $dstpath/$dstfiles
+	</ACTION>
+
+	<ACTION name="rm" depends="rm" except="cp,ln">
+		rm -f $dstpath/$dstfiles
+	</ACTION>
+
+	<ACTION name="ln" depends="ln" except="cp,rm">
+		rm -f $dstpath/$dstfiles;
+		ln -s $srcpath/$srcfiles $dstpath/$dstfiles
+	</ACTION>
+
+	<ACTION name="diff" depends="diff" except="rm,ln,cp">
+		diff -uN $dstpath/$dstfiles $srcpath/$srcfiles | sed -e s@$dstbase@linux@g -e s@$srcbase@linux@g >>$srcbase/mtd.diff;
+		if [ $? -eq 1 ];
+		then
+			exit 0;
+		fi
+	</ACTION>
+
+	<ACTION name="mkdir" except="rm,diff" mode="all">
+		mkdir -p $dstpath
+	</ACTION>
+
+	<ACTION name="modify" except="rm,diff">
+		scripts/modify.py -p $options $srcpath/$srcfiles $dstpath/$dstfiles
+	</ACTION>
+
+	<ACTION name="insert" except="rm,diff">
+		scripts/modify.py -i -p $options $srcpath/$srcfiles $dstpath/$dstfiles
+	</ACTION>
+
+	<ACTIONORDER order="diff,rm,cp,ln" />
+
+	<SUBDIR name="Documentation/DocBook">
+		<UPDATE pattern=".*\.tmpl$" />
+	</SUBDIR>
+	<SUBDIR name="include/mtd">
+		<UPDATE pattern=".*\.h$" />
+		<EXCLUDE pattern="jffs2-user.h$" except="jffs2" />
+	</SUBDIR>
+	<SUBDIR name="include/linux" depends="jffs2">
+		<UPDATE pattern="jffs2.*\.h$" />
+	</SUBDIR>
+	<SUBDIR name="include/linux" depends="jffs3">
+		<UPDATE pattern="jffs3.*\.h$" />
+	</SUBDIR>
+	<SUBDIR name="include/linux/mtd">
+		<UPDATE pattern=".*\.h$" />
+	</SUBDIR>
+	<SUBDIR name="fs" actions="modify">
+		<UPDATE pattern="Kconfig" depends="jffs2" 
+			options="JFFS2,JFFS3,JFFS2,CRAMFS" />
+		<UPDATE pattern="Kconfig" depends="jffs3" 
+			options="JFFS3,CRAMFS,JFFS3,CRAMFS" />
+	</SUBDIR>
+	<SUBDIR name="fs" actions="insert" depends="jffs3">
+		<UPDATE pattern="Makefile.jffs3" target="Makefile"
+			depends="jffs3" options="JFFS3,JFFS3,JFFS2,JFFS2" />
+		<UPDATE pattern="Kconfig" depends="jffs3" 
+			options="JFFS3,CRAMFS,CRAMFS,CRAMFS" />
+	</SUBDIR>
+	<SUBDIR name="fs/jffs2" depends="jffs2">
+		<UPDATE pattern=".*\.[ch]$" />
+		<UPDATE pattern="Makefile.common" target="Makefile" />
+		<EXCLUDE pattern=".*v24.c$" />
+		<EXCLUDE pattern="crc.*" />
+		<EXCLUDE pattern="compr_lz.*" />
+		<EXCLUDE pattern="rbtree.*" />
+	</SUBDIR>
+	<SUBDIR name="fs/jffs3" actions="mkdir,rm,cp,ln" depends="jffs3">
+		<UPDATE pattern=".*\.[ch]$" />
+		<UPDATE pattern="Makefile.common" target="Makefile" />
+		<EXCLUDE pattern=".*v24.c$" />
+	</SUBDIR>
+	<SUBDIR name="drivers/mtd/onenand" actions="mkdir,rm,cp,ln">
+		<UPDATE pattern=".*\.[ch]$" />
+		<UPDATE pattern="Makefile.common" target="Makefile" />
+	</SUBDIR>
+	<SUBDIR name="drivers/mtd" recurse="yes">
+		<UPDATE pattern=".*\.[ch]$" />
+		<UPDATE pattern="Kconfig" />
+		<UPDATE pattern="Makefile.common" target="Makefile" />
+		<EXCLUDE pattern=".*24.c" />
+		<EXCLUDE pattern="ssfdc.c" depends="tolinus" />
+	</SUBDIR>
+</PATCHROOT>

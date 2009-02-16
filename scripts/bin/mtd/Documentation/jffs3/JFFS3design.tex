@@ -1,0 +1,376 @@
+%
+% JFFS3 design issues.
+%
+% Copyright (C), 2005, Artem B. Bityutskiy, <dedekind@infradead.org>
+%
+% $Id: JFFS3design.tex,v 1.31 2005/11/27 14:37:49 dedekind Exp $
+%
+
+% gqap - rewrap a paragraph in vim
+
+\documentclass[12pt,a4paper,oneside,titlepage]{article}
+\usepackage{hyperref}
+\usepackage{html}
+\usepackage{amssymb}
+\usepackage{longtable}
+
+\begin{htmlonly}
+\usepackage{graphicx}
+\end{htmlonly}
+%begin{latexonly}
+\ifx \pdfoutput \undefined
+\usepackage{graphicx}
+\else
+\pdfpagewidth=210mm
+\pdfpageheight=297mm
+\usepackage[pdftex]{graphicx}
+\fi
+%end{latexonly}
+
+% Set pages layout.
+% A4 paper has 210mm x 297mm
+% TeX automatically makes 25.4mm left and top indents
+\oddsidemargin=0mm  % 25.4mm by default
+\textwidth=159.2mm  % 25.4mm right indent
+\topmargin=0mm      % 25.4mm by default
+\textheight=241.6mm % 30mm bottom indent
+\headheight=0mm
+\headsep=0mm
+
+% Define TODO command
+\newcommand{\TODO}[1]{[{\textbf{TODO}: #1}]\marginpar{\large \textbf{?!}}}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  TITLE PAGE
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\title{JFFS3 design issues}
+%\author{Artem B. Bityutskiy}
+\begin{titlepage}
+\vspace*{5cm}
+\begin{center}
+\Huge{\textbf{JFFS3 design issues}}\\
+\vspace{1cm}
+\large{Artem B. Bityutskiy\\
+dedekind@infradead.org}\\
+\vspace{13cm}
+\large{Version 0.32 (draft)}\\
+\vspace{0.5cm}
+November 27, 2005
+\end{center}
+\end{titlepage}
+%\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% ABSTRACT
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagestyle{empty}
+
+\begin{abstract}
+
+JFFS2, the Journalling Flash File System version 2, is widely used in the
+embedded systems world. It was designed for relatively small flash chips and
+has serious problems when it is used on large flash devices. Unfortunately,
+these scalability problems are deep inside the design of the file system, and
+cannot be solved without full redesign.
+
+This document describes JFFS3~-- a new flash file system which is designed to
+be scalable.
+
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% TABLE OF CONTENTS
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\tableofcontents
+\newpage
+
+\pagestyle{plain}
+\pagenumbering{arabic}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% JFFS2 OVERVIEW
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{JFFS2 overview}
+
+\input{jffs2.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% JFFS3 REQUIREMENTS
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{JFFS3 Requirements} \label{ref_SectionJFFS3Req}
+
+\input{jffs3req.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% INTRODUCTION TO JFFS3
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction to JFFS3}
+
+\input{intro.tex}
+	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% THE TREE
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The tree}
+
+\input{tree.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% GARBAGE COLLECTION
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Garbage Collection} \label{ref_SectionGC}
+
+\input{gc.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% THE SUPERBLOCK
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The superblock} \label{ref_SectionSB}
+
+\input{super.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% ISSUES/TO BE DONE
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Issues/ideas/to be done}
+
+This section contains a temporary list of issues which should be solved, ideas
+which should be thought and analyzed deeper or things which were thought about
+but are not yet described in this document.
+
+The following is the list of things which should be thought about more.
+
+\begin{enumerate}
+
+\item Quota support. Will quota be supported? How will it look like~-- lust
+generic linux quota or something better?
+
+\item Transactions:\\
+\texttt{transaction\_open()/do\_many\_fs\_modifications()/transaction\_close()}
+semantics? Reiser4 pretends to support this via special \texttt{sys\_reiser4()}
+syscall. Would be nice.
+
+\item How can one select the compression mode on the per-inode basis? Xattrs
+with some reserved name?
+
+\item Orphaned files.
+
+\item Holes.
+
+\item Direct I/O.
+
+\item How to chose/add a key scheme?
+
+\item Extents.
+
+\end{enumerate}
+
+The following is the list of topics which should be highlighted in this document
+as well.
+
+\begin{enumerate}
+
+\item Garbage collection.
+
+\item Tree balancing.
+
+\item Tree locking.
+
+\item Caching, write-behind cache.
+
+\item An assumed flash model and the model of interactions between JFFS3 and
+the flash I/O subsystem.
+
+\item How the track of eraseblocks will be kept? Space accounting, good/bad,
+erase count?
+
+\item The wear-levelling algorithms.
+
+\item The format of keys.
+
+\item Branch nodes' links are sector numbers, twig nodes' links are absolute
+flash offsets. So, the length of twig and branch keys are different and
+branches have greater fanout.
+
+\item Different optimizations may be achieved by means of changing the format
+of keys. So, JFFS3 should be flexible in this respect and have a mechanism to
+change/select the formats of keys.
+
+\item The minimal amount of file's data in a node is \texttt{PAGE\_SIZE}. No
+way to create smaller nodes as it it possible in JFFS2.
+
+\item Portability (e.g., move FS between machines with different RAM~page size,
+etc).
+
+\item Errors handling.
+
+\item Bad blocks handling.
+
+\end{enumerate}
+
+The following is the list of ideas which were thought about but are not yet in
+the document.
+
+\begin{enumerate}
+
+\item If the compression is disabled for an inode, then its nodes are
+(\texttt{PAGE\_SIZE} + header size) in size, i.e., they do not fit into integer
+number of flash sectors. For these nodes we may keep the header in the OOB
+area. In this case we should not mix compressed nodes and uncompressed nodes in
+one eraseblock.
+
+\item For large files which are mostly read-only, we may fit more then one page
+of data in one node. This will mace compression better. When the file is read,
+all the uncompressed pages are propagated to the page cache, like in the zisofs
+file system.
+
+\item If there are few data in the superblock, we may keep this data in the
+root node. In this case the root will have smaller fanout then branches.
+
+\end{enumerate}
+
+The "to do" list.
+
+\begin{enumerate}
+
+\item Re-calculate digits for SB search time and $m$.
+
+\item For now only the idea of keys compression methods is provides. Would be
+nice to describe algorithms more strictly.
+
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% DEFINITIONS
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Definitions}\label{ref_SectDefinitions}
+
+\input{definit.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% SYMBOLS
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Symbols} \label{ref_SectionSymbols}
+
+The following is the list of symbols which are used to denote different things
+thought this document.
+
+\begin{itemize}
+
+\item $D$~-- the number of guaranteed erases of flash eraseblocks (typically
+$\sim 10^5$ for NAND flashes);
+
+\item $H()$~-- the hash function JFFS3 uses to calculate names' hash for keys.
+
+\item $I$~-- inode number.
+
+\item $K$, $K_x$~-- tree's keys.
+
+\item $k$, $k_x$~-- keys' fields.
+
+\item $L$~-- the number of levels in the tree.
+
+\item $m$~-- the number of eraseblocks used in the superblock management
+scheme without the anchor eraseblocks, i.e. the number of chain eraseblocks
+plus one (the super eraseblock).
+
+\item $M$~-- the total number of non-bad eraseblocks on the JFFS3 partition.
+
+\item $n$~-- the branching factor (fanout) of the tree.
+
+\item $N$~-- the number of sectors per eraseblock.
+
+\item $S$~-- the size of the JFFS3 flash partition (assuming there are no bad
+block).
+
+\item $s$~-- the size of sector.
+
+\item $w$~-- the \mbox{bit-width} of links.
+
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% ABBREVIATIONS
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Abbreviations}
+\begin{enumerate}
+\item \textbf{ACL}~-- Access Control List
+\item \textbf{ECC}~-- Error Correction Code
+\item \textbf{CRC}~-- Cyclic Redundancy Check
+\item \textbf{JFFS2}~-- Journalling Flash File System version 2
+\item \textbf{JFFS3}~-- Journalling Flash File System version 3
+\item \textbf{MTD}~-- Memory Technology Devices
+\item \textbf{RAM}~-- Random Access Memory
+\item \textbf{VFS}~-- Virtual File System
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% CREDITS
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Credits}
+The following are the people I am very grateful for help (alphabetical order):
+
+\begin{itemize}
+
+\item \textbf{David Woodhouse} \texttt{<dwmw2@infradead.org>}~-- the author of
+JFFS2, answered a great deal of my questions about MTD and JFFS2 and suggested
+some interesting ideas for JFFS3.
+
+\item \textbf{Joern Engel} \texttt{<joern@wohnheim.fh-wedel.de>}~-- discussed
+some aspects of a new scalable flash file system with me. Joern is developing
+his own flash file system \emph{LogFS}.
+
+\item \textbf{Nikita Danilov} \texttt{<nikita@clusterfs.com>}~-- used to work
+in \emph{Namesys} and implemented ReiserFS and Reiser4 file systems.
+Nikita answered my questions about Reiser4 FS internals.
+
+\item \textbf{Thomas Gleixner} \texttt{<tglx@linutronix.de>}~-- helped me with
+MTD-related things, especially concerning flash hardware and low-level flash
+software.
+
+\item \textbf{Victor V. Vengerov} \texttt{<vvv@oktetlabs.ru>}~-- my colleague
+from OKTET~Labs who discussed some JFFS3 design approaches with me and
+suggested several interesting ideas.
+
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% REFERENCES
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{References}
+
+\input{ref.tex}
+
+\end{document}

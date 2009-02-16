@@ -1,0 +1,851 @@
+Quota support
+CONFIG_QUOTA
+  If you say Y here, you will be able to set per user limits for disk
+  usage (also called disk quotas). Currently, it works only for the
+  ext2 file system. You need additional software in order to use quota
+  support; for details, read the Quota mini-HOWTO, available from
+  http://www.linuxdoc.org/docs.html#howto . Probably the quota
+  support is only useful for multi user systems. If unsure, say N.
+
+MTD version of Configure.help
+CONFIG_MTD_CONFIGURE_HELP_VERSION
+  This version of the MTD Configure.help is
+  $Id: Configure.help,v 1.43 2005/02/09 09:23:56 pavlov Exp $
+
+Memory Technology Device (MTD) support
+CONFIG_MTD
+  Memory Technology Devices are flash, RAM and similar chips, often
+  used for solid state file systems on embedded devices. This option
+  will provide the generic support for MTD drivers to register
+  themselves with the kernel and for potential users of MTD devices
+  to enumerate the devices which are present and obtain a handle on
+  them. It will also allow you to select individual drivers for 
+  particular hardware and users of MTD devices. If unsure, say N.
+
+MTD debugging support
+CONFIG_MTD_DEBUG
+  This turns on low-level debugging for the entire MTD sub-system.
+  Normally, you should say 'N'.
+
+MTD partitioning support
+CONFIG_MTD_PARTITIONS
+  If you have a device which needs to divide its flash chip(s) up
+  into multiple 'partitions', each of which appears to the user as
+  a separate MTD device, you require this option to be enabled. If
+  unsure, say 'Y'.
+
+  Note, however, that you don't need this option for the DiskOnChip
+  devices. Partitioning on NFTL 'devices' is a different - that's the
+  'normal' form of partitioning used on a block device.
+
+MTD concatenating support
+CONFIG_MTD_CONCAT
+  Support for concatenating several MTD devices into a single
+  (virtual) one. This allows you to have -for example- a JFFS(2)
+  file system spanning multiple physical flash chips. If unsure,
+  say 'Y'.
+
+RedBoot partition table parsing
+CONFIG_MTD_REDBOOT_PARTS
+  RedBoot is a ROM monitor and bootloader which deals with multiple
+  'images' in flash devices by putting a table in the last erase
+  block of the device, similar to a partition table, which gives
+  the offsets, lengths and names of all the images stored in the
+  flash.
+
+  If you need code which can detect and parse this table, and register
+  MTD 'partitions' corresponding to each image in the table, enable
+  this option. 
+
+  You will still need the parsing functions to be called by the driver
+  for your particular device. It won't happen automatically. The 
+  SA1100 map driver (CONFIG_MTD_SA1100) has an option for this, for 
+  example.
+
+Command line partition table parsing
+CONFIG_MTD_CMDLINE_PARTS
+  Allow generic configuration of the MTD paritition tables via the kernel
+  command line. Multiple flash resources are supported for hardware where
+  different kinds of flash memory are available. 
+  
+  You will still need the parsing functions to be called by the driver
+  for your particular device. It won't happen automatically. The 
+  SA1100 map driver (CONFIG_MTD_SA1100) has an option for this, for 
+  example.
+
+  The format for the command line is as follows:
+
+  mtdparts=<mtddef>[;<mtddef]
+  <mtddef>  := <mtd-id>:<partdef>[,<partdef>]
+  <partdef> := <size>[@offset][<name>][ro]
+  <mtd-id>  := unique id used in mapping driver/device
+  <size>    := standard linux memsize OR "-" to denote all 
+               remaining space
+  <name>    := (NAME)
+
+  Due to the way Linux handles the command line, no spaces are 
+  allowed in the partition definition, including mtd id's and partition 
+  names.
+
+  Examples:
+
+  1 flash resource (mtd-id "sa1100"), with 1 single writable partition:
+  mtdparts=sa1100:-
+
+  Same flash, but 2 named partitions, the first one being read-only:
+  mtdparts=sa1100:256k(ARMboot)ro,-(root)
+
+  If unsure, say 'N'.
+
+ARM Firmware Suite flash layout / partition parsing
+CONFIG_MTD_AFS_PARTS
+  The ARM Firmware Suite allows the user to divide flash devices into
+  multiple 'images'. Each such image has a header containing its name
+  and offset/size etc.
+
+  If you need code which can detect and parse these tables, and
+  register MTD 'partitions' corresponding to each image detected,
+  enable this option.
+
+  You will still need the parsing functions to be called by the driver
+  for your particular device. It won't happen automatically. The
+  'armflash' map driver (CONFIG_MTD_ARMFLASH) does this, for example.
+
+MTD debugging verbosity
+CONFIG_MTD_DEBUG_VERBOSE
+  Determines the verbosity level of the MTD debugging messages.
+
+
+Direct chardevice access to MTD devices
+CONFIG_MTD_CHAR
+  This provides a character device for each MTD device present in
+  the system, allowing the user to read and write directly to the
+  memory chips, and also use ioctl() to obtain information about
+  the device, or to erase parts of it.
+
+Caching block device access to MTD devices
+CONFIG_MTD_BLOCK
+  Although most flash chips have an erase size too large to be useful
+  as block devices, it is possible to use MTD devices which are based
+  on RAM chips in this manner. This block device is a user of MTD
+  devices performing that function.
+
+  At the moment, it is also required for the Journalling Flash File
+  System(s) to obtain a handle on the MTD device when it's mounted
+  (although JFFS and JFFS2 don't actually use any of the functionality
+  of the mtdblock device).
+
+  Later, it may be extended to perform read/erase/modify/write cycles
+  on flash chips to emulate a smaller block size. Needless to say,
+  this is very unsafe, but could be useful for file systems which are
+  almost never written to.
+
+  You do not need this option for use with the DiskOnChip devices. For
+  those, enable NFTL support (CONFIG_NFTL) instead.
+
+Readonly block device access to MTD devices
+CONFIG_MTD_BLOCK_RO
+  This allows you to mount read-only file systems (such as cramfs)
+  from an MTD device, without the overhead (and danger) of the caching
+  driver.
+
+  You do not need this option for use with the DiskOnChip devices. For
+  those, enable NFTL support (CONFIG_NFTL) instead.
+
+FTL (Flash Translation Layer) support
+CONFIG_FTL
+  This provides support for the original Flash Translation Layer which
+  is part of the PCMCIA specification. It uses a kind of pseudo-
+  file system on a flash device to emulate a block device with
+  512-byte sectors, on top of which you put a 'normal' file system.
+
+  You may find that the algorithms used in this code are patented
+  unless you live in the Free World where software patents aren't
+  legal - in the USA you are only permitted to use this on PCMCIA
+  hardware, although under the terms of the GPL you're obviously
+  permitted to copy, modify and distribute the code as you wish. Just
+  not use it.
+
+NFTL (NAND Flash Translation Layer) support
+CONFIG_NFTL
+  This provides support for the NAND Flash Translation Layer which is
+  used on M-Systems' DiskOnChip devices. It uses a kind of pseudo-
+  file system on a flash device to emulate a block device with
+  512-byte sectors, on top of which you put a 'normal' file system.
+
+  You may find that the algorithms used in this code are patented
+  unless you live in the Free World where software patents aren't
+  legal - in the USA you are only permitted to use this on DiskOnChip
+  hardware, although under the terms of the GPL you're obviously
+  permitted to copy, modify and distribute the code as you wish. Just
+  not use it.
+
+Write support for NFTL (EXPERIMENTAL)
+CONFIG_NFTL_RW
+  If you're lucky, this will actually work. Don't whinge if it
+  doesn't.  Send mail to the MTD mailing list
+  <linux-mtd@lists.infradead.org> if you want to help to make it more
+  reliable.
+
+Common Flash Interface (CFI) support
+CONFIG_MTD_CFI
+  The Common Flash Interface specification was developed by Intel,
+  AMD and other flash manufactures that provides a universal method
+  for probing the capabilities of flash devices. If you wish to
+  support any device that is CFI-compliant, you need to enable this
+  option. Visit (http://www.amd.com/products/nvd/overview/cfi.html)
+  for more information on CFI.
+
+CFI Advanced configuration options
+CONFIG_MTD_CFI_ADV_OPTIONS
+  If you need to specify a specific endianness for access to flash
+  chips, or if you wish to reduce the size of the kernel by including
+  support for only specific arrangements of flash chips, say 'Y'. This
+  option does not directly affect the code, but will enable other 
+  configuration options which allow you to do so.
+
+  If unsure, say 'N'.
+
+Specific CFI Flash geometry selection
+CONFIG_MTD_CFI_GEOMETRY
+  This option does not affect the code directly, but will enable 
+  some other configuration options which would allow you to reduce
+  the size of the kernel by including support for only certain 
+  arrangements of CFI chips. If unsure, say 'N' and all options 
+  which are supported by the current code will be enabled.
+
+Support 8-bit buswidth
+CONFIG_MTD_CFI_B1
+  If you wish to support CFI devices on a physical bus which is
+  8 bits wide, say 'Y'.
+
+Support 16-bit buswidth
+CONFIG_MTD_CFI_B2
+  If you wish to support CFI devices on a physical bus which is
+  16 bits wide, say 'Y'.
+
+Support 32-bit buswidth
+CONFIG_MTD_CFI_B4
+  If you wish to support CFI devices on a physical bus which is
+  32 bits wide, say 'Y'.
+
+Support 1-chip flash interleave
+CONFIG_MTD_CFI_I1
+  If your flash chips are not interleaved - i.e. you only have one
+  flash chip addressed by each bus cycle, then say 'Y'.
+
+Support 2-chip flash interleave
+CONFIG_MTD_CFI_I2
+  If your flash chips are interleaved in pairs - i.e. you have two
+  flash chips addressed by each bus cycle, then say 'Y'.
+
+Support 4-chip flash interleave
+CONFIG_MTD_CFI_I4
+  If your flash chips are interleaved in fours - i.e. you have four
+  flash chips addressed by each bus cycle, then say 'Y'.
+
+Flash cmd/query data swapping
+CONFIG_MTD_CFI_NOSWAP
+  This option defines the way in which the CPU attempts to arrange
+  data bits when writing the 'magic' commands to the chips. Saying
+  'NO', which is the default when CONFIG_MTD_CFI_ADV_OPTIONS isn't
+  enabled, means that the CPU will not do any swapping; the chips
+  are expected to be wired to the CPU in 'host-endian' form. 
+  Specific arrangements are possible with the BIG_ENDIAN_BYTE and
+  LITTLE_ENDIAN_BYTE, if the bytes are reversed. 
+
+  If you have a LART, on which the data (and address) lines were
+  connected in a fashion which ensured that the nets were as short
+  as possible, resulting in a bit-shuffling which seems utterly
+  random to the untrained eye, you need the LART_ENDIAN_BYTE option.
+
+  Yes, there really exists something sicker than PDP-endian :)
+
+CFI support for Intel/Sharp Extended Commands
+CONFIG_MTD_CFI_INTELEXT
+  The Common Flash Interface defines a number of different command
+  sets which a CFI-compliant chip may claim to implement. This code
+  provides support for one of those command sets, used on Intel
+  StrataFlash and other parts.
+
+CFI support for AMD/Fujitsu Standard Commands
+CONFIG_MTD_CFI_AMDSTD
+  The Common Flash Interface defines a number of different command
+  sets which a CFI-compliant chip may claim to implement. This code
+  provides support for one of those command sets, used on chips 
+  chips including the AMD Am29LV320.
+
+CFI support for Intel/Sharp Standard Commands
+CONFIG_MTD_CFI_INTELSTD
+  The Common Flash Interface defines a number of different command
+  sets which a CFI-compliant chip may claim to implement. This code
+  provides support for one of those command sets.
+
+pre-CFI Sharp chip support
+CONFIG_MTD_SHARP
+  This option enables support for flash chips using Sharp-compatible
+  commands, including some which are not CFI-compatible and hence 
+  cannot be used with the CONFIG_MTD_CFI_INTELxxx options.
+
+AMD compatible flash chip support (non-CFI)
+CONFIG_MTD_AMDSTD
+  This option enables support for flash chips using AMD-compatible
+  commands, including some which are not CFI-compatible and hence 
+  cannot be used with the CONFIG_MTD_CFI_AMDSTD option.
+
+  It also works on AMD compatible chips that do conform to CFI.
+
+Support for RAM chips in bus mapping
+CONFIG_MTD_RAM
+  This option enables basic support for RAM chips accessed through 
+  a bus mapping driver.
+
+Support for ROM chips in bus mapping
+CONFIG_MTD_ROM
+  This option enables basic support for ROM chips accessed through 
+  a bus mapping driver.
+
+CONFIG_MTD_JEDEC
+  Enable older older JEDEC flash interface devices for self programming
+  flash. It is commonly used in older AMD chips. It is only called
+  JEDEC because the JEDEC association (http://www.jedec.org/)
+  distributes the identification codes for the chips. 
+
+CONFIG_MTD_ABSENT
+  This option enables support for a dummy probing driver used to 
+  allocated placeholder MTD devices on systems that have socketed
+  or removable media.  Use of this driver as a fallback chip probe 
+  preserves the expected registration order of MTD device nodes on
+  the system regardless of media presence.  Device nodes created
+  with this driver will return -ENODEV upon access.
+
+Cirrus CDB89712 evaluation board mappings
+CONFIG_MTD_CDB89712
+  This enables access to the flash or ROM chips on the CDB89712 board.
+  If you have such a board, say 'Y'.
+
+JEDEC Flash device mapped on Ceiva/Polaroid PhotoMax Digital Picture Frame
+CONFIG_MTD_CEIVA
+  This enables access to the flash chips on the Ceiva/Polaroid
+  PhotoMax Digital Picture Frame.
+  If you have such a device, say 'Y'.
+
+CFI Flash device mapped on the FortuNet board
+CONFIG_MTD_FORTUNET
+  This enables access to the Flash on the FortuNet board.  If you
+  have such a board, say 'Y'.
+
+autronix autcpu12 NV-RAM mapping
+CONFIG_MTD_AUTCPU12
+  This enables access to the NV-RAM on autronix autcpu12 board.
+  If you have such a board, say 'Y'.
+
+NOR Flash device on EDB7312
+CONFIG_MTD_EDB7312
+  This enables access to the NOR Flash on the Cogent EDB7312 board.
+  If you have such a board, say 'Y' here.
+
+NAND Flash device on EDB7312
+CONFIG_MTD_NAND_EDB7312
+  This enables access to the NAND Flash on the Cogent EDB7312 board.
+  If you have such a board, say 'Y' here.
+
+NOR Flash device on implementa impA7
+CONFIG_MTD_IMPA7
+  This enables access to the NOR Flash on the impA7 board of 
+  implementa GmbH. If you have such a board, say 'Y' here.
+
+Flash chip mapping on SSV DIL/NetPC
+CONFIG_MTD_DILNETPC
+  The DIL/Net PC is a tiny embedded PC board featuring the AMD Elan SC410.
+  There are two variants of this this board: DNP/1486 and ADNP/1486
+  with 2 megs or 4 megs of flash. This driver supports both boards.
+
+DIL/NetPC boot partition size
+CONFIG_MTD_DILNETPC_BOOTSIZE
+  Depending on how you boot your DIL/NetPC, the size of the boot
+  image to be kept in the low part of flash may vary considerably.
+  This option allows you to taylor the flash layout appropriately.
+  Set this to the size of your DIL/NetPC boot image, rounded up to
+  the next 64KiB-aligned value.
+
+CFI Flash device mapped on StrongARM SA11x0
+CONFIG_MTD_SA1100
+  This enables access to the flash chips on most platforms based on the
+  SA1100 and SA1110, including the Assabet and the Compaq iPAQ. If you
+  have such a board, say 'Y'.
+
+Flash chip mapping in physical memory
+CONFIG_MTD_PHYSMAP
+  This provides a 'mapping' driver which allows the CFI probe and
+  command set driver code to communicate with flash chips which
+  are mapped physically into the CPU's memory. You will need to
+  configure the physical address and size of the flash chips on
+  your particular board as well as the bus width.
+
+Physical start location of flash chip mapping
+CONFIG_MTD_PHYSMAP_START
+  This is the physical memory location at which the flash chips
+  are mapped on your particular target board. Refer to the
+  memory map which should hopefully be in the documentation for
+  your board.
+
+Physical length of flash chip mapping
+CONFIG_MTD_PHYSMAP_LEN
+  This is the total length of the mapping of the flash chips on
+  your particular board. If there is space, or aliases, in the
+  physical memory map between the chips, this could be larger
+  than the total amount of flash present. Refer to the memory
+  map which should hopefully be in the documentation for your
+  board.
+
+CONFIG_MTD_PHYSMAP_BUSWIDTH
+  This is the total width of the data bus of the flash devices
+  in octets. For example, if you have a data bus width of 32
+  bits, you would set the bus width octect value to 4. This is
+  used internally by the CFI drivers.
+
+Flash chip mapping on Sun Microsystems boardsets
+CONFIG_MTD_SUN_UFLASH
+  This provides a 'mapping' driver which supports the way in 
+  which user-programmable flash chips are connected on various 
+  Sun Microsystems boardsets.  This driver will require CFI support 
+  in the kernel, so if you did not enable CFI previously, do that now.
+
+Flash chip mapping on Nora
+CONFIG_MTD_NORA
+  If you had to ask, you don't have one. Say 'N'.
+
+Detect JEDEC JESD21C compatible flash chips
+CONFIG_MTD_JEDECPROBE
+  This option enables JEDEC JESD21C style probing of flash chips which
+  are not compatible with the Common Flash Interface, but will use the
+  common  CFI-targetted flash drivers for any chips which are
+  identified which are in fact compatible in all but the probe
+  method. This actually covers most Intel/AMD/Fujitsu-compatible
+  chips.
+
+BIOS flash chip on Intel L440GX boards
+CONFIG_MTD_L440GX
+  Support for treating the BIOS flash chip on Intel L440GX motherboards
+  as an MTD device - with this you can reprogram your BIOS.
+
+  BE VERY CAREFUL.
+
+Flash chip mapping on PNC2000
+CONFIG_MTD_PNC2000
+  PNC-2000 is the name of Network Camera product from PHOTRON
+  Ltd. in Japan. It uses CFI-compliant flash.
+
+Flash chip mapping on RPXlite PPC board
+CONFIG_MTD_RPXLITE
+  The RPXLite PowerPC board has CFI-compliant chips mapped in
+  a strange sparse mapping. This 'mapping' driver supports that
+  arrangement, allowing the CFI probe and command set driver code
+  to communicate with the chips on the RPXLite board. More at
+  (http://www.embeddedplanet.com/rpx_lite_specification_sheet.htm).
+
+Flash chip mapping on IBM Redwood-4/5 board
+CONFIG_MTD_REDWOOD
+  This mapping file partitions the CFI flash on the IBM Redwood-4/5 
+  board into five partitions for two writable
+  (kernel, file system) and three read-only (OpenBIOS Vital
+  Product Data, OpenBIOS no-volative storage, OpenBIOS) MTD devices.
+
+Flash chip mapping on TQM8xxL PPC board
+CONFIG_MTD_TQM8XXL
+  The TQM8xxL PowerPC board has up to two banks of CFI-compliant 
+  chips, currently uses AMD one. This 'mapping' driver supports
+  that arrangement, allowing the CFI probe and command set driver
+  code to communicate with the chips on the TQM8xxL board. More at
+  (http://www.denx.de/embedded-ppc-en.html).
+
+Flash chip mapping on AMD SC520 CDP board
+CONFIG_MTD_SC520CDP
+  The SC520 CDP board has two banks of CFI-compliant chips and one
+  Dual-in-line JEDEC chip. This 'mapping' driver supports that
+  arrangement, implementing three MTD devices.
+
+Flash chip mapping on Arcom Control Systems' SBC-MediaGX
+CONFIG_MTD_SBC_GXX
+  This provides a driver for the on-board flash of Arcom Control
+  Systems' SBC-GXn family of boards, formerly known as SBC-MediaGX.
+  By default the flash is split into 3 partitions which are accessed
+  as separate MTD devices. This board utilizes Intel StrataFlash. More 
+  info at (http://www.arcomcontrols.com/products/icp/pc104/processors/).
+
+CFI Flash device mapped on D-Box2
+CONFIG_MTD_DBOX2
+  This enables access routines for the flash chips on the Nokia/Sagem
+  D-Box 2 board. If you have one of these boards and would like to use
+  the flash chips on it, say 'Y'.
+
+CFI Flash device mapped on the XScale IQ80310 board
+CONFIG_MTD_IQ80310
+  This enables access routines for the flash chips on the Intel XScale
+  IQ80310 evaluation board. If you have one of these boards and would 
+  like to use the flash chips on it, say 'Y'.
+
+CFI Flash device mapped on AMD NetSc520
+CONFIG_MTD_NETSC520
+  This enables access routines for the flash chips on the AMD NetSc520
+  demonstration board. If you have one of these boards and would like 
+  to use the flash chips on it, say 'Y'.
+
+Momenco Ocelot boot flash device
+CONFIG_MTD_OCELOT
+  This enabled access routines for the boot flash device and for the 
+  NVRAM on the Momenco Ocelot board. If you have one of these boards
+  and would like access to either of these, say 'Y'.
+
+Flash chip mapping on Arcom Control Systems' ELAN-104NC
+CONFIG_MTD_ELAN_104NC
+  This provides a driver for the on-board flash of the Arcom Control
+  System's ELAN-104NC development board. By default the flash
+  is split into 3 partitions which are accessed as separate MTD
+  devices. This board utilizes Intel StrataFlash. More info at
+  (http://www.arcomcontrols.com/products/icp/pc104/processors/).
+
+Flash chip mapping on Compaq iPAQ/Bitsy
+CONFIG_MTD_BITSY
+  This provides a driver for the on-board flash found in Compaq's
+  iPAQ Palm PC and their research prototype the Itsy. iPAQ info at
+  (http://www5.compaq.com/products/handhelds/pocketpc/) and the
+  Itsy (http://www.research.digital.com/wrl/projects/Itsy/index.html).
+ 
+CFI Flash device mapped on DC21285 Footbridge
+CONFIG_MTD_DC21285
+  This provides a driver for the flash accessed using Intel's
+  21285 bridge used with Intel's StrongARM processors. More info at
+  (http://developer.intel.com/design/bridge/quicklist/dsc-21285.htm).
+
+Flash chip mapping on ITE QED-4N-S01B, Globespan IVR or custom board
+CONFIG_MTD_CSTM_MIPS_IXX
+  This provides a mapping driver for the Integrated Tecnology
+  Express, Inc (ITE) QED-4N-S01B eval board and the Globespan IVR Reference
+  Board. It provides the necessary addressing, length, buswidth, vpp code 
+  and addition setup of the flash device for these boards. In addition,
+  this mapping driver can be used for other boards via setting of the
+  CONFIG_MTD_CSTM_MIPS_IXX_START/LEN/BUSWIDTH parameters.  This mapping
+  will provide one mtd device using one partition.  The start address can
+  be offset from the beginning of flash and the len can be less than the
+  total flash device size to allow a window into the flash.  Both CFI and 
+  JEDEC probes are called.
+
+Physical start location of flash mapping
+CONFIG_MTD_CSTM_MIPS_IXX_START
+  This is the physical memory location that the MTD driver will
+  use for the flash chips on your particular target board. 
+  Refer to the memory map which should hopefully be in the 
+  documentation for your board.
+
+Physical length of flash mapping
+CONFIG_MTD_CSTM_MIPS_IXX_LEN
+  This is the total length that the MTD driver will use for the 
+  flash chips on your particular board.  Refer to the memory
+  map which should hopefully be in the documentation for your
+  board. 
+
+Physical bus width of flash mapping
+CONFIG_MTD_CSTM_MIPS_IXX_BUSWIDTH
+  This is the total bus width of the mapping of the flash chips
+  on your particular board.
+
+Alchemy Pb1000 boot flash device 
+CONFIG_MTD_PB1000
+  MTD driver with partitions support for the Alchemy Semi Pb1000
+  referrence board. This is an embedded mips board and the driver
+  is board specific.  Unless you're working with the Pb1000, do
+  not select this option.
+
+Flash chip mapping on Mixcom piggyback card
+CONFIG_MTD_MIXMEM
+  This supports the paging arrangement for access to flash chips
+  on the MixCOM piggyback card, allowing the flash chip drivers
+  to get on with their job of driving the flash chips without
+  having to know about the paging. If you have one of these boards,
+  you probably want to enable this mapping driver. More info is at
+  (http://www.itc.hu/).
+
+Flash chip mapping on Octagon 5066 SBC
+CONFIG_MTD_OCTAGON
+  This provides a 'mapping' driver which supports the way in which
+  the flash chips are connected in the Octagon-5066 Single Board
+  Computer. More information on the board is available at
+  (http://www.octagonsystems.com/Products/5066/5066.html).
+
+PCMCIA Flash card driver
+CONFIG_MTD_PCMCIA
+  Map driver for accessing PCMCIA linear flash memory cards. These cards
+  are usually around 4-16MiB in size. This does not include Compact Flash
+  cards which are treated as IDE devices.
+
+Generic RAM based mapping for uClinux
+CONFIG_MTD_UCLINUX
+  This provides a 'mapping' driver for the simple RAM based ROMfs
+  setups often used with uClinux (MMU-less Linux). The mtd0 partition
+  is located at the end of the kernel image when loaded.
+  More information at (http://www.uclinux.org).
+
+Flash chip mapping on SnapGear/SecureEdge/NETtel boards
+CONFIG_MTD_NETtel
+  Support for the vairous flash chip configurations of the SnapGear
+  family of router and embedded boards (based on the AMD SC520).
+  This driver probes the underlying flash setup - which may contain a
+  combination of AMD compatible flash or Intel Strataflash and
+  creates appropriate mtd partitions. For further information see
+  (http://www.snapgear.com).
+
+Flash chip mapping on Tempustech VMAX SBC301
+CONFIG_MTD_VMAX
+  This provides a 'mapping' driver which supports the way in which
+  the flash chips are connected in the Tempustech VMAX SBC301 Single
+  Board Computer. More information on the board is available at
+  (http://www.tempustech.com/tt301.htm).
+
+Support for NAND flash devices
+CONFIG_MTD_NAND
+  This enables support for accessing all type of NAND flash
+  devices. 
+
+Support for verify read after write
+CONFIG_MTD_NAND_VERIFY_WRITE
+  This adds an extra check when data is written to the flash. The
+  NAND flash device internally checks only bits transitioning
+  from 1 to 0. There is a rare possibility that even though the
+  device thinks the write was successful, a bit could have been
+  flipped accidentaly due to device wear, gamma rays, whatever.
+
+Support for the SPIA board
+CONFIG_MTD_NAND_SPIA
+  If you had to ask, you don't have one. Say 'N'.
+
+Support for the autronix autcpu12 board
+CONFIG_MTD_NAND_AUTCPU12
+  This enables the driver for the autronix autcpu12 board to access
+  the SmartMediaCard.
+
+Support for Cirrus Logic EBD7312 evaluation board
+CONFIG_MTD_NAND_EDB7312
+  This enables the driver for the Cirrus Logic EBD7312 evaluation 
+  board to access the onboard NAND Flash.
+
+M-Systems Disk-On-Chip 1000 support
+CONFIG_MTD_DOC1000
+  This provides an MTD device driver for the M-Systems DiskOnChip
+  1000 devices, which are obsolete so you probably want to say 'N'.
+
+M-Systems Disk-On-Chip 2000 and Millennium support
+CONFIG_MTD_DOC2000
+  This provides an MTD device driver for the M-Systems DiskOnChip
+  2000 and Millennium devices. Originally designed for the DiskOnChip 
+  2000, it also now includes support for the DiskOnChip Millennium. 
+  If you have problems with this driver and the DiskOnChip Millennium,
+  you may wish to try the alternative Millennium driver below. To use
+  the alternative driver, you will need to undefine DOC_SINGLE_DRIVER
+  in the drivers/mtd/devices/docprobe.c source code.
+
+  If you use this device, you probably also want to enable the NFTL
+  'NAND Flash Translation Layer' option below, which is used to emulate
+  a block device by using a kind of file system on the flash chips.
+
+Alternative Disk-On-Chip Millennium support
+CONFIG_MTD_DOC2001
+  This provides an alternative MTD device driver for the M-Systems 
+  DiskOnChip Millennium devices. Use this if you have problems with
+  the combined DiskOnChip 2000 and Millennium driver above. To get
+  the DiskOnChip probe code to load and use this driver instead of
+  the other one, you will need to undefine DOC_SINGLE_DRIVER near
+  the beginning of drivers/mtd/devices/docprobe.c 
+
+  If you use this device, you probably also want to enable the NFTL
+  'NAND Flash Translation Layer' option below, which is used to emulate
+  a block device by using a kind of file system on the flash chips.
+
+Probe for DiskOnChip devices
+CONFIG_MTD_DOCPROBE
+  This isn't a real config option, it's derived. 
+
+Advanced detection options for DiskOnChip
+CONFIG_MTD_DOCPROBE_ADVANCED
+  This option allows you to specify nonstandard address at which to
+  probe for a DiskOnChip, or to change the detection options. You're
+  unlikely to need any of this unless you're using LinuxBIOS. Say 'N'.
+
+Probe for 0x55 0xAA BIOS Extension Signature.
+CONFIG_MTD_DOCPROBE_55AA
+  Check for the 0x55 0xAA signature of a DiskOnChip, and do not continue
+  with probing if it is absent. The signature will always be present for
+  a DiskOnChip 2000 or a normal DiskOnChip Millennium. Only if you have
+  overwritten the first block of a DiskOnChip Millennium will it be 
+  absent. Enable this option if you are using LinuxBIOS or if you need
+  to recover a DiskOnChip Millennium on which you have managed to wipe
+  the first block.
+
+Physical address of DiskOnChip
+CONFIG_MTD_DOCPROBE_ADDRESS
+  By default, the probe for DiskOnChip devices will look for a DiskOnChip
+  at every multiple of 0x2000 between 0xC8000 and 0xEE000. This option 
+  allows you to specify a single address at which to probe for the device,
+  which is useful if you have other devices in that range which get upset
+  when they're probed. 
+
+  (Note that on PowerPC, the normal probe will only check at 0xE4000000.)
+
+  Normally, you should leave this set to zero, to allow the probe at the
+  normal addresses.
+
+Probe high addresses
+CONFIG_MTD_DOCPROBE_HIGH
+  By default, the probe for DiskOnChip devices will look for a DiskOnChip
+  at every multiple of 0x2000 between 0xC8000 and 0xEE000. This option 
+  changes to make it probe between 0xFFFC8000 and 0xFFFEE000. Unless
+  you're using LinuxBIOS, this is unlikely to be useful to you. Say 'N'. 
+
+Ramix PMC551 PCI Mezzanine ram card support
+CONFIG_MTD_PMC551
+  This provides a MTD device driver for the Ramix PMC551 RAM PCI card
+  from Ramix Inc. (http://www.ramix.com/products/memory/pmc551.html).
+  These devices come in memory configurations from 32M - 1G.  If you
+  have one, you probably want to enable this.
+
+  If this driver is compiled as a module you get the ability to select the
+  size of the aperture window pointing into the devices memory.  What this 
+  means is that if you have a 1G card, normally the kernel will use a 1G
+  memory map as it's view of the device.  As a module, you can select a
+  1M window into the memory and the driver will "slide" the window around
+  the PMC551's memory.  This was particularly useful on the 2.2 kernels 
+  on PPC architectures as there was limited kernel space to deal with.
+
+PMC551 256M DRAM Bugfix
+CONFIG_MTD_PMC551_BUGFIX
+  Some of Ramix's PMC551 boards with 256M configurations have invalid column
+  and row mux values. This option will fix them, but will break other memory
+  configurations.  If unsure say N.
+
+PMC551 Debugging
+CONFIG_MTD_PMC551_DEBUG
+  This option makes the PMC551 more verbose during it's operation and is only
+  really usefull if you are developing on this driver or suspect a possible
+  hardware or driver bug.  If unsure say N.
+
+DEC MS02-NV NVRAM module support
+CONFIG_MTD_MS02NV
+  This is an MTD driver for the DEC's MS02-NV (54-20948-01) battery
+  backed-up NVRAM module.  The module was originally meant as an NFS
+  accelerator.  Say Y here if you have a DECstation 5000/2x0 or a
+  DECsystem 5900 equipped with such a module.
+
+  If you want to compile this driver as a module ( = code which can be
+  inserted in and removed from the running kernel whenever you want),
+  say M here and read <file:Documentation/modules.txt>.  The module will
+  be called ms02-nv.o.
+
+Use extra onboard system memory as MTD device
+CONFIG_MTD_SLRAM
+  If your CPU cannot cache all of the physical memory in your machine,
+  you can still use it for storage or swap by using this driver to
+  present it to the system as a Memory Technology Device.
+
+Debugging RAM test driver
+CONFIG_MTD_MTDRAM
+  This enables a test MTD device driver which uses vmalloc()
+  or an absolute address to provide storage.  
+  You probably want to say 'N' unless you're testing stuff.
+
+
+MTD Emulation using block device
+CONFIG_MTD_BLKMTD
+  This driver allows a block device to appear as an MTD. It would
+  generally be used in the following cases:
+
+    Using Compact Flash as an MTD, these usually present themselves to
+    the system as an ATA drive.
+    Testing MTD users (eg JFFS2) on large media and media that might
+    be removed during a write (using the floppy drive).
+
+28F160xx flash driver for LART
+CONFIG_MTD_LART
+  This enables the flash driver for LART. Please note that you do
+  not need any mapping/chip driver for LART. This one does it all
+  for you, so go disable all of those if you enabled some of them (:
+
+MTDRAM erase block size in KiB
+CONFIG_MTDRAM_ERASE_SIZE
+  This allows you to configure the size of the erase blocks in the
+  device emulated by the MTDRAM driver. If the MTDRAM driver is built
+  as a module, it is also possible to specify this as a parameter when
+  loading the module.
+
+MTDRAM device size in KiB
+CONFIG_MTDRAM_TOTAL_SIZE
+  This allows you to configure the total size of the MTD device
+  emulated by the MTDRAM driver. If the MTDRAM driver is built
+  as a module, it is also possible to specify this as a parameter when
+  loading the module.
+  If you want to set the size and position at runtime, set to 0, 
+  in that case set the ABS_POS parameter to 0 as well.
+
+SRAM absolute position
+CONFIG_MTDRAM_ABS_POS
+  If you have system RAM accessible by the CPU but not used by Linux
+  in normal operation, you can give the physical address at which the
+  available RAM starts, and the MTDRAM driver will use it instead of
+  allocating space from Linux's available memory. Otherwise, leave 
+  this set to zero. Most people will want to leave this as zero.
+
+Support for the Journalling Flash File System
+CONFIG_JFFS_FS
+  JFFS is the Journalling Flash File System developed by Axis
+  Communications in Sweden, aimed at providing a crash/powerdown-safe
+  file system for disk-less embedded devices. Further information is
+  available at (http://developer.axis.com/software/jffs/).
+
+JFFS debugging verbosity
+CONFIG_JFFS_FS_VERBOSE
+  Determines the verbosity level of the JFFS debugging messages.
+
+Journalling Flash File System version 2
+CONFIG_JFFS2_FS
+  JFFS2 is the second generation of the Journalling Flash File System
+  for use on diskless embedded devices. It provides improved wear
+  levelling, compression and support for hard links. You cannot use 
+  this on normal block devices, only on 'MTD' devices.
+
+  Further information should be made available soon at 
+  http://sources.redhat.com/jffs2/
+
+JFFS2 debugging verbosity
+CONFIG_JFFS2_FS_DEBUG
+  This controls the amount of debugging messages produced by the JFFS2
+  code. Set it to zero for use in production systems. For evaluation,
+  testing and debugging, it's advisable to set it to one. This will 
+  enable a few assertions and will print debugging messages at the
+  KERN_DEBUG loglevel, where they won't normally be visible. Level 2
+  is unlikely to be useful - it enables extra debugging in certain
+  areas which at one point needed debugging, but when the bugs were
+  located and fixed, the detailed messages were relegated to level 2.
+
+  If reporting bugs, please try to have available a full dump of the
+  messages at debug level 1 while the misbehaviour was occurring.
+
+CONFIG_JFFS2_FS_WRITEBUFFER
+  This enables the write-buffering support in JFFS2.
+  This functionality is required to support JFFS2 on the following
+  types of flash devices:
+    - NAND flash
+    - NOR flash with transparent ECC
+    - DataFlash
+
+Flash chip mapping on the Flaga Digital Module
+CONFIG_MTD_CFI_FLAGADM
+  Mapping for the Flaga digital module. If you don´t have one, ignore this
+  setting.
+
+PCI MTD driver
+CONFIG_MTD_PCI
+  Mapping for accessing flash devices on add-in cards like the Intel XScale
+  IQ80310 card, and the Intel EBSA285 card in blank ROM programming mode
+  (please see the manual for the link settings).
+
+  If you are not sure, say N.

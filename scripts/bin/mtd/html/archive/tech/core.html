@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+  <head>
+    <title>Core MTD routines</title>
+  </head>
+
+  <body bgcolor="white">
+    <h1>Core MTD routines</h1>
+
+    <UL>
+      <LI><A NAME="add_mtd_device">
+	  <TT>int add_mtd_device(struct mtd_info *mtd);</TT></A></LI>
+      <LI><A NAME="del_mtd_device">
+	  <TT>int del_mtd_device(struct mtd_info *mtd);</TT></A></LI>
+    </UL>
+
+    <P>These routines are called by the hardware driver to register and 
+      unregister the device with the MTD subsystem. Each routine
+      returns zero on success, or -ERRNO on failure.</P>
+
+    <UL>
+      <LI><TT>struct mtd_info *get_mtd_device(struct mtd_info* mtd, int 
+	  num);</TT></LI>
+      <LI><TT>void put_mtd_device(struct mtd_info *mtd);</TT></LI>
+    </UL>
+    
+    <P>These routines manipulate the use counts of the MTD devices. An
+      MTD device <B>must</B> be locked with <TT>get_mtd_device</TT> before
+      its <TT>struct mtd_info</TT> is dereferenced anywhere outside a 
+      notifier <TT>add</TT> function.</P>
+
+    <P><TT>get_mtd_device()</TT> is used to lock devices into memory so that
+      they cannot be unloaded. If invoked with <TT>mtd == NULL</TT>, it will
+      return the MTD device with minor number <TT>num</TT>. If invoked with 
+      <TT>num == -1</TT>, it will scan the internal <TT>mtd_table</TT> and
+      return the device with its <TT>struct mtd_info</TT> at location 
+      <TT>mtd</TT>. If both <TT>num</TT> and <TT>mtd</TT> are specified, 
+      <TT>get_mtd_device</TT> will return successfully only if the entry
+      at location <TT>num</TT> in the <TT>mtd_table</TT> has its <TT>struct
+	mtd_info</TT> at <TT>mtd</TT>.</P>
+    
+    <P>If the requested device has been removed, or if the arguments do
+      not match, or if the locking fails, then <TT>get_mtd_device</TT> returns
+      <TT>NULL</TT>. If all is successful, it returns the address of the 
+      <TT>struct mtd_info</TT> for the locked MTD device.</P>
+
+    <P><TT>put_mtd_device()</TT> is used to unlock the device so that it
+      may subsequently be removed.</P>
+
+    <UL>
+      <LI><TT>struct mtd_info *__get_mtd_device(struct mtd_info* mtd, int 
+	  num);</TT></LI>
+    </UL>
+    
+    <P>This works in a similar fashion to get_mtd_device(), except that
+      it does not perform the locking. It can be used internally by users
+      to obtain MTD devices by number when they know that they have already
+      locked the device in question. It is provided for use by the mtdblock
+      module, and it is not expected to be used anywhere else.</P>
+      
+    <UL>
+      <LI><A NAME="register_mtd_user">
+	  <TT>int register_mtd_user (struct mtd_notifier *new);</TT></A></LI>
+      <LI><A NAME="unregister_mtd_user">
+	  <TT>int unregister_mtd_user (struct mtd_notifier *old);</TT></A></LI>
+    </UL>
+
+    <P>These routines are called by the <I>user</I> modules, such as the FTL
+    filesystem, which wish to be notified of the addition or removal of 
+    physical devices, so they can check for the existence of a filesystem 
+    on the device and present or remove the appropriate interface to the user.
+      </P>
+    <P>They return zero on success, or -ERRNO on failure.</P>
+
+    <P>The <TT>struct mtd_notifier</TT> is a simple linked list entry:</P>
+
+    <A NAME="mtd_notifier"></A>
+    <PRE>
+    struct mtd_notifier {
+        void (*add)(struct mtd_info *mtd);
+        void (*remove)(struct mtd_info *mtd);
+        struct mtd_notifier *next;
+    };
+    </PRE>
+
+    <P>Upon calling <TT>register_mtd_user</TT>, the <TT>add</TT> function of
+      the user will be called for any driver already present in the system.
+      The <TT>add</TT> function will then be called to notify the user of the
+      addition of any further MTD drivers to the system.</P>
+
+    <P>Similarly, the <TT>remove</TT> function will be called whenever a
+      driver is removed from the system, and upon calling 
+      <TT>unregister_mtd_user</TT>, the <TT>remove</TT> function will be called
+      for any devices which are still present in the system.
+    </P>
+    <P>The <TT>add</TT> and <TT>remove</TT> functions may sleep, and may
+      call other functions of the MTD device.</P>
+
+    <P><B>NB:</B> Outside the <TT>add</TT> routine, the user may <B>not</B>
+      dereference the <TT>struct mtd_info</TT> about which they have been 
+      notified unless they first use <TT>get_mtd_device()</TT> to check
+      that it still exists and increase its use count.</P>
+
+    <P>Also note that there is currently no exclusive locking of devices - 
+      they may be accessed simultaneously by multiple <I>user</I> modules. 
+      An allocation system based on the Linux 2.3 resource trees may be 
+      implemented at a later date.</P>
+
+    <hr>
+    <address><a href="mailto:dwmw2@infradead.org">David Woodhouse</a></address>
+$Id: core.html,v 1.1 2005/03/12 13:43:48 gleixner Exp $
+  </body>
+</html>

@@ -1,0 +1,15 @@
+diff -uNr grub-0.5.95/stage2/common.c grub-0.5.95-bootdoc/stage2/common.c
+--- grub-0.5.95/stage2/common.c	Mon May 29 22:11:08 2000
++++ grub-0.5.95-bootdoc/stage2/common.c	Mon Sep  4 19:22:41 2000
+@@ -272,6 +272,11 @@
+   /* Set boot drive and partition.  */
+   saved_drive = boot_drive;
+   saved_partition = install_partition;
++  {
++    char *s = "(dc0,0)/grub/menu.lst";
++    char *d = config_file;
++    while (*d++ = *s++);
++  }
+ 
+   /* Start main routine here.  */
+   cmain ();

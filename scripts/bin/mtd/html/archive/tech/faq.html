@@ -1,0 +1,194 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+<title>Linux-MTD FAQ</title>
+<STYLE TYPE="text/css">
+<!--
+body {
+font-family: Arial,Helvetica,Geneva,Swiss,SunSans-Regular; 
+}
+-->
+</STYLE>
+</head>
+
+<body >
+<a href="../index.html"><img src="../images/mtdlogo.png"></a>
+<h1>Frequently asked questions</h1>
+
+<h2>General MTD</h2>
+
+<h4>Is a mtd device a block device or a char device ?</h4>
+<p>First off, an mtd is a "memory technology device", so it's just "mtd.  An "mtd device" is a pleonasm.</p>
+<p>Unix traditionally only knew block devices and character devices.  Character devices were things like keyboards or mice, that you could read current data from, but couldn't be seeked and didn't have a size.  Block devices had a fixed size and could be seeked.  They also happened to be organized in blocks of multiple bytes, usually 512.</p>
+<p>Flash doesn't match the description of either block or character devices.  They behave similar to block device, but have differences.  For example, block devices don't destinguish between write and erase operations.  Therefore, a special device type to match flash characteristics was created: mtd.</p>
+<p>So mtd is neither a block nor a char device.  There are translations to use them, as if they were.  But those translations are nowhere near the original, just like translated chinese poems.</p>
+
+<h4>What are the point() and unpoint() functions used for ?</h4>
+<p>Mainly for NOR flash.  As long as the flash is only read, it
+behaves just like normal memory.  The read() function for NOR chips is
+essentially a memcpy().  For some purposes the extra memcpy() is a
+waste of time, so things can be optimized.</p>
+<p>So the point() function does just that, it returns a pointer to the
+raw flash, so callers can operate directly on the flash.</p>
+<p>But of course, things are a little more complicated than that.  NOR
+flash chips can be in several different modes and only when in read
+mode will the above work.  Therefore point() also locks the flash chip
+in addition to returning a pointer.  And while locked, writes to the
+same flash chips have to wait.  So callers have to call unpoint() soon
+after to release the chip again.</p>
+
+<h2>NAND specific</h2>
+<h4>Can I boot from NAND Flash?</h4>
+<p>Not from a bare NAND chip. You need a glue logic around, which gives you memory access to the
+chip on bootup, like the DiskOnChip devices do. This will be a quite complex CPLD. An alternative
+is to use a small e.g. 1MB NOR Flash, which contains the boot code and maybe a compressed kernel
+image. Then you can use JFFS2 on NAND as your root filesystem</p>
+<p>Some newer chips make the first page available for reading after power up. This could be
+helpful for starting a small 256/512/2048 byte bootcode. At the time of this writing there is no
+tested implementation of this.</p>
+<p>Samsungs S3C2410 ARM based SOC-CPU provides a mechanism to boot from NAND flash.</p>
+
+<h4>Is there support for 32bit wide NAND Flash ?</h4>
+<p>No. The generic NAND driver supports 8/16 bit wide NAND Flash only. 32 bit NAND Flash can
+be built by using 2 or 4 chips and connect them to D0-7, D8-D15, D16-D23 and D24-D31 on the data bus.
+You can tie all corresponding control signals together. But you have to build a new nand16 or nand32 driver,
+which can be derived from the existing nand.c. Be aware, that the writebuffer size is 2 or 4 times as big as
+on 8 bit NAND. This mean's, if you flush the buffer to ensure, that your data are on disk, you may waste much
+more memory space than on 8 bit NAND. Another point is bad block handling. When a block on 1 chip is bad, the
+corresponding blocks on the other chips are lost too, as you present them as one big block to the filesystem
+driver. The JFFS2 code, which handles the writebuffer and the out of band (spare) area of NAND doesn't support
+32 bit neither.</p>
+
+<h4>Can I use mtdutils erase / eraseall</h4>
+<p>Yes, the latest nand driver code forces the protection of bad block information. It's safe to erase a 
+NAND&nbsp;flash with erase(all) /dev/mtdX.
+It's recommended to use eraseall with -j or --jffs2 option set. This will write the cleanmarker to the 
+out of band area. So you can mount the filesystem and no further formatting is needed. This formatting
+is also neccecary before you copy a fs-image to the chip.
+</p>
+
+<h4>Can I copy a JFFS2 Image to NAND via /dev/mtdX ?</h4>
+<p>Yes, as long as your chip does not contain bad blocks. Make sure, that the erasesize you set to mkfs.jffs2 
+is the same as the erasesize of your chip. Data will only be written with ECC, if your default settings for
+oob-layout selection are set for JFFS2. For bad block aware copying, use nandwrite from mtd-utils.<br>
+nandwrite -j /dev/mtdX image
+</p>
+
+<h4>Can I use seek/read/write on /dev/mtdX ?</h4>
+<p>Yes, as long as your program is aware of bad blocks. Make sure to set the desired ECC layout by
+ioctl (MEMSETOOBSEL). A example for bad block handling and usage of ioctl (MEMOOBSEL) can be found in
+util/nandwrite.c
+</p>
+<p>Recent changes to the NAND layer now make it possible to read/write across a block boundary.</P>
+
+<h4>Must my bootloader be aware of NAND FLASH&nbsp;?</h4>
+<p>Yes, if you use your bootloader to erase the FLASH chip and copy a filesystem image to it. 
+For erase make sure, that you don't erase factory-marked bad blocks. They are marked in the 6th
+ byte (offset 0x5) in the out of band area of the first page of a block. The block is bad, if any bit in 
+ this byte is zero. If you erase such a block, the bad block information is erased too and lost. Further 
+ use of this block will lead to erroneous results</p>
+<p>For JFFS2 filesystems it's recommended to programm the JFFS2 erased marker into the out of band area of the 
+first page in each erased block after erasing the block. Do not program it into the data area of the page !</p>
+
+<p>For 256 byte pagesize devices program the following data into the out of band area:</p>
+		
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td>Offset</td><td>0x06</td><td>0x07</td></tr>
+<tr><td>Data</td><td>0x85</td><td>0x19</td></tr>
+</table>
+
+<p>For 512 byte pagesize devices program the following data into the out of band area:</p>
+		
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td>Offset</td><td>0x08</td><td>0x09</td><td>0x0a</td><td>0x0b</td><td>0x0c</td><td>0x0d</td>
+<td>0x0e</td><td>0x0f</td></tr>
+<tr><td>Data</td><td>0x85</td><td>0x19</td><td>0x03</td><td>0x20</td><td>0x08</td><td>0x00</td>
+<td>0x00</td><td>0x00</td></tr>
+</table>
+		
+<p>If you copy a filesystem image to the chip, it's recommended to write it with ECC. You can use 
+the ECC code in the nand driver to do this.  If you have a bad block on your chip, just skip this 
+block and copy the data to the next block. JFFS2 and other NAND flash aware filesystems handle this gap.</p>
+
+<h4>Can I program NAND via JTAG&nbsp;?</h4>
+<p>Yes, you can. The requirements are the same as for bootloaders</p>
+
+<h2>JFFS2 specific</h2>
+
+<h4>JFFS2 generates messages, is there a problem ?</h4>
+<p>JFFS2 adopts the philosophy of keeping the user completely appraised of what is going on. This can
+catch out the unwary novice. The following messages can be moved to a higher log level once you are sure
+that they are benign.</p>
+
+<code>Empty flash at 0xXXXXXXXX ends at 0xXXXXXXXX</code>
+<p>This message is generated if a block of data is partially written. It is generally not a sign of any
+problem.</p>
+
+<code>jffs2: Erase block size too small (XXKiB). Using virtual blocks size(XXKiB) instead</code>
+<p>Output for larger NAND devices to reduce memory allocation.</p>
+
+<code>jffs2: No clean, dirty _or_ erasable blocks to GC from! Where are they all?</code><br>
+<code>jffs2: Couldn't find erase block to garbage collect!</code>
+<p>These two messages are generally output together. They are usually output on dismount and simply
+indicate that the garbage collector has nothing to do. This is more likely to be seen for filesystems which
+have few files or no activity.</p>
+
+<h4>I cannot loop mount a JFFS2 image</h4>
+<p>JFFS2 images can not be loop mounted. The only way to manipulate them is by copying them into
+a mtdram device and mounting the device with JFFS2<br>
+If you are desperate, then fix jffs2_dump to recreate the filesystem from the image. It's not hard. All the
+basics are done already.</p>
+
+<h4>How is ensured, that data is written to flash ?</h4>
+<p>On <b>NOR FLASH</b> each write goes directly into the FLASH</p>
+<p>On <b>NAND FLASH and NOR ECC FLASH</b> we have a writebuffer for writing only full pages to the chips. 
+There could be a loss of data, when the writebuffer is not flushed before power down. There are some 
+mechanisms to ensure, that the writebuffer is flushed. You can force the flush of the writebuffer by 
+using fsync() or sync() in your application. 
+JFFS2 has a timed flush of the write buffer, which forces the flush of the buffer to flash, if there are no 
+writes to the filesystem for more than about 5 seconds. The time depends on the cycletime of kupdated, which 
+can be adjusted via <b>/proc/sys/vm/dirty_expire_centisecs</b>. <br>
+When you unmount the filesystem the buffer is flushed too.</p>
+<p>If the partition is being used as a root filesystem, which obviously cannot be dismounted, the filesystem
+should be remounted read only on shutdown. In the case of JFFS2 this will cause the garbage collector to flush
+its write buffers. Failure to do this may cause the filesystem to generate warnings regarding bad CRC.
+These are partially collected garbage blocks which will be rescheduled for garbage collection some time later.
+This kind of behaviour may also be observed after a system crash.</p>
+
+<h4>Howto program an image to FLASH</h4>
+<p>There are several possibilities to do so</p>
+<ul>
+<li>From Linux
+<li>From bootloader
+<li>Via JTAG
+<li>At production time
+</ul>
+<p>
+For <b>NOR FLASH</b> there are no restrictions. For <b>NAND FLASH</b> please read the NAND FAQ section.</p>
+</p>
+
+<h4>How does JFFS2 handle a block going bad in NAND flash ?</h4>
+<p>If an error occurs when writing to a page, JFFS2 will attempt recovery of the
+data.  If the block contains nodes that have already been written to flash, the
+block is refiled onto the list of blocks that are bad but still in use
+(the bad_used_list).  Then the write buffer itself is recovered.  This takes
+into account any data that has been partially written to flash.  Once the write
+buffer has been recovered, normal operation continues.  Garbage collection is
+responsible for moving the valid nodes from the block that was refiled.</p>
+<p>Once garbage collection has written all of the valid nodes to a different
+eraseblock, the block is moved to the erase pending list.  From there JFFS2 will
+erase the eraseblock.  If the erase failed, it is put on the erase pending list
+again for a retry.  If the erase fails at the device level a total of three
+times, it is marked as bad in the OOB area and filed onto the bad_block_list.
+If the erase succeeds, a clean marker is written to the OOB area and the block
+is filed onto the free list.  This is done because NAND flash can have
+non-permanent failures due to over-programing or write-disturb errors.  A block
+erase clears these conditions.</p>
+
+<hr>
+<a href="../index.html">Back to MTD Homepage</a>.</p>
+<hr>
+
+$Id: faq.html,v 1.1 2005/03/12 13:43:48 gleixner Exp $
+</body>
+</html>

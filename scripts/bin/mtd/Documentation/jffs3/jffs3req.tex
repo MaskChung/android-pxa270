@@ -1,0 +1,65 @@
+%
+% JFFS3 design issues.
+%
+% Copyright (C), 2005, Artem B. Bityutskiy, <dedekind@infradead.org>
+%
+% $Id: jffs3req.tex,v 1.5 2005/11/27 14:37:50 dedekind Exp $
+%
+
+The following are the main \mbox{user-level} requirements JFFS3 has to meet.
+
+\begin{enumerate}
+
+\item[\textbf{R01}]
+JFFS3 memory consumption must not depend on the size of JFFS3
+partition, the number of inodes in the file system, size of files,
+directories, and the like. Of course, JFFS3 must be able to use the advantage
+of the available RAM, but only for different kinds of \emph{caches}
+which may be freed any time in case of memory pressure.
+
+\item[\textbf{R02}] 
+JFFS3 have to provide very fast file system mount without the need to scan the
+whole flash partition.
+
+\item[\textbf{R03}]
+JFFS3 have to provide good flash \mbox{wear-levelling}.
+
+\item[\textbf{R04}]
+JFFS3 must guarantee that unclean reboots cannot cause any file system
+corruption.
+
+\item[\textbf{R05}]
+JFFS3 must provide good enough performance.
+
+\item[\textbf{R06}]
+Unlike JFFS2, JFFS3 must implement \mbox{write-behind} caching for better
+performance.
+
+\item[\textbf{R07}]
+JFFS3 must gracefully deal with different kinds of data corruptions (flash
+\mbox{bit-flips}, bad blocks may appear dynamically, etc).
+
+\item[\textbf{R08}]
+In case of serious corruptions it should be possible to reconstruct all the
+data which were not damaged by means external tools like \texttt{ckfs.jffs3}.
+
+\item[\textbf{R09}] All the JFFS3 characteristics ought to scale not faster the
+logarithmic function. \mbox{JFFS2-like} linear dependencies are not
+acceptable. 
+
+\item[\textbf{R10}]
+JFFS3 must support extended attributes.
+
+\item[\textbf{R11}]
+JFFS3 must support the Access Control Lists feature (ACL).
+
+\item[\textbf{R12}]
+JFFS3 have to support \mbox{on-flight} compression.
+
+\item[\textbf{R13}]
+JFFS3 should provide good concurrency which means that it should be possible to
+read the file system during Garbage Collection and to read/write during the
+Journal Commit, read/write the file system simultaneously, etc.
+
+\end{enumerate}
+

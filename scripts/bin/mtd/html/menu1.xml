@@ -1,0 +1,13 @@
+<PAGE>
+	<STARTMENU level="1"/>
+	<MENU topic="Home" link="VAR_ORIGINindex.html" mode="VAR_SEL_INDEX" />
+	<MENU topic="FAQ" link="VAR_ORIGINfaq/general.html" mode="VAR_SEL_FAQ" />
+	<MENU topic="Mailing Lists / IRC" link="VAR_ORIGINmail.html" mode="VAR_SEL_MAIL" />
+	<MENU topic="Source" link="VAR_ORIGINsource.html" mode="VAR_SEL_SOURCE" />
+	<MENU topic="Documentation" link="VAR_ORIGINdoc/general.html" mode="VAR_SEL_DOC" />
+	<MENU topic="Archive" link="VAR_ORIGINarchive.html" mode="VAR_SEL_ARCHIVE" />
+	<MENU topic="Fellows" link="VAR_ORIGINfellows.html" mode="VAR_SEL_FELLOWS" />
+	<MENU topic="Memory Technology Devices" link="" mode="text" />
+	<ENDMENU />
+	<PARSE file="menu2.xml" />
+</PAGE>

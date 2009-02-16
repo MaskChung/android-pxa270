@@ -1,0 +1,16 @@
+<PAGE>
+	<VAR match="VAR_ORIGIN" replace="" />
+	<VAR match="VAR_CVSID" replace="$Id: archive.xml,v 1.1 2005/03/12 13:48:21 gleixner Exp $"/>
+	<INCLUDE file="inc/header.tmpl" />
+
+	<VAR match="VAR_SEL_ARCHIVE" replace="selected" />
+	<PARSE file="menu1.xml" />
+	
+	<INCLUDE file="inc/content.tmpl" />
+
+    	<h2>Archive</h2>
+	<p>The archive contains the old <a href="archive/index.html">MTD homepage</a> 
+	and a lot of outdated information</p>
+
+	<INCLUDE file="inc/footer.tmpl" />
+</PAGE>

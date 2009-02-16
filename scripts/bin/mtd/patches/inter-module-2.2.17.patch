@@ -1,0 +1,312 @@
+diff -u linux-2.2.17-orig/kernel/module.c linux-2.2.17-patched/kernel/module.c
+--- linux-2.2.17-orig/kernel/module.c	Wed May  3 20:16:53 2000
++++ linux-2.2.17-patched/kernel/module.c	Mon Nov 27 14:38:21 2000
+@@ -6,6 +6,8 @@
+ #include <linux/smp_lock.h>
+ #include <asm/pgtable.h>
+ #include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/kmod.h>
+ 
+ /*
+  * Originally by Anonymous (as far as I know...)
+@@ -14,11 +16,12 @@
+  * Heavily modified by Bjorn Ekwall <bj0rn@blox.se> May 1994 (C)
+  * Rewritten by Richard Henderson <rth@tamu.edu> Dec 1996
+  * Add MOD_INITIALIZING Keith Owens <kaos@ocs.com.au> Nov 1999
++ * Backport inter_module_xxx from 2.4.  Keith Owens <kaos@ocs.com.au> Oct 2000
+  *
+  * This source is covered by the GNU GPL, the same as all kernel sources.
+  */
+ 
+-#ifdef CONFIG_MODULES		/* a *big* #ifdef block... */
++#ifdef CONFIG_MODULES
+ 
+ extern struct module_symbol __start___ksymtab[];
+ extern struct module_symbol __stop___ksymtab[];
+@@ -47,6 +50,174 @@
+ };
+ 
+ struct module *module_list = &kernel_module;
++
++#endif	/* CONFIG_MODULES */
++
++/* inter_module functions are always available, even when the kernel is
++ * compiled without modules.  Consumers of inter_module_xxx routines
++ * will always work, even when both are built into the kernel, this
++ * approach removes lots of #ifdefs in mainline code.
++ */
++
++static struct list_head ime_list = LIST_HEAD_INIT(ime_list);
++static spinlock_t ime_lock = SPIN_LOCK_UNLOCKED;
++static int kmalloc_failed;
++
++/**
++ * inter_module_register - register a new set of inter module data.
++ * @im_name: an arbitrary string to identify the data, must be unique
++ * @owner: module that is registering the data, always use THIS_MODULE
++ * @userdata: pointer to arbitrary userdata to be registered
++ *
++ * Description: Check that the im_name has not already been registered,
++ * complain if it has.  For new data, add it to the inter_module_entry
++ * list.
++ */
++void inter_module_register(const char *im_name, struct module *owner, const void *userdata)
++{
++	struct list_head *tmp;
++	struct inter_module_entry *ime, *ime_new;
++
++	if (!(ime_new = kmalloc(sizeof(*ime), GFP_KERNEL))) {
++		/* Overloaded kernel, not fatal */
++		printk(KERN_ERR
++			"Aiee, inter_module_register: cannot kmalloc entry for '%s'\n",
++			im_name);
++		kmalloc_failed = 1;
++		return;
++	}
++	memset(ime_new, 0, sizeof(*ime_new));
++	ime_new->im_name = im_name;
++	ime_new->owner = owner;
++	ime_new->userdata = userdata;
++
++	spin_lock(&ime_lock);
++	list_for_each(tmp, &ime_list) {
++		ime = list_entry(tmp, struct inter_module_entry, list);
++		if (strcmp(ime->im_name, im_name) == 0) {
++			spin_unlock(&ime_lock);
++			kfree(ime_new);
++			/* Program logic error, fatal */
++			panic("inter_module_register: duplicate im_name '%s'", im_name);
++		}
++	}
++	list_add(&(ime_new->list), &ime_list);
++	spin_unlock(&ime_lock);
++}
++
++/**
++ * inter_module_unregister - unregister a set of inter module data.
++ * @im_name: an arbitrary string to identify the data, must be unique
++ *
++ * Description: Check that the im_name has been registered, complain if
++ * it has not.  For existing data, remove it from the
++ * inter_module_entry list.
++ */
++void inter_module_unregister(const char *im_name)
++{
++	struct list_head *tmp;
++	struct inter_module_entry *ime;
++
++	spin_lock(&ime_lock);
++	list_for_each(tmp, &ime_list) {
++		ime = list_entry(tmp, struct inter_module_entry, list);
++		if (strcmp(ime->im_name, im_name) == 0) {
++			list_del(&(ime->list));
++			spin_unlock(&ime_lock);
++			kfree(ime);
++			return;
++		}
++	}
++	spin_unlock(&ime_lock);
++	if (kmalloc_failed) {
++		printk(KERN_ERR
++			"inter_module_unregister: no entry for '%s', "
++			"probably caused by previous kmalloc failure\n",
++			im_name);
++		return;
++	}
++	else {
++		/* Program logic error, fatal */
++		panic("inter_module_unregister: no entry for '%s'", im_name);
++	}
++}
++
++/**
++ * inter_module_get - return arbitrary userdata from another module.
++ * @im_name: an arbitrary string to identify the data, must be unique
++ *
++ * Description: If the im_name has not been registered, return NULL.
++ * Try to increment the use count on the owning module, if that fails
++ * then return NULL.  Otherwise return the userdata.
++ */
++const void *inter_module_get(const char *im_name)
++{
++	struct list_head *tmp;
++	struct inter_module_entry *ime;
++	const void *result = NULL;
++
++	spin_lock(&ime_lock);
++	list_for_each(tmp, &ime_list) {
++		ime = list_entry(tmp, struct inter_module_entry, list);
++		if (strcmp(ime->im_name, im_name) == 0) {
++			/* This should be try_inc_use_count but that function is
++			 * not in 2.2 kernels.  I am not opening that can of worms
++			 * for 2.2.  Keith Owens
++			 */
++			if (ime->owner)
++				__MOD_INC_USE_COUNT(ime->owner);
++			result = ime->userdata;
++			break;
++		}
++	}
++	spin_unlock(&ime_lock);
++	return(result);
++}
++
++/**
++ * inter_module_get_request - im get with automatic request_module.
++ * @im_name: an arbitrary string to identify the data, must be unique
++ * @modname: module that is expected to register im_name
++ *
++ * Description: If inter_module_get fails, do request_module then retry.
++ */
++const void *inter_module_get_request(const char *im_name, const char *modname)
++{
++	const void *result = inter_module_get(im_name);
++	if (!result) {
++		request_module(modname);
++		result = inter_module_get(im_name);
++	}
++	return(result);
++}
++
++/**
++ * inter_module_put - release use of data from another module.
++ * @im_name: an arbitrary string to identify the data, must be unique
++ *
++ * Description: If the im_name has not been registered, complain,
++ * otherwise decrement the use count on the owning module.
++ */
++void inter_module_put(const char *im_name)
++{
++	struct list_head *tmp;
++	struct inter_module_entry *ime;
++
++	spin_lock(&ime_lock);
++	list_for_each(tmp, &ime_list) {
++		ime = list_entry(tmp, struct inter_module_entry, list);
++		if (strcmp(ime->im_name, im_name) == 0) {
++			if (ime->owner)
++				__MOD_DEC_USE_COUNT(ime->owner);
++			spin_unlock(&ime_lock);
++			return;
++		}
++	}
++	spin_unlock(&ime_lock);
++	panic("inter_module_put: no entry for '%s'", im_name);
++}
++
++#if defined(CONFIG_MODULES)	/* The rest of the source */
+ 
+ static long get_mod_name(const char *user_name, char **buf);
+ static void put_mod_name(char *buf);
+diff -u linux-2.2.17-orig/kernel/ksyms.c linux-2.2.17-patched/kernel/ksyms.c
+--- linux-2.2.17-orig/kernel/ksyms.c	Mon Sep  4 13:39:28 2000
++++ linux-2.2.17-patched/kernel/ksyms.c	Mon Nov 27 14:35:05 2000
+@@ -81,6 +81,11 @@
+ #ifdef CONFIG_MODULES
+ EXPORT_SYMBOL(get_module_symbol);
+ #endif
++EXPORT_SYMBOL(inter_module_register);
++EXPORT_SYMBOL(inter_module_unregister);
++EXPORT_SYMBOL(inter_module_get);
++EXPORT_SYMBOL(inter_module_get_request);
++EXPORT_SYMBOL(inter_module_put);
+ EXPORT_SYMBOL(get_options);
+ 
+ /* process memory management */
+diff -u linux-2.2.17-orig/include/linux/module.h linux-2.2.17-patched/include/linux/module.h
+--- linux-2.2.17-orig/include/linux/module.h	Wed May  3 20:16:52 2000
++++ linux-2.2.17-patched/include/linux/module.h	Mon Nov 27 14:35:05 2000
+@@ -8,6 +8,7 @@
+ #define _LINUX_MODULE_H
+ 
+ #include <linux/config.h>
++#include <linux/list.h>
+ 
+ #ifdef __GENKSYMS__
+ #  define _set_ver(sym) sym
+@@ -140,6 +141,35 @@
+ 
+ #define __MODULE_STRING_1(x)	#x
+ #define __MODULE_STRING(x)	__MODULE_STRING_1(x)
++
++/* Generic inter module communication.
++ *
++ * NOTE: This interface is intended for small amounts of data that are
++ *       passed between two objects and either or both of the objects
++ *       might be compiled as modules.  Do not over use this interface.
++ *
++ *       If more than two objects need to communicate then you probably
++ *       need a specific interface instead of abusing this generic
++ *       interface.  If both objects are *always* built into the kernel
++ *       then a global extern variable is good enough, you do not need
++ *       this interface.
++ *
++ * Keith Owens <kaos@ocs.com.au> 28 Oct 2000.
++ */
++
++#define HAVE_INTER_MODULE
++extern void inter_module_register(const char *, struct module *, const void *);
++extern void inter_module_unregister(const char *);
++extern const void *inter_module_get(const char *);
++extern const void *inter_module_get_request(const char *, const char *);
++extern void inter_module_put(const char *);
++
++struct inter_module_entry {
++       struct list_head list;
++       const char *im_name;
++       struct module *owner;
++       const void *userdata;
++};
+ 
+ /* Find a symbol exported by the kernel or another module */
+ extern unsigned long get_module_symbol(char *, char *);
+diff -u linux-2.2.17-orig/include/linux/list.h linux-2.2.17-patched/include/linux/list.h
+--- linux-2.2.17-orig/include/linux/list.h	Mon Dec  1 14:16:57 1997
++++ linux-2.2.17-patched/include/linux/list.h	Mon Nov 27 14:35:13 2000
+@@ -17,6 +17,8 @@
+ 	struct list_head *next, *prev;
+ };
+ 
++#define LIST_HEAD_INIT(name) { &(name), &(name) }
++
+ #define LIST_HEAD(name) \
+ 	struct list_head name = { &name, &name }
+ 
+@@ -49,6 +51,14 @@
+ }
+ 
+ /*
++ * Insert a new entry at the tail
++ */
++static __inline__ void list_add_tail(struct list_head *new, struct list_head *head)
++{
++	__list_add(new, head->prev, head);
++}
++
++/*
+  * Delete a list entry by making the prev/next entries
+  * point to each other.
+  *
+@@ -93,6 +103,9 @@
+ 
+ #define list_entry(ptr, type, member) \
+ 	((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
++
++#define list_for_each(pos, head) \
++        for (pos = (head)->next; pos != (head); pos = pos->next)
+ 
+ #endif /* __KERNEL__ */
+ 
+diff -u linux-2.2.17-orig/Makefile linux-2.2.17-patched/Makefile
+--- linux-2.2.17-orig/Makefile	Mon Sep  4 13:47:54 2000
++++ linux-2.2.17-patched/Makefile	Mon Nov 27 14:35:05 2000
+@@ -233,7 +233,7 @@
+ 		$(LIBS) \
+ 		--end-group \
+ 		-o vmlinux
+-	$(NM) vmlinux | grep -v '\(compiled\)\|\(\.o$$\)\|\( [aU] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)' | sort > System.map
++	$(NM) vmlinux | grep -v '\(compiled\)\|\(\.o$$\)\|\( [aUw] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)' | sort > System.map
+ 
+ symlinks:
+ 	rm -f include/asm

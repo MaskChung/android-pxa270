@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 3.2//EN">
+<html>
+  <head>
+    <title>Response from M-Systems</title>
+  </head>
+
+  <body bgcolor="white">
+    <h1 align="center">Response from M-Systems</h1>
+    <P>I have received another mail from Amir Ban at M-Systems, explaining
+      their concerns with regard to releasing a GPL'd driver for the 
+      Disk-On-Chip hardware and for their NFTL flash filing system. It is 
+      unclear from this whether it is a final statement of their response, 
+      or whether they are still open to discussion.</P>
+    <HR>
+    <BLOCKQUOTE>
+      <B>From:</B> Amir Ban &lt;amirban@m-sys.com&gt;<BR>
+      <B>To:</B> David Woodhouse &lt;David.Woodhouse@mvhi.com&gt;<BR>
+      <B>Subject:</B> RE: FW: Linux drivers vs. free software<BR>
+      <B>Date:</B> Fri, 9 Jul 1999 01:49:59 +0200<BR>
+      <BR>
+<PRE>
+David,
+
+I understand from this that you need the programming spec of the DOC2000.
+Let me check with marketing if we can provide you with such a spec.
+
+About the rest of it:
+
+In general we are open and helpful to people who want to write code for the
+DiskOnChip. If we GPL the driver source code, the concern is not that it may
+be copied to work with the DiskOnChip, but that it may be used to work with
+competing devices. The code contains, for example, a complete NAND Flash
+MTD, NFTL, and a tested framework for handling a Flash block device complete
+with solutions to several problems that our experience shows need a
+solution, and a novice competitor may not even be aware of. While most of
+the value lies in the hardware, we think the software represents significant
+value even if it's not used to manage the DiskOnChip but something else.
+
+If we release the software with no limitation, we can expect to see it soon
+being used to drive us out of business. Low-tech Taiwanese companies will
+construct a basic flash array and use our code to support it. Flash vendors
+like Samsung and Intel stand to gain the most from this. They will likely
+put the code on their web site and offer incentives to developers who can
+apply to their Flash. Our patent for NFTL becomes irrelevant, since by
+releasing it under the GPL we effectively waive our rights.
+
+We may still have a business going on the strength of the hardware, but it
+will be a smaller and tougher one.
+
+Amir
+</PRE></BLOCKQUOTE>
+<HR>
+    It seems a little unfair that I always get the last word - but 
+    nonetheless, I have a couple of comments to make:
+    <UL>
+      <LI>NFTL is patented. The existence of a GPL'd version of the code 
+	does not affect the patent. For a competitor to use NFTL in their 
+	devices would be verging on suicidal.</LI>
+      <LI>Likewise, for Intel to put up a web page containing code, and
+	actively encourage manufacturers to violate M-Systems' patents, 
+	would also be insane.</LI>
+      <LI>The GPL is far from being &quot;<I>no limitation</I>&quot; - GPL'd
+	code could not be reused in competitors' proprietary devices, unless
+	they made the code available; in which case it'd be immediately
+	obvious that they're violating the patent. And if they <I>didn't</I>
+	publish the code, then M-Systems' lawyers would have to pick up the 
+	pieces that the Open Source people leave behind before they could sue
+	them.</LI>
+      <LI>Also, there has been a lot of public interest in this subject over 
+	the last few days - far more than I expected. If M-Systems don't
+	release a basic driver for NFTL, then I expect it to be
+	reverse-engineered fairly shortly. Any reverse-engineered
+	version would be likely to go under the MIT license, allowing it
+	to be freely used in competitors' proprietary code (patent
+	issues aside). So by releasing a GPL'd version of NFTL, M-Systems
+	would actually be <I>restricting</I> the distribution of it.</LI>
+    </UL>
+    <HR>
+       <H2>Possible solution</H2>
+    <P>I think that that a possible way for us to proceed would be for 
+      M-Systems to provide technical specifications, rather than code. The
+      basic details of how to access the flash on the Disk-On-Chip 2000 
+      hardware, and the on-flash format of NFTL. We can reimplement the 
+      code, and any problems that we encounter on the way are entirely up 
+      to us, as are the clever parts of the wear-levelling algorithms and 
+      such like.
+    </P>
+    <P>That way, we get a functional device under Linux, and M-Systems get to
+      retain as much of their clever solutions as possible. Basically, all 
+      they're releasing is the stuff that would get reverse-engineered anyway.
+      They win, because it's under GPL instead of under a BSD license, and
+      we win, because we don't have to spend months beating on the hardware
+      to reverse-engineer it.
+    </P>
+
+    <hr>
+    <address><a href="mailto:dwmw2@infradead.org">David Woodhouse</a></address>
+$Id: msys-response.html,v 1.1 2005/03/12 13:43:48 gleixner Exp $
+  </body>
+</html>
