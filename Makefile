@@ -22,15 +22,42 @@ BUILT_VERSION			:= $(TARGET_BIN_DIR)/built_version
 export ANDROID
 export ANDROID_ROOTFS		:= $(patsubst "%",%,$(ANDROID_ROOTFS))
 #export TARGET_ANDROID_ROOTFS_DIR	:= $(TARGET_DIR)/android_rootfs
+export ANDROID_GIT
+export ANDROID_GIT_ROOTFS	:= $(patsubst "%",%,$(ANDROID_GIT_ROOTFS))
+
+FS :=
+ifeq "$(JFFS2)" "y"
+	FS += jffs2
+endif
+ifeq "$(YAFFS2)" "y"
+	FS += yaffs2
+endif
+
 
 modules:=rootfs toolchain kernel busybox version
 
-.PHONY: all ckeck_dir build install clean distclean menuconfig
+.PHONY: all build install clean distclean menuconfig
 .PHONY: jffs2 yaffs2
+
 all: check_dir
 	$(MAKE) build
 	$(MAKE) install
+ifneq "$(FS)" ""
+	$(MAKE) $(FS)
+endif
+ifeq "$(HOST_TFTP)" "y"
+	cp -af $(TARGET_BIN_DIR)/* $(TFTP_DIR)
+endif
+ifeq "$(NFS_ROOT)" "y"
+	cp -af $(TARGET_ROOTFS_DIR) $(NFS_ROOT_DIR)
+endif
+
+#ifeq "$(JFFS2)" "y"
 #	$(MAKE) jffs2
+#endif
+#ifeq "$(YAFFS2)" "y"
+#	$(MAKE) yaffs2
+#endif
 
 check_dir:
 	@test -d $(TARGET_DIR) || mkdir -p $(TARGET_DIR)
@@ -43,8 +70,11 @@ build: $(addprefix build_,$(modules))
 install: $(addprefix install_,$(modules))
 
 clean: distclean
-distclean: $(addprefix clean_,$(modules))
-	rm -rf $(TARGET_DIR)
+#distclean: $(addprefix clean_,$(modules))
+distclean: $(addprefix clean_, $(filter-out toolchain,$(modules)) toolchain)
+	-rm -rf $(TARGET_DIR)
+	$(MAKE) clean_menuconfig
+	-rm -f .config
 
 .PHONY: build_toolchain install_toolchain clean_toolchain
 build_toolchain:
@@ -70,9 +100,9 @@ install_kernel:
 	rm -f $(TARGET_BIN_DIR)/uImage
 	$(PRJROOT)/scripts/bin/mkimage -A arm -O linux -T kernel -C gzip -a 0xa0008000 -e 0xa0008000 -n "EPS-Android" -d $(TARGET_BIN_DIR)/zImage.gz $(TARGET_BIN_DIR)/uImage
 	rm -f $(TARGET_BIN_DIR)/zImage.gz
-ifeq "$(HOST_TFTP)" "y"
-	cp -f $(TARGET_BIN_DIR)/uImage $(TFTP_DIR)
-endif
+#ifeq "$(HOST_TFTP)" "y"
+#	cp -f $(TARGET_BIN_DIR)/uImage $(TFTP_DIR)
+#endif
 
 clean_kernel:
 	cd $(KERNEL_SRC_DIR) && $(MAKE) distclean
@@ -99,7 +129,10 @@ build_rootfs:
 	cd $(ROOTFS_DIR) && $(MAKE)
 
 install_rootfs:
-	rm -rf $(TARGET_ROOTFS_DIR)/*
+	#rm -rf $(TARGET_ROOTFS_DIR)/*
+	rm -rf $(TARGET_ROOTFS_DIR)
+#	rm -rf $(TARGET_DIR)
+	$(MAKE) check_dir
 	cd $(ROOTFS_DIR) && $(MAKE) install
 	$(MAKE) build_version
 	$(MAKE) install_version
@@ -109,11 +142,14 @@ clean_rootfs:
 	cd $(ROOTFS_DIR) && $(MAKE) distclean
 
 menuconfig:
-	@if [ ! -e scripts/config/mconf ] ; then \
-		cd scripts/config/ && $(MAKE); \
+	@if [ ! -e $(PRJROOT)/scripts/config/mconf ] ; then \
+		cd $(PRJROOT)/scripts/config/ && $(MAKE); \
 	fi
 	#@./scripts/kconfig/mconf ./scripts/Config.in
-	@./scripts/config/mconf ./scripts/Config.in
+	@$(PRJROOT)/scripts/config/mconf $(PRJROOT)/scripts/Config.in
+
+clean_menuconfig:
+	-cd $(PRJROOT)/scripts/config && $(MAKE) clean
 
 # compound rules
 rebuild_%:
@@ -149,6 +185,7 @@ help:
 
 .PHONY: build_version install_version clean_version
 build_version:
+install_version:
 	@if [ ! -d $(TARGET_BIN_DIR) ] ; then \
 		mkdir -p $(TARGET_BIN_DIR); \
 	fi
@@ -160,8 +197,6 @@ build_version:
 	@echo -n "SVN revision: " >> $(BUILT_VERSION)
 	@echo "$(shell LANG=C ; svn info $(PRJROOT) | grep -i "revision" | awk '{print $$2}')" >> $(BUILT_VERSION)
 	@echo "---" >> $(BUILT_VERSION)
-
-install_version:
 	@if [ ! -d $(TARGET_ROOTFS_DIR)/etc ] ; then \
 		mkdir -p $(TARGET_ROOTFS_DIR)/etc; \
 	fi
@@ -175,15 +210,15 @@ strip_rootfs:
 	-find $(TARGET_ROOTFS_DIR) -name "*.ko" -exec $(STRIP) -g -S -d --strip-debug {} \;
 
 jffs2: strip_rootfs
-	if [ ! -e scripts/bin/mtd/util/mkfs.jffs2 ] ; then \
-		cd scripts/bin && $(MAKE) mkfs.jffs2; \
+	@if [ ! -e $(PRJROOT)/scripts/bin/mtd/util/mkfs.jffs2 ] ; then \
+		cd $(PRJROOT)/scripts/bin && $(MAKE) mkfs.jffs2; \
 	fi
 	#$(PRJROOT)/scripts/bin/mkfs.jffs2 -e 131072 --pad=0xf00000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
-	$(PRJROOT)/scripts/bin/mkfs.jffs2 -v -e 131072 --pad=0x1B80000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
+	$(PRJROOT)/scripts/bin/mtd/util/mkfs.jffs2 -v -e 131072 --pad=0x1B80000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
 
 yaffs2: strip_rootfs
-	if [ ! -e scripts/bin/yaffs2/utils/mkyaffs2image ] ; then \
-		cd scripts/bin && $(MAKE) mkyaffs2image; \
+	@if [ ! -e $(PRJROOT)/scripts/bin/yaffs2/utils/mkyaffs2image ] ; then \
+		cd $(PRJROOT)/scripts/bin && $(MAKE) mkyaffs2image; \
 	fi
-	./scripts/bin/yaffs2/utils/mkyaffs2image $(TARGET_ROOTFS_DIR) $(TARGET_BIN_DIR)/rootfs.yaffs2
+	$(PRJROOT)/scripts/bin/yaffs2/utils/mkyaffs2image $(TARGET_ROOTFS_DIR) $(TARGET_BIN_DIR)/rootfs.yaffs2
 

@@ -34,6 +34,20 @@ config ANDROID_ROOTFS
 	string "Using which Version of Android Root File System"
 	depends on ANDROID
 	default "r1_rootfs.tar.gz"
+config ANDROID_GIT
+	bool "Android-git Root File System"
+	depends on ANDROID
+	default y
+config ANDROID_GIT_ROOTFS
+	string "Using which Android-git Root File System"
+	depends on ANDROID_GIT
+	default "git.tgz"
+config JFFS2
+	bool "Using JFFS2 Root File System"
+	default n
+config YAFFS2
+	bool "Using YAFFS2 Root File System"
+	default n
 endmenu
 
 menu "HOST TFTP Server"
