@@ -431,91 +431,91 @@ creator_OST_4_11_irq_handler (unsigned int irqno, struct irq_desc *desc)
 void  
 creator_pxa270_init_irq (void)
 {        
-        int irqno;	              
-        /* setup extra creat_pxa270 irqs */
-        /* set_irq_type has to be called before an irq can be requested */
-        pxa27x_init_irq();
+	int irqno;	              
+	/* setup extra creat_pxa270 irqs */
+	/* set_irq_type has to be called before an irq can be requested */
+	pxa27x_init_irq();
 
-        set_irq_type(CREATOR_ETH_IRQ, IRQT_RISING);       
-        
-        // Extend XINT3
-        if (creator_GetCreatorCPLDVersion() >= 0x14){
-            MSG("CPLD Version=%x\n", creator_GetCreatorCPLDVersion());
-            // Creator Board XINTREQ map.
-            // IRQ SELECT :
-            //  bit  2-0  : IRQ0_MUX : PHY_nINT(U19)
-            //  bit  5-3  : IRQ1_MUX : USB_nINT(U25)
-            //  bit  8-6  : IRQ2_MUX : CODEC_INT(U21)
-            //  bit 11-9  : IRQ3_MUX : SubXINT3
-            //  bit 12    : INKCF_1  : 0 : Normal Mode, 1 : invert CF_IRQ signal
-            //  bit 13    : IRQ3_MODE: 0 : Old Mode. 1 : User 1.2 Mode.
-            //  bit 14    : IRQ0_MODE: 0 : XINTREQ(0) map to ethernet of creator board.
-            //                         1 : XINTREQ(0) map to CF of creator board.
-            //  bit 15    : IRQ_DEFAULT : 0 : Use V1.0 INT 
-            //                            1 : Use V1.2 INT       
-            IRQ_SELECT = (1<<15) + (1<<13) + (0<<12) + (2 << 6) + (1<<3) + (0) ;                 
+	set_irq_type(CREATOR_ETH_IRQ, IRQT_RISING);       
 
-            for(irqno = CREATOR_IO_XIRQ3_EXT_CF_IRQ; irqno <= CREATOR_IO_XIRQ3_EXT_CCD_IRQ; irqno++) {            
-                set_irq_chip(irqno, &creator_ExtIRQ3_edge_chip);
-                //set_irq_handler(irqno, do_edge_IRQ);
-                set_irq_handler(irqno, handle_edge_irq);
-                set_irq_flags(irqno, 0);       // disable               
-            }                                                   
-            set_irq_flags(CREATOR_IO_XIRQ3_EXT_CF_IRQ, IRQF_VALID);       // enable ExtIRQ3_CF 
-            set_irq_flags(CREATOR_IO_XIRQ3_EXT_SLAVE_IRQ, IRQF_VALID);    // enable ExtIRQ3_Slave IRQ                           
-             
-        } 
-        else{
-            MSG("CPLD Version=%x\n", creator_GetCreatorCPLDVersion());            
-        }           
-        
+	// Extend XINT3
+	if (creator_GetCreatorCPLDVersion() >= 0x14){
+		MSG("CPLD Version=%x\n", creator_GetCreatorCPLDVersion());
+		// Creator Board XINTREQ map.
+		// IRQ SELECT :
+		//  bit  2-0  : IRQ0_MUX : PHY_nINT(U19)
+		//  bit  5-3  : IRQ1_MUX : USB_nINT(U25)
+		//  bit  8-6  : IRQ2_MUX : CODEC_INT(U21)
+		//  bit 11-9  : IRQ3_MUX : SubXINT3
+		//  bit 12    : INKCF_1  : 0 : Normal Mode, 1 : invert CF_IRQ signal
+		//  bit 13    : IRQ3_MODE: 0 : Old Mode. 1 : User 1.2 Mode.
+		//  bit 14    : IRQ0_MODE: 0 : XINTREQ(0) map to ethernet of creator board.
+		//                         1 : XINTREQ(0) map to CF of creator board.
+		//  bit 15    : IRQ_DEFAULT : 0 : Use V1.0 INT 
+		//                            1 : Use V1.2 INT       
+		IRQ_SELECT = (1<<15) + (1<<13) + (0<<12) + (2 << 6) + (1<<3) + (0) ;                 
 
-        // GPIO1 : 16 Interrupts
-        //       
-        for (irqno = CREATOR_IRQ(0); irqno <= CREATOR_IRQ(15); irqno++) {            
-            switch (irqno){
-            default :    
-                set_irq_chip(irqno, &creator_irq_edge_chip);                            
-//                set_irq_handler(irqno, do_edge_IRQ);                                   
-                set_irq_handler(irqno, handle_edge_irq);                                   
-                set_irq_flags(irqno, 0);       // disable                     
-            }             
-        }        
-        
-        set_irq_flags(CREATOR_TOUCH_IRQ,  IRQF_VALID | IRQF_PROBE);          
-        set_irq_flags(CREATOR_IO_XIRQ2_IRQ,  IRQF_VALID);       // Codec         
-        set_irq_flags(CREATOR_IO_XIRQ3_IRQ,  IRQF_VALID);       // DSP     
-        set_irq_flags(CREATOR_MMC_CD_IRQ,  IRQF_VALID);         
-        set_irq_flags(CREATOR_CFI_IRQ,  IRQF_VALID);         
-        set_irq_flags(CREATOR_CFO_IRQ,  IRQF_VALID);           
-        set_irq_flags(CREATOR_CF_IRQ,  IRQF_VALID);               
-        
-        MASTER_IRQ3_MASK = ~(0);              
-        MASTER_INTMASK1 = ~(0);
-        MASTER_INTMASK2 = ~(0);  
-        
-        MASTER_IRQ3_PEND = ~0;                  
-        MASTER_INTPEND1 = ~0;
-        MASTER_INTPEND2 = ~0;         
-          
+		for(irqno = CREATOR_IO_XIRQ3_EXT_CF_IRQ; irqno <= CREATOR_IO_XIRQ3_EXT_CCD_IRQ; irqno++) {            
+			set_irq_chip(irqno, &creator_ExtIRQ3_edge_chip);
+			//set_irq_handler(irqno, do_edge_IRQ);
+			set_irq_handler(irqno, handle_edge_irq);
+			set_irq_flags(irqno, 0);       // disable               
+		}                                                   
+		set_irq_flags(CREATOR_IO_XIRQ3_EXT_CF_IRQ, IRQF_VALID);       // enable ExtIRQ3_CF 
+		set_irq_flags(CREATOR_IO_XIRQ3_EXT_SLAVE_IRQ, IRQF_VALID);    // enable ExtIRQ3_Slave IRQ                           
 
-        if (creator_GetCreatorCPLDVersion() >= 0x14){        
-            set_irq_chained_handler(CREATOR_IO_XIRQ3_IRQ, creator_ExtIRQ3_demux);               
-        }
-        
-        MSG("IRQ_GPIO chain to creator_gpio1_demux\n");
-        set_irq_chained_handler(IRQ_GPIO(1), creator_gpio1_demux);
-        set_irq_type(IRQ_GPIO(1), IRQT_FALLING);           
-                
+	} 
+	else{
+		MSG("CPLD Version=%x\n", creator_GetCreatorCPLDVersion());            
+	}           
 
-        // Timer4-11 Interrupts 
-        //
-        for(irqno = CREATOR_OST_4_IRQ; irqno <= CREATOR_OST_11_IRQ; irqno++) {            
-            set_irq_chip(irqno, &creator_OST_4_11_irq);
-            set_irq_handler(irqno, handle_level_irq);        
-            //set_irq_handler(irqno, do_level_IRQ);        
-            set_irq_flags(irqno, IRQF_VALID);       // enable               
-        }                       
-        set_irq_chained_handler(IRQ_OST_4_11, creator_OST_4_11_irq_handler);                                                               
+
+	// GPIO1 : 16 Interrupts
+	//       
+	for (irqno = CREATOR_IRQ(0); irqno <= CREATOR_IRQ(15); irqno++) {            
+		switch (irqno){
+			default :    
+				set_irq_chip(irqno, &creator_irq_edge_chip);                            
+				//                set_irq_handler(irqno, do_edge_IRQ);                                   
+				set_irq_handler(irqno, handle_edge_irq);                                   
+				set_irq_flags(irqno, 0);       // disable                     
+		}             
+	}        
+
+	set_irq_flags(CREATOR_TOUCH_IRQ,  IRQF_VALID | IRQF_PROBE);          
+	set_irq_flags(CREATOR_IO_XIRQ2_IRQ,  IRQF_VALID);       // Codec         
+	set_irq_flags(CREATOR_IO_XIRQ3_IRQ,  IRQF_VALID);       // DSP     
+	set_irq_flags(CREATOR_MMC_CD_IRQ,  IRQF_VALID);         
+	set_irq_flags(CREATOR_CFI_IRQ,  IRQF_VALID);         
+	set_irq_flags(CREATOR_CFO_IRQ,  IRQF_VALID);           
+	set_irq_flags(CREATOR_CF_IRQ,  IRQF_VALID);               
+
+	MASTER_IRQ3_MASK = ~(0);              
+	MASTER_INTMASK1 = ~(0);
+	MASTER_INTMASK2 = ~(0);  
+
+	MASTER_IRQ3_PEND = ~0;                  
+	MASTER_INTPEND1 = ~0;
+	MASTER_INTPEND2 = ~0;         
+
+
+	if (creator_GetCreatorCPLDVersion() >= 0x14){        
+		set_irq_chained_handler(CREATOR_IO_XIRQ3_IRQ, creator_ExtIRQ3_demux);               
+	}
+
+	MSG("IRQ_GPIO chain to creator_gpio1_demux\n");
+	set_irq_chained_handler(IRQ_GPIO(1), creator_gpio1_demux);
+	set_irq_type(IRQ_GPIO(1), IRQT_FALLING);           
+
+
+	// Timer4-11 Interrupts 
+	//
+	for(irqno = CREATOR_OST_4_IRQ; irqno <= CREATOR_OST_11_IRQ; irqno++) {            
+		set_irq_chip(irqno, &creator_OST_4_11_irq);
+		set_irq_handler(irqno, handle_level_irq);        
+		//set_irq_handler(irqno, do_level_IRQ);        
+		set_irq_flags(irqno, IRQF_VALID);       // enable               
+	}                       
+	set_irq_chained_handler(IRQ_OST_4_11, creator_OST_4_11_irq_handler);                                                               
 }
 

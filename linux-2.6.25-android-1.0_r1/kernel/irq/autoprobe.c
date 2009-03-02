@@ -33,6 +33,7 @@ unsigned long probe_irq_on(void)
 	unsigned long mask;
 	unsigned int i;
 
+printk(" ----- into %s:%s\n",__FILE__,__func__);
 	mutex_lock(&probing_active);
 	/*
 	 * something may have generated an irq long ago and we want to

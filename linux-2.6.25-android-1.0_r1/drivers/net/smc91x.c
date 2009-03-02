@@ -1795,7 +1795,7 @@ static int __init smc_probe(struct net_device *dev, void __iomem *ioaddr,
 	DBG(2, "%s: bank signature probe returned 0x%04x\n", CARDNAME, val);
 	if ((val & 0xFF00) != 0x3300) {
 		if ((val & 0xFF) == 0x33) {
-			printk(KERN_WARNING
+			printk(
 				"%s: Detected possible byte-swapped interface"
 				" at IOADDR %p\n", CARDNAME, ioaddr);
 		}
@@ -1913,7 +1913,10 @@ static int __init smc_probe(struct net_device *dev, void __iomem *ioaddr,
 		while (trials--) {
 			dev->irq = smc_findirq(ioaddr);
 			if (dev->irq)
+			{
+				printk("%s: dev->irq = %u\n",CARDNAME,dev->irq);
 				break;
+			}
 			/* kick the card and try again */
 			smc_reset(dev);
 		}

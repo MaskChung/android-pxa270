@@ -96,7 +96,8 @@ void __init pxa_init_irq_high(void)
 	ICMR2 = 0;
 	ICLR2 = 0;
 
-	for (irq = PXA_IRQ(32); irq < PXA_IRQ(64); irq++) {
+	for (irq = PXA_IRQ(32); irq < PXA_IRQ(34); irq++) {
+	//for (irq = PXA_IRQ(32); irq < PXA_IRQ(64); irq++) {
 		set_irq_chip(irq, &pxa_internal_chip_high);
 		set_irq_handler(irq, handle_level_irq);
 		set_irq_flags(irq, IRQF_VALID);

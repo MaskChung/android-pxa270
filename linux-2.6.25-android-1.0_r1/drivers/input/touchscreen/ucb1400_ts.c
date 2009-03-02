@@ -33,7 +33,6 @@
 /*
  * Interesting UCB1400 AC-link registers
  */
-
 #define UCB_IE_RIS		0x5e
 #define UCB_IE_FAL		0x60
 #define UCB_IE_STATUS		0x62
@@ -78,6 +77,97 @@
 
 #define UCB_ID			0x7e
 #define UCB_ID_1400             0x4304
+/*
+#define UCB_IO_DATA	0x00
+#define UCB_IO_DIR	0x01
+
+#define UCB_IO_0		(1 << 0)
+#define UCB_IO_1		(1 << 1)
+#define UCB_IO_2		(1 << 2)
+#define UCB_IO_3		(1 << 3)
+#define UCB_IO_4		(1 << 4)
+#define UCB_IO_5		(1 << 5)
+#define UCB_IO_6		(1 << 6)
+#define UCB_IO_7		(1 << 7)
+#define UCB_IO_8		(1 << 8)
+#define UCB_IO_9		(1 << 9)
+
+#define UCB_IE_RIS	0x02
+#define UCB_IE_FAL	0x03
+#define UCB_IE_STATUS	0x04
+#define UCB_IE_CLEAR	0x04
+#define UCB_IE_ADC		(1 << 11)
+#define UCB_IE_TSPX		(1 << 12)
+#define UCB_IE_TSMX		(1 << 13)
+#define UCB_IE_TCLIP		(1 << 14)
+#define UCB_IE_ACLIP		(1 << 15)
+
+#define UCB_IRQ_TSPX		12
+
+#define UCB_TC_A	0x05
+#define UCB_TC_A_LOOP		(1 << 7)	// UCB1200 
+#define UCB_TC_A_AMPL		(1 << 7)	// UCB1300 
+
+#define UCB_TC_B	0x06
+#define UCB_TC_B_VOICE_ENA	(1 << 3)
+#define UCB_TC_B_CLIP		(1 << 4)
+#define UCB_TC_B_ATT		(1 << 6)
+#define UCB_TC_B_SIDE_ENA	(1 << 11)
+#define UCB_TC_B_MUTE		(1 << 13)
+#define UCB_TC_B_IN_ENA		(1 << 14)
+#define UCB_TC_B_OUT_ENA	(1 << 15)
+
+#define UCB_AC_A	0x07
+#define UCB_AC_B	0x08
+#define UCB_AC_B_LOOP		(1 << 8)
+#define UCB_AC_B_MUTE		(1 << 13)
+#define UCB_AC_B_IN_ENA		(1 << 14)
+#define UCB_AC_B_OUT_ENA	(1 << 15)
+
+#define UCB_TS_CR	0x09
+#define UCB_TS_CR_TSMX_POW	(1 << 0)
+#define UCB_TS_CR_TSPX_POW	(1 << 1)
+#define UCB_TS_CR_TSMY_POW	(1 << 2)
+#define UCB_TS_CR_TSPY_POW	(1 << 3)
+#define UCB_TS_CR_TSMX_GND	(1 << 4)
+#define UCB_TS_CR_TSPX_GND	(1 << 5)
+#define UCB_TS_CR_TSMY_GND	(1 << 6)
+#define UCB_TS_CR_TSPY_GND	(1 << 7)
+#define UCB_TS_CR_MODE_INT	(0 << 8)
+#define UCB_TS_CR_MODE_PRES	(1 << 8)
+#define UCB_TS_CR_MODE_POS	(2 << 8)
+#define UCB_TS_CR_BIAS_ENA	(1 << 11)
+#define UCB_TS_CR_TSPX_LOW	(1 << 12)
+#define UCB_TS_CR_TSMX_LOW	(1 << 13)
+
+#define UCB_ADC_CR	0x0a
+#define UCB_ADC_SYNC_ENA	(1 << 0)
+#define UCB_ADC_VREFBYP_CON	(1 << 1)
+#define UCB_ADC_INP_TSPX	(0 << 2)
+#define UCB_ADC_INP_TSMX	(1 << 2)
+#define UCB_ADC_INP_TSPY	(2 << 2)
+#define UCB_ADC_INP_TSMY	(3 << 2)
+#define UCB_ADC_INP_AD0		(4 << 2)
+#define UCB_ADC_INP_AD1		(5 << 2)
+#define UCB_ADC_INP_AD2		(6 << 2)
+#define UCB_ADC_INP_AD3		(7 << 2)
+#define UCB_ADC_EXT_REF		(1 << 5)
+#define UCB_ADC_START		(1 << 7)
+#define UCB_ADC_ENA		(1 << 15)
+
+#define UCB_ADC_DATA	0x0b
+#define UCB_ADC_DAT_VALID		(1 << 15)
+#define UCB_ADC_DAT_VALUE(x)		(((x) & 0x7fe0) >> 5)
+
+#define UCB_ID		0x0c
+#define UCB_ID_1200		0x1004
+#define UCB_ID_1300		0x1005
+#define UCB_ID_1400		0x4304
+
+#define UCB_MODE	0x0d
+#define UCB_MODE_DYN_VFLAG_ENA	(1 << 12)
+#define UCB_MODE_AUD_OFF_CAN	(1 << 13)
+*/
 
 
 struct ucb1400 {
@@ -287,6 +377,7 @@ static int ucb1400_ts_thread(void *_ucb)
 	int valid = 0;
 	struct sched_param param = { .sched_priority = 1 };
 
+printk("%s:%s ---------- into\n",__FILE__,__func__);
 	sched_setscheduler(tsk, SCHED_FIFO, &param);
 
 	set_freezable();
@@ -372,6 +463,7 @@ static int ucb1400_ts_open(struct input_dev *idev)
 	struct ucb1400 *ucb = input_get_drvdata(idev);
 	int ret = 0;
 
+printk("%s:%s ---------- into\n",__FILE__,__func__);
 	BUG_ON(ucb->ts_task);
 
 	ucb->ts_task = kthread_run(ucb1400_ts_thread, ucb, "UCB1400_ts");
@@ -427,10 +519,12 @@ static int ucb1400_detect_irq(struct ucb1400 *ucb)
 	unsigned long mask, timeout;
 
 	mask = probe_irq_on();
+	/*
 	if (!mask) {
 		probe_irq_off(mask);
 		return -EBUSY;
 	}
+	*/
 
 	/* Enable the ADC interrupt. */
 	ucb1400_reg_write(ucb, UCB_IE_RIS, UCB_IE_ADC);
@@ -463,7 +557,10 @@ static int ucb1400_detect_irq(struct ucb1400 *ucb)
 	/* Read triggered interrupt. */
 	ucb->irq = probe_irq_off(mask);
 	if (ucb->irq < 0 || ucb->irq == NO_IRQ)
-		return -ENODEV;
+	{
+		ucb->irq = CREATOR_TOUCH_IRQ;
+		//return -ENODEV;
+	}
 
 	return 0;
 }
@@ -498,7 +595,8 @@ static int ucb1400_ts_probe(struct device *dev)
 		goto err_free_devs;
 	}
 
-	error = request_irq(ucb->irq, ucb1400_hard_irq, IRQF_TRIGGER_RISING,
+	//error = request_irq(ucb->irq, ucb1400_hard_irq, IRQF_TRIGGER_RISING,
+	error = request_irq(ucb->irq, ucb1400_hard_irq, 0,
 				"UCB1400", ucb);
 	if (error) {
 		printk(KERN_ERR "ucb1400: unable to grab irq%d: %d\n",
@@ -521,7 +619,7 @@ static int ucb1400_ts_probe(struct device *dev)
 	x_res = ucb1400_ts_read_xres(ucb);
 	y_res = ucb1400_ts_read_yres(ucb);
 	ucb1400_adc_disable(ucb);
-	printk(KERN_DEBUG "UCB1400: x/y = %d/%d\n", x_res, y_res);
+	printk("UCB1400: x/y = %d/%d\n", x_res, y_res);
 
 	input_set_abs_params(idev, ABS_X, 0, x_res, 0, 0);
 	input_set_abs_params(idev, ABS_Y, 0, y_res, 0, 0);
@@ -529,7 +627,10 @@ static int ucb1400_ts_probe(struct device *dev)
 
 	error = input_register_device(idev);
 	if (error)
+	{
+		printk("%s:%s input_register_device FAIL\n",__FILE__,__func__);
 		goto err_free_irq;
+	}
 
 	dev_set_drvdata(dev, ucb);
 	return 0;
