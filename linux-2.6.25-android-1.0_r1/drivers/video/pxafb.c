@@ -691,13 +691,15 @@ static int pxafb_activate_var(struct fb_var_screeninfo *var, struct pxafb_info *
 
 	/* populate descriptors */
 	fbi->dmadesc_fblow_cpu->fdadr = fbi->dmadesc_fblow_dma;
-	fbi->dmadesc_fblow_cpu->fsadr = fbi->screen_dma + BYTES_PER_PANEL;
+//	fbi->dmadesc_fblow_cpu->fsadr = fbi->screen_dma + BYTES_PER_PANEL;
+	fbi->dmadesc_fblow_cpu->fsadr = fbi->screen_dma + BYTES_PER_PANEL + ((fbi->fb.var.yoffset / fbi->fb.var.yres) * (fbi->fb.var.yres) * (fbi->fb.var.xres) * 2);
 	fbi->dmadesc_fblow_cpu->fidr  = 0;
 	fbi->dmadesc_fblow_cpu->ldcmd = BYTES_PER_PANEL;
 
 	fbi->fdadr1 = fbi->dmadesc_fblow_dma; /* only used in dual-panel mode */
 
-	fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma;
+	//fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma;
+	fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma + ((fbi->fb.var.yoffset / fbi->fb.var.yres) * (fbi->fb.var.yres) * (fbi->fb.var.xres) * 2);
 	fbi->dmadesc_fbhigh_cpu->fidr = 0;
 	fbi->dmadesc_fbhigh_cpu->ldcmd = BYTES_PER_PANEL;
 

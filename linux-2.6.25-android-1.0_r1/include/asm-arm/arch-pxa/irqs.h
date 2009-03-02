@@ -73,7 +73,11 @@
 #define IRQ_MMC3	PXA_IRQ(55)	/* MMC3 Controller (PXA310) */
 #endif
 
+#ifdef CONFIG_PXA27x
+#define PXA_GPIO_IRQ_BASE	(32)
+#else
 #define PXA_GPIO_IRQ_BASE	(64)
+#endif
 #define PXA_GPIO_IRQ_NUM	(128)
 
 #define GPIO_2_x_TO_IRQ(x)	(PXA_GPIO_IRQ_BASE + (x))
