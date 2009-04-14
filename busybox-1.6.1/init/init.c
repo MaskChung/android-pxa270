@@ -265,7 +265,7 @@ static void console_init(void)
 {
 	struct serial_struct sr;
 	char *s;
-
+message(L_CONSOLE, "into console_init");
 	s = getenv("CONSOLE");
 	if (!s) s = getenv("console");
 	if (s) {
@@ -277,6 +277,10 @@ static void console_init(void)
 			while (fd > 2) close(fd--);
 		}
 		messageD(L_LOG, "console='%s'", s);
+	}
+	else
+	{
+		bb_sanitize_stdio();
 	}
 
 	s = getenv("TERM");
@@ -894,6 +898,7 @@ int init_main(int argc, char **argv)
 	struct init_action *a;
 	pid_t wpid;
 
+	message(L_CONSOLE, "into init_main");
 	die_sleep = 30 * 24*60*60; /* if xmalloc will ever die... */
 
 	if (argc > 1 && !strcmp(argv[1], "-q")) {
@@ -924,18 +929,23 @@ int init_main(int argc, char **argv)
 #endif
 
 	/* Figure out where the default console should be */
+	message(L_CONSOLE, "before console_init");
 	console_init();
+	message(L_CONSOLE, "after console_init");
 	set_sane_term();
 	chdir("/");
 	setsid();
+	message(L_CONSOLE, "after setsid");
 	{
 		const char * const *e;
 		/* Make sure environs is set to something sane */
 		for (e = environment; *e; e++)
 			putenv((char *) *e);
 	}
+	message(L_CONSOLE, "after putenv");
 
 	if (argc > 1) setenv("RUNLEVEL", argv[1], 1);
+	message(L_CONSOLE, "after setenv");
 
 	/* Hello world */
 	message(MAYBE_CONSOLE | L_LOG, "init started: %s", bb_msg_full_version);
