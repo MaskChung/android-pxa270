@@ -25,6 +25,8 @@ export ANDROID_ROOTFS		:= $(patsubst "%",%,$(ANDROID_ROOTFS))
 export ANDROID_GIT
 export ANDROID_GIT_ROOTFS	:= $(patsubst "%",%,$(ANDROID_GIT_ROOTFS))
 
+export TARGET_APP_BIN		:= $(PRJROOT)/app/bin
+
 FS :=
 ifeq "$(JFFS2)" "y"
 	FS += jffs2
@@ -52,13 +54,6 @@ ifeq "$(NFS_ROOT)" "y"
 	cp -af $(TARGET_ROOTFS_DIR) $(NFS_ROOT_DIR)
 endif
 
-#ifeq "$(JFFS2)" "y"
-#	$(MAKE) jffs2
-#endif
-#ifeq "$(YAFFS2)" "y"
-#	$(MAKE) yaffs2
-#endif
-
 check_dir:
 	@test -d $(TARGET_DIR) || mkdir -p $(TARGET_DIR)
 	@test -d $(TARGET_ROOTFS_DIR) || mkdir -p $(TARGET_ROOTFS_DIR)
@@ -70,7 +65,6 @@ build: $(addprefix build_,$(modules))
 install: $(addprefix install_,$(modules))
 
 clean: distclean
-#distclean: $(addprefix clean_,$(modules))
 distclean: $(addprefix clean_, $(filter-out toolchain,$(modules)) toolchain)
 	-rm -rf $(TARGET_DIR)
 	$(MAKE) clean_menuconfig
@@ -79,7 +73,7 @@ distclean: $(addprefix clean_, $(filter-out toolchain,$(modules)) toolchain)
 .PHONY: build_toolchain install_toolchain clean_toolchain
 build_toolchain:
 	@if [ ! -e $(TOOLCHAIN_DIR)/bin ] ; then \
-		file -b $(TOOLCHAIN) | awk '{print $$1 " -d -c -v $(TOOLCHAIN)"}' | sh - | tar xvf - -C $(TOOLCHAIN_DIR); \
+		file -b $(TOOLCHAIN) | awk '{print $$1 " -d -c -v $(TOOLCHAIN)"}' | sh - | tar xvf - --strip-components=1 -C $(TOOLCHAIN_DIR); \
 	fi
 
 install_toolchain:
@@ -88,6 +82,7 @@ clean_toolchain:
 
 .PHONY: build_kernel install_kernel clean_kernel
 build_kernel:
+	@$(MAKE) check_dir
 	@if [ ! -e $(KERNEL_SRC_DIR)/.config ]; then \
 		cd $(KERNEL_SRC_DIR) && $(MAKE) defconfig; \
 	fi
@@ -100,15 +95,13 @@ install_kernel:
 	rm -f $(TARGET_BIN_DIR)/uImage
 	$(PRJROOT)/scripts/bin/mkimage -A arm -O linux -T kernel -C gzip -a 0xa0008000 -e 0xa0008000 -n "EPS-Android" -d $(TARGET_BIN_DIR)/zImage.gz $(TARGET_BIN_DIR)/uImage
 	rm -f $(TARGET_BIN_DIR)/zImage.gz
-#ifeq "$(HOST_TFTP)" "y"
-#	cp -f $(TARGET_BIN_DIR)/uImage $(TFTP_DIR)
-#endif
 
 clean_kernel:
 	cd $(KERNEL_SRC_DIR) && $(MAKE) distclean
 
 .PHONY: build_busybox install_busybox clean_busybox
 build_busybox:
+	@$(MAKE) check_dir
 	@if [ ! -e $(BUSYBOX_SRC_DIR)/.config ] ; then \
 		cp $(CONFIG_DIR)/busybox_config $(BUSYBOX_SRC_DIR)/.config; \
 		cd $(BUSYBOX_SRC_DIR) && $(MAKE) oldconfig; \
@@ -129,14 +122,13 @@ build_rootfs:
 	cd $(ROOTFS_DIR) && $(MAKE)
 
 install_rootfs:
-	#rm -rf $(TARGET_ROOTFS_DIR)/*
 	rm -rf $(TARGET_ROOTFS_DIR)
-#	rm -rf $(TARGET_DIR)
 	$(MAKE) check_dir
 	cd $(ROOTFS_DIR) && $(MAKE) install
 	$(MAKE) build_version
 	$(MAKE) install_version
 	#rsync -r --exclude='.svn' $(PRJROOT)/rootfs/rootfs.overwrite/* $(TARGET_ROOTFS_DIR)
+	#rm -f ContactsProvider.apk
 
 clean_rootfs:
 	cd $(ROOTFS_DIR) && $(MAKE) distclean
@@ -209,16 +201,36 @@ strip_rootfs:
 	-find $(TARGET_ROOTFS_DIR) -type l -prune -o -name "*.ko" -prune -o -print -exec $(STRIP) {} \;
 	-find $(TARGET_ROOTFS_DIR) -name "*.ko" -exec $(STRIP) -g -S -d --strip-debug {} \;
 
-jffs2: strip_rootfs
-	@if [ ! -e $(PRJROOT)/scripts/bin/mtd/util/mkfs.jffs2 ] ; then \
+mkfs.jffs2:
+	if [ ! -e $(PRJROOT)/scripts/bin/mtd/util/mkfs.jffs2 ] ; then \
 		cd $(PRJROOT)/scripts/bin && $(MAKE) mkfs.jffs2; \
 	fi
-	#$(PRJROOT)/scripts/bin/mkfs.jffs2 -e 131072 --pad=0xf00000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
-	$(PRJROOT)/scripts/bin/mtd/util/mkfs.jffs2 -v -e 131072 --pad=0x1B80000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
 
-yaffs2: strip_rootfs
+clean_mkfs.jffs2:
+	@if [ -e $(PRJROOT)/scripts/bin/mtd/util/mkfs.jffs2 ] ; then \
+		cd $(PRJROOT)/scripts/bin && $(MAKE) clean_mkfs.jffs2; \
+	fi
+
+jffs2: strip_rootfs mkfs.jffs2
+	#$(PRJROOT)/scripts/bin/mkfs.jffs2 -e 131072 --pad=0xf00000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
+	#$(PRJROOT)/scripts/bin/mtd/util/mkfs.jffs2 -v -e 131072 --pad=0x1B80000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
+	#$(PRJROOT)/scripts/bin/mtd/util/mkfs.jffs2 -v -e 131072 --pad=0x400000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
+	#$(PRJROOT)/scripts/bin/mtd/util/mkfs.jffs2 -v -e 131072 --pad=0xA00000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
+	$(PRJROOT)/scripts/bin/mtd/util/mkfs.jffs2 -v -e 131072 --pad=0x500000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
+
+mkyaffs2image:
 	@if [ ! -e $(PRJROOT)/scripts/bin/yaffs2/utils/mkyaffs2image ] ; then \
 		cd $(PRJROOT)/scripts/bin && $(MAKE) mkyaffs2image; \
 	fi
+
+clean_mkyaffs2image:
+	@if [ -e $(PRJROOT)/scripts/bin/yaffs2/utils/mkyaffs2image ] ; then \
+		cd $(PRJROOT)/scripts/bin && $(MAKE) clean_mkyaffs2image; \
+	fi
+
+yaffs2: strip_rootfs mkyaffs2image
 	$(PRJROOT)/scripts/bin/yaffs2/utils/mkyaffs2image $(TARGET_ROOTFS_DIR) $(TARGET_BIN_DIR)/rootfs.yaffs2
 
+strace:
+	cd app && $(MAKE) strace
+	#cd $(PRJROOT)/scripts/bin && $(MAKE) strace

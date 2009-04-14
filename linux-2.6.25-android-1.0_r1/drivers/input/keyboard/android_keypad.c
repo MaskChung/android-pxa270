@@ -290,8 +290,9 @@ static int __devinit android_keypad_probe(struct platform_device *pdev)
 
 	//input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
 	//	BIT_MASK(EV_REL);
-	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP) |
-		BIT(EV_REL);
+	//input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP) |
+	//	BIT(EV_REL);
+	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
 
 	android_keypad_setkeycode(keypad);
 	platform_set_drvdata(pdev, keypad);
