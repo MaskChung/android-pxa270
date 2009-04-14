@@ -448,6 +448,8 @@ printk("%s:%s ---------- into\n",__FILE__,__func__);
 static irqreturn_t ucb1400_hard_irq(int irqnr, void *devid)
 {
 	struct ucb1400 *ucb = devid;
+printk("%s: irqnr = %d\n",__func__,irqnr);
+printk("%s: ucb->irq = %d\n",__func__,ucb->irq);
 
 	if (irqnr == ucb->irq) {
 		disable_irq(ucb->irq);
