@@ -1,0 +1,7 @@
+088073e6787fca4bfc68d6b04a5e887a03faf745	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/packages/apps/PackageInstaller
+4f09543b0015142fa39e08a49bd426325ce65240	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/packages/apps/PackageInstaller
+96728565b2cab49fefbc5580b3fcae36967d13db	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/packages/apps/PackageInstaller
+9702ed0adb65b133c9051ad01fe762c0d620edbb	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/packages/apps/PackageInstaller
+088073e6787fca4bfc68d6b04a5e887a03faf745	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/packages/apps/PackageInstaller
+088073e6787fca4bfc68d6b04a5e887a03faf745	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/packages/apps/PackageInstaller
+4f09543b0015142fa39e08a49bd426325ce65240	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/packages/apps/PackageInstaller

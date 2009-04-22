@@ -1,0 +1,7 @@
+ef4989eb3bd594f384dd24ac3b2e7e13e180a026	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/packages/providers/ImProvider
+71e054000ab5f141e9189b956e17f3bfc2e11904	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/packages/providers/ImProvider
+f94338a514de1aa11d6d0254ae1228112a7c6c32	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/packages/providers/ImProvider
+84108cd7fa47135eb271f2f1537f34c2a9666c2c	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/packages/providers/ImProvider
+ef4989eb3bd594f384dd24ac3b2e7e13e180a026	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/packages/providers/ImProvider
+ef4989eb3bd594f384dd24ac3b2e7e13e180a026	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/packages/providers/ImProvider
+71e054000ab5f141e9189b956e17f3bfc2e11904	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/packages/providers/ImProvider

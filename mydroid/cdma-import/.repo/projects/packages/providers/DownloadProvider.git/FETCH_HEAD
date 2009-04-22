@@ -1,0 +1,7 @@
+57f55b3cb4f7e4136cde8d1ea12c1e70ec903362	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/packages/providers/DownloadProvider
+9ae5f517f7699439b673330867b26ffc5ad880cc	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/packages/providers/DownloadProvider
+f7568be54a40c199834f79dc1d36b704c2084a0e	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/packages/providers/DownloadProvider
+e0114021be2a1ca49a8cba85bb88129d3a19d173	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/packages/providers/DownloadProvider
+57f55b3cb4f7e4136cde8d1ea12c1e70ec903362	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/packages/providers/DownloadProvider
+57f55b3cb4f7e4136cde8d1ea12c1e70ec903362	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/packages/providers/DownloadProvider
+9ae5f517f7699439b673330867b26ffc5ad880cc	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/packages/providers/DownloadProvider

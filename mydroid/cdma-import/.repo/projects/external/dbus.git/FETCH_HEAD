@@ -1,0 +1,8 @@
+7b0daf50cdb48a342490b35b83d80f80ee71915a	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/external/dbus
+ae35d9c7cda6a436e81c7be962963aa31596f645	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/external/dbus
+ed0821c6a30852d02d05ce85d4ad4a567ff8a3da	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/external/dbus
+b76a5046cbb92de1017bb18a6f4698766dd5df04	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/external/dbus
+7b0daf50cdb48a342490b35b83d80f80ee71915a	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/external/dbus
+7b0daf50cdb48a342490b35b83d80f80ee71915a	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/external/dbus
+ae35d9c7cda6a436e81c7be962963aa31596f645	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/external/dbus
+9993b61d2f46d048c725411d6862b64b5cb96672	not-for-merge	tag 'upstream/1.0.2' of git://android.git.kernel.org/platform/external/dbus

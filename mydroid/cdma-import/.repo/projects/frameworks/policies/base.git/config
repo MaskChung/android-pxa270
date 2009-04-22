@@ -1,0 +1,10 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+[user]
+	email = mask.chung@gmail.com
+[remote "korg"]
+	url = git://android.git.kernel.org/platform/frameworks/policies/base.git
+	review = review.source.android.com
+	projectname = platform/frameworks/policies/base
+	fetch = +refs/heads/*:refs/remotes/korg/*

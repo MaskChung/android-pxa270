@@ -1,0 +1,7 @@
+6c2d13d0c3a4505fdac56ae8d537a68218e072f1	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/system/bluetooth
+df782f29a530d805c13f32bb43883306c05a4504	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/system/bluetooth
+c5c872f46dd2708677c487f190feef24c46ebd88	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/system/bluetooth
+36af3080c1d3d61969a461bb95c56b0f347bf554	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/system/bluetooth
+6c2d13d0c3a4505fdac56ae8d537a68218e072f1	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/system/bluetooth
+6c2d13d0c3a4505fdac56ae8d537a68218e072f1	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/system/bluetooth
+df782f29a530d805c13f32bb43883306c05a4504	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/system/bluetooth

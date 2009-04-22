@@ -1,0 +1,8 @@
+4a3ec90c3aa1cecc489f6fd19d785c6473ee8164	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/external/strace
+68620c9c3d2755cbdc5497c38d319762d5b16099	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/external/strace
+67670f6420d064f0b0f54ab2cf2f07752dcc35c7	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/external/strace
+2a8dda76c6fc5631591c3271a6610326780aaafb	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/external/strace
+4a3ec90c3aa1cecc489f6fd19d785c6473ee8164	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/external/strace
+4a3ec90c3aa1cecc489f6fd19d785c6473ee8164	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/external/strace
+68620c9c3d2755cbdc5497c38d319762d5b16099	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/external/strace
+fa2c235113f9f310562b09097af5fa466a3158e0	not-for-merge	tag 'upstream/4.5.12' of git://android.git.kernel.org/platform/external/strace

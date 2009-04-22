@@ -1,0 +1,7 @@
+593c365a822e505dae3aaa4d8d66eca333911624	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/external/elfutils
+441f72d43a9b550baa779fc82f70816da5f74f0e	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/external/elfutils
+ee6008996aa701ad2a50d5d6b1529c9e2c2724c1	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/external/elfutils
+020444a425d50b9201c44a9a26bc6c02c9db2613	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/external/elfutils
+593c365a822e505dae3aaa4d8d66eca333911624	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/external/elfutils
+593c365a822e505dae3aaa4d8d66eca333911624	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/external/elfutils
+441f72d43a9b550baa779fc82f70816da5f74f0e	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/external/elfutils

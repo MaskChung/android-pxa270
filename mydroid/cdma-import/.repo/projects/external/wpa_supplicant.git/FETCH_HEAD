@@ -1,0 +1,8 @@
+ef98df019e941b9a51686e89495c16b4ead23140	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/external/wpa_supplicant
+e74427a5d089a5d62270561db90e4762aa6b9dc5	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/external/wpa_supplicant
+17800c6dac7ac53c2b348151274071a4cc6e4318	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/external/wpa_supplicant
+e8a1e9b99291916c287b141fe4fad4128b7f84c1	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/external/wpa_supplicant
+ef98df019e941b9a51686e89495c16b4ead23140	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/external/wpa_supplicant
+ef98df019e941b9a51686e89495c16b4ead23140	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/external/wpa_supplicant
+e74427a5d089a5d62270561db90e4762aa6b9dc5	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/external/wpa_supplicant
+10356433b643a2a5266f84a11ed4ac32d8c5c845	not-for-merge	tag 'upstream/0.5.10' of git://android.git.kernel.org/platform/external/wpa_supplicant

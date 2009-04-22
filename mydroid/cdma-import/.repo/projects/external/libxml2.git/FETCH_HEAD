@@ -1,0 +1,8 @@
+6e8825d5c6462dd394226dbd7b193f95b40c4f22	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/external/libxml2
+ab4e2e90f63db6b1cd8bb2e453cac899ef43d42b	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/external/libxml2
+2c905f99793b8da7f02349aa69fc01cba533f935	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/external/libxml2
+6a6619e58fd964c0478618c4fb99af05e1158f20	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/external/libxml2
+6e8825d5c6462dd394226dbd7b193f95b40c4f22	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/external/libxml2
+6e8825d5c6462dd394226dbd7b193f95b40c4f22	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/external/libxml2
+ab4e2e90f63db6b1cd8bb2e453cac899ef43d42b	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/external/libxml2
+1b7783879f7122564e209c7124301e886079f393	not-for-merge	tag 'upstream/2.6.31' of git://android.git.kernel.org/platform/external/libxml2

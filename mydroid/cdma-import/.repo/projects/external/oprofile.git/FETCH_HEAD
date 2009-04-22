@@ -1,0 +1,8 @@
+055f436b63ffbe4cfa7374f99bfe96e2ca80ff70	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/external/oprofile
+10e23eebca4175a8dfe3a788b2bebacb1fcfce54	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/external/oprofile
+7984f7ab3e13cda0c3b04ffeb2608f232e57f93a	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/external/oprofile
+004a95dd33d26fab20dea67063c39181f6cd486b	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/external/oprofile
+48ae5fc270ea3bbb965b4bd07cb1691a5c115642	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/external/oprofile
+48ae5fc270ea3bbb965b4bd07cb1691a5c115642	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/external/oprofile
+10e23eebca4175a8dfe3a788b2bebacb1fcfce54	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/external/oprofile
+cc2ee177dbb3befca43e36cfc56778b006c3d050	not-for-merge	tag 'upstream/0.9.1' of git://android.git.kernel.org/platform/external/oprofile

@@ -1,0 +1,7 @@
+74dca8530234ad6feba3f24f72af3329b4705720	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/bionic
+6ed739e1d3b5088bf1cd56f09ba3afba792b969d	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/bionic
+d37527501c85edcb3a6a7c8a0b6297d52d434897	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/bionic
+90ec5f2a3f581927ffef55733e8d531890fdc90e	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/bionic
+a27d2baa0c1a2ec70f47ea9199b1dd6762c8a349	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/bionic
+a27d2baa0c1a2ec70f47ea9199b1dd6762c8a349	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/bionic
+6ed739e1d3b5088bf1cd56f09ba3afba792b969d	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/bionic

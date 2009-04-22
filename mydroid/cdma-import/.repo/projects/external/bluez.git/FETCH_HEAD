@@ -1,0 +1,10 @@
+611c26d196ef15425ae92dec9f3cdf92bbbe489a	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/external/bluez
+ca75519d782909d11c032fc5e295622f0aa2e6c8	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/external/bluez
+022cacc578c40632cc9f65efcbeff86bacdde635	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/external/bluez
+72042c2302113adb9390bdb8c5bc449d408eedb6	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/external/bluez
+611c26d196ef15425ae92dec9f3cdf92bbbe489a	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/external/bluez
+611c26d196ef15425ae92dec9f3cdf92bbbe489a	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/external/bluez
+ca75519d782909d11c032fc5e295622f0aa2e6c8	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/external/bluez
+0bb62cf23a80ba45c904a309568a9f28ce0a3fae	not-for-merge	tag 'upstream/hcidump-1.41' of git://android.git.kernel.org/platform/external/bluez
+26e3b6e34b5a30f7b6ba1fac24297c6a48e9f09c	not-for-merge	tag 'upstream/libs-3.35' of git://android.git.kernel.org/platform/external/bluez
+809ce20070e58fb9fea39b56b693e422d32cbe5e	not-for-merge	tag 'upstream/utils-3.35' of git://android.git.kernel.org/platform/external/bluez

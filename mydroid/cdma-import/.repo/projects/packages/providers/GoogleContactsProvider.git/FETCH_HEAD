@@ -1,0 +1,7 @@
+7251cb2492beceb08520bade25df701508246914	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/packages/providers/GoogleContactsProvider
+af28f467bd2407ae066f2a409eadc46a2108dec7	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/packages/providers/GoogleContactsProvider
+1a6c0f279fe754b041290768bfa753e5f58e43ad	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/packages/providers/GoogleContactsProvider
+4faaa195bf00fa135484e405b8af66f87635f58d	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/packages/providers/GoogleContactsProvider
+7251cb2492beceb08520bade25df701508246914	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/packages/providers/GoogleContactsProvider
+7251cb2492beceb08520bade25df701508246914	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/packages/providers/GoogleContactsProvider
+af28f467bd2407ae066f2a409eadc46a2108dec7	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/packages/providers/GoogleContactsProvider

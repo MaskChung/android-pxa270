@@ -1,0 +1,6 @@
+4205b865141ff2e255fe1d3bd16de18e217ef06a	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/bootloader/legacy
+e8a868f9e10fdade859b44607e513bb6564bc4b0	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/bootloader/legacy
+e8a868f9e10fdade859b44607e513bb6564bc4b0	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/bootloader/legacy
+d08c9e9444e2fb688ca4d3c4d807ba69c680fb3c	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/bootloader/legacy
+4205b865141ff2e255fe1d3bd16de18e217ef06a	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/bootloader/legacy
+4205b865141ff2e255fe1d3bd16de18e217ef06a	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/bootloader/legacy

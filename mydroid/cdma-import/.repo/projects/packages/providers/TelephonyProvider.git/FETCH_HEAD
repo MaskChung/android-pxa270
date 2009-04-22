@@ -1,0 +1,7 @@
+58e9f81f1cdb56f132d5e33810b4368ae0f52c61	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/packages/providers/TelephonyProvider
+1a24893e23e5c14bd2826c1da6ddc19aa5e60f77	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/packages/providers/TelephonyProvider
+62f78e4e0ae991f0df285488a1af382bd5105483	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/packages/providers/TelephonyProvider
+2fade9dda55fbba5e2da142a1f36472ca9e89875	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/packages/providers/TelephonyProvider
+15fe736a6429ed6e4cc0138ce88b241807af207e	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/packages/providers/TelephonyProvider
+15fe736a6429ed6e4cc0138ce88b241807af207e	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/packages/providers/TelephonyProvider
+1a24893e23e5c14bd2826c1da6ddc19aa5e60f77	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/packages/providers/TelephonyProvider
