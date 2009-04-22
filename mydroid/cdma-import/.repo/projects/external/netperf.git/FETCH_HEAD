@@ -1,0 +1,8 @@
+95f43f4cdc93396b513e017be8d1c7cc5bf846ef	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/external/netperf
+106bafb66c3945a671306173d28631ab4f81cb67	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/external/netperf
+acbeb739a2260972afbd58233fc8939fe5014e3c	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/external/netperf
+715c8da9961185a9f5804c4aa8e48be505b79c3a	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/external/netperf
+95f43f4cdc93396b513e017be8d1c7cc5bf846ef	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/external/netperf
+95f43f4cdc93396b513e017be8d1c7cc5bf846ef	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/external/netperf
+106bafb66c3945a671306173d28631ab4f81cb67	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/external/netperf
+8fbc7e6b026f40333767b2383bbaf0c5da473135	not-for-merge	tag 'upstream/2.4.4' of git://android.git.kernel.org/platform/external/netperf

@@ -1,0 +1,8 @@
+a09f917d93140479fd7964892dd38d3a86c42b7a	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/external/safe-iop
+6ba70af0814b6c3516af05a0c7a1b0a5b4c21095	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/external/safe-iop
+a625f2f303bd1e1eb8287d82075fa9a240296167	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/external/safe-iop
+789070bbd24d3e9b6fe8af918907f27e3e2db09b	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/external/safe-iop
+a09f917d93140479fd7964892dd38d3a86c42b7a	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/external/safe-iop
+a09f917d93140479fd7964892dd38d3a86c42b7a	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/external/safe-iop
+6ba70af0814b6c3516af05a0c7a1b0a5b4c21095	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/external/safe-iop
+4fd37285a5ca04b18307255139e71603f55fd2fd	not-for-merge	tag 'upstream/0.3.1' of git://android.git.kernel.org/platform/external/safe-iop

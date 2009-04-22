@@ -1,0 +1,8 @@
+6005ac625aa553fe461b363385a8ed4a3c217a1f	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/external/sqlite
+95aacc7019c85c76f22f42c80e424272749d6782	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/external/sqlite
+5770aafd1e1040dec51f2ed73cb95ed4dbe2a690	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/external/sqlite
+269661880396405c0780b86f87f648084ab1a7d7	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/external/sqlite
+6005ac625aa553fe461b363385a8ed4a3c217a1f	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/external/sqlite
+6005ac625aa553fe461b363385a8ed4a3c217a1f	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/external/sqlite
+95aacc7019c85c76f22f42c80e424272749d6782	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/external/sqlite
+6ca1d4f32da73eda41ba4925e98de4411cbe75d3	not-for-merge	tag 'upstream/3.6.3' of git://android.git.kernel.org/platform/external/sqlite

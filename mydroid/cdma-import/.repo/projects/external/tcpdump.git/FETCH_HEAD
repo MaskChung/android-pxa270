@@ -1,0 +1,8 @@
+9799c4b4d38c4aa2acc7ec7d593983bd178e49f6	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/external/tcpdump
+2949f58a438f6fd85f66a8b7ed4708042cde4b37	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/external/tcpdump
+f3ccc4ec63431539743f1155a60192a40f6bec24	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/external/tcpdump
+2727f5ecc56e3535b1faba6c6c30a5c2a3772502	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/external/tcpdump
+9799c4b4d38c4aa2acc7ec7d593983bd178e49f6	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/external/tcpdump
+9799c4b4d38c4aa2acc7ec7d593983bd178e49f6	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/external/tcpdump
+2949f58a438f6fd85f66a8b7ed4708042cde4b37	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/external/tcpdump
+e66460324c0c1d5b6f767afeb6f3d201094156d3	not-for-merge	tag 'upstream/3.9.8' of git://android.git.kernel.org/platform/external/tcpdump

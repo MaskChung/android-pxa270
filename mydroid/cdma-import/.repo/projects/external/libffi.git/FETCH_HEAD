@@ -1,0 +1,7 @@
+056e203a7aec4c87c077192ad776b532a3d0305f	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/external/libffi
+a89495f48f185779ff7d9d64ce6e6b037c9ded87	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/external/libffi
+8c63892438fbb7ef754e55c60220dd02e7c8fd70	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/external/libffi
+517a0e86cbbc677bfc3dfa9b373a12a9f7b8ebb2	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/external/libffi
+056e203a7aec4c87c077192ad776b532a3d0305f	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/external/libffi
+056e203a7aec4c87c077192ad776b532a3d0305f	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/external/libffi
+a89495f48f185779ff7d9d64ce6e6b037c9ded87	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/external/libffi

@@ -1,0 +1,7 @@
+5ecbb8067789854f471cd73ce4650ac91a2e1b3e	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/hardware/libhardware
+cd7924359db625a8f985332cc7404073019ea319	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/hardware/libhardware
+f87393cb242a0de85631c3df4d8f147cdbb43e59	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/hardware/libhardware
+a60b1dd605f10335588926164d72ba021be651d5	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/hardware/libhardware
+d6054a36475b5ff502b4af78f7d272a713c1a8e7	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/hardware/libhardware
+d6054a36475b5ff502b4af78f7d272a713c1a8e7	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/hardware/libhardware
+cd7924359db625a8f985332cc7404073019ea319	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/hardware/libhardware

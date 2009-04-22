@@ -1,0 +1,11 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+[remote "origin"]
+	url = git://android.git.kernel.org/platform/manifest.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "default"]
+	remote = origin
+	merge = cdma-import
+[user]
+	email = mask.chung@gmail.com

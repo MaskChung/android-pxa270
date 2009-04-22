@@ -1,0 +1,8 @@
+15630edb6b7f5ba40c572c43db13342243c23f10	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/external/iptables
+4008138e2b5248940265b160fae001d8954fae21	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/external/iptables
+345d26d4f856734cb88897a97d014879fc04e006	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/external/iptables
+11285f59574f52dfc507507433f7d93e925e32c2	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/external/iptables
+15630edb6b7f5ba40c572c43db13342243c23f10	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/external/iptables
+15630edb6b7f5ba40c572c43db13342243c23f10	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/external/iptables
+4008138e2b5248940265b160fae001d8954fae21	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/external/iptables
+058f8ee7bfe5eedf9104a12c0b2b109b872ebcb4	not-for-merge	tag 'upstream/1.3.7' of git://android.git.kernel.org/platform/external/iptables

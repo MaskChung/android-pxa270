@@ -1,0 +1,7 @@
+5fad77410b4e940237533bb8a0d306db36be0a23	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/packages/apps/Updater
+7dd76deaf14c5e12d43ac83a297434a552bd6cb2	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/packages/apps/Updater
+4b96b0ef6c7a6d519bd120454d4eaf97cc5679c3	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/packages/apps/Updater
+a01d2f81dcf4d06968a0f29a3846d10446df1e37	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/packages/apps/Updater
+5fad77410b4e940237533bb8a0d306db36be0a23	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/packages/apps/Updater
+5fad77410b4e940237533bb8a0d306db36be0a23	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/packages/apps/Updater
+7dd76deaf14c5e12d43ac83a297434a552bd6cb2	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/packages/apps/Updater

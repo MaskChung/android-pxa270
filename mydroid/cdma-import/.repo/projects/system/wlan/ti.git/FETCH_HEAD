@@ -1,0 +1,7 @@
+80f4564458bdb56aa3d741956315f18a4000d8f8	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/system/wlan/ti
+d3fffb9251a7d4b8ce1f74d48050a528353a4817	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/system/wlan/ti
+b3b4322335be9cfa53b9017fa65af7a7b422c62b	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/system/wlan/ti
+b4818befdfbbce0513e7070c08cfea250fd76a3c	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/system/wlan/ti
+607e8a019b921eee008cd1e9ffc132318fabce7f	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/system/wlan/ti
+607e8a019b921eee008cd1e9ffc132318fabce7f	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/system/wlan/ti
+d3fffb9251a7d4b8ce1f74d48050a528353a4817	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/system/wlan/ti

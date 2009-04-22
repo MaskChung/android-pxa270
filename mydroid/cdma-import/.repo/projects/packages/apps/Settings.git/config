@@ -1,0 +1,10 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+[user]
+	email = mask.chung@gmail.com
+[remote "korg"]
+	url = git://android.git.kernel.org/platform/packages/apps/Settings.git
+	review = review.source.android.com
+	projectname = platform/packages/apps/Settings
+	fetch = +refs/heads/*:refs/remotes/korg/*

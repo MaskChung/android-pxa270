@@ -1,0 +1,13 @@
+This package contains the sources to the Android emulator program.
+
+Building the emulator:
+----------------------
+
+you can build this program either form within the Android build system,
+or as a standalone binary executable.
+
+ + in the former case, simply type "m emulator" to build the emulator
+
+ + in the second case, read the INSTALL document for details on
+   requirement and build/install steps.
+

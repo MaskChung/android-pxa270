@@ -1,0 +1,7 @@
+f54ddb0659ce2980cddd3f3b73055156330a5568	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/packages/apps/Mms
+c889e4dc711ab66119d4df5bdd23a5c6a87d85a1	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/packages/apps/Mms
+21b919f737006ffd654ac788aeedcaed05f5b367	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/packages/apps/Mms
+753fa8f69e1b66bcd601a459b0f6558d09902556	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/packages/apps/Mms
+8eed706474910ccb978acda03e85d3261037da6e	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/packages/apps/Mms
+8eed706474910ccb978acda03e85d3261037da6e	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/packages/apps/Mms
+c889e4dc711ab66119d4df5bdd23a5c6a87d85a1	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/packages/apps/Mms

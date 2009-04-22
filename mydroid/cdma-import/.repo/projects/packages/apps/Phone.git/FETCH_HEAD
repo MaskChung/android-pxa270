@@ -1,0 +1,7 @@
+03814b49ea8a7e821622468439d2c67f82526f25	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/packages/apps/Phone
+2631acfd7d0bc78c892f518462b8866bcfe19331	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/packages/apps/Phone
+35e71bd6b86663caedf7318be14b904d1dace95b	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/packages/apps/Phone
+63a1059a52a325a788c156b78b19da2f08477893	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/packages/apps/Phone
+abc47110c17fa8e8cb6161bc045e87f31eeb7a1c	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/packages/apps/Phone
+abc47110c17fa8e8cb6161bc045e87f31eeb7a1c	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/packages/apps/Phone
+2631acfd7d0bc78c892f518462b8866bcfe19331	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/packages/apps/Phone

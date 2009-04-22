@@ -1,0 +1,8 @@
+f48372ded3bb76c2598392aa58abe6e2eb7432d2	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/external/openssl
+656d9c7f52f88b3a3daccafa7655dec086c4756e	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/external/openssl
+499ee9f31d10290f510c2f3785b6abe1314993ec	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/external/openssl
+a1c90def495a69847f04ee587d66d09d09972802	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/external/openssl
+f48372ded3bb76c2598392aa58abe6e2eb7432d2	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/external/openssl
+f48372ded3bb76c2598392aa58abe6e2eb7432d2	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/external/openssl
+656d9c7f52f88b3a3daccafa7655dec086c4756e	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/external/openssl
+bdfb8ad83da0647e9b9a32792598e8ce7ba3ef4d	not-for-merge	tag 'upstream/0.9.8h' of git://android.git.kernel.org/platform/external/openssl

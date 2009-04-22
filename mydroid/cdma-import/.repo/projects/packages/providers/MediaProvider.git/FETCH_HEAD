@@ -1,0 +1,7 @@
+b80ba9251102fc785a5f231f41a61af1781723a2	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/packages/providers/MediaProvider
+ac4d11d233fafd580a2bb0d5621e98661c482668	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/packages/providers/MediaProvider
+f414462bdd8715a39e24a7eaee0863e5b29302ce	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/packages/providers/MediaProvider
+8179fda413a86138444c6affa0eedd44d1652c7b	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/packages/providers/MediaProvider
+b80ba9251102fc785a5f231f41a61af1781723a2	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/packages/providers/MediaProvider
+b80ba9251102fc785a5f231f41a61af1781723a2	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/packages/providers/MediaProvider
+ac4d11d233fafd580a2bb0d5621e98661c482668	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/packages/providers/MediaProvider

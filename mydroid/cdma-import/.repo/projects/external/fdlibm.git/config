@@ -1,0 +1,10 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+[user]
+	email = mask.chung@gmail.com
+[remote "korg"]
+	url = git://android.git.kernel.org/platform/external/fdlibm.git
+	review = review.source.android.com
+	projectname = platform/external/fdlibm
+	fetch = +refs/heads/*:refs/remotes/korg/*

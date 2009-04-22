@@ -1,0 +1,7 @@
+943becc617c4a7f9c72bbed311961b6fd2ce1486	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/prebuilt
+70ca9fd441668357bb66aa4600bc0152f7492c27	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/prebuilt
+3ebd67c3303929fa8abcd90116614325737a0edc	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/prebuilt
+901fa50fe1009d7b70b998defb00a5ca3673c220	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/prebuilt
+e7214a75e616f54c5de3b38bfceae11ee5f1b9eb	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/prebuilt
+e7214a75e616f54c5de3b38bfceae11ee5f1b9eb	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/prebuilt
+70ca9fd441668357bb66aa4600bc0152f7492c27	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/prebuilt

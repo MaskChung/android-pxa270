@@ -1,0 +1,10 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+[user]
+	email = mask.chung@gmail.com
+[remote "korg"]
+	url = git://android.git.kernel.org/platform/external/gdata.git
+	review = review.source.android.com
+	projectname = platform/external/gdata
+	fetch = +refs/heads/*:refs/remotes/korg/*

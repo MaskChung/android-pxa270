@@ -1,0 +1,7 @@
+6b8295c9350c603bdd930a29a877c8e95f4641ac	not-for-merge	branch 'cdma-import' of git://android.git.kernel.org/platform/packages/providers/DrmProvider
+099b2afe8eab4f48a27206b4470c3a3450a51bb8	not-for-merge	branch 'cupcake' of git://android.git.kernel.org/platform/packages/providers/DrmProvider
+2d59b4c25142669180e2b07e32d6b8f3b22a5565	not-for-merge	branch 'donut' of git://android.git.kernel.org/platform/packages/providers/DrmProvider
+3b38fe215a85b50bcc044dbf56ddef9506c9df22	not-for-merge	branch 'master' of git://android.git.kernel.org/platform/packages/providers/DrmProvider
+6b8295c9350c603bdd930a29a877c8e95f4641ac	not-for-merge	branch 'release-1.0' of git://android.git.kernel.org/platform/packages/providers/DrmProvider
+6b8295c9350c603bdd930a29a877c8e95f4641ac	not-for-merge	tag 'android-1.0' of git://android.git.kernel.org/platform/packages/providers/DrmProvider
+099b2afe8eab4f48a27206b4470c3a3450a51bb8	not-for-merge	tag 'android-sdk-1.5-pre' of git://android.git.kernel.org/platform/packages/providers/DrmProvider
