@@ -1,0 +1,354 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta name="copyright" content="(C) Copyright 2005" />
+<meta name="DC.rights.owner" content="(C) Copyright 2005" />
+<meta content="public" name="security" />
+<meta content="index,follow" name="Robots" />
+<meta http-equiv="PICS-Label" content='(PICS-1.1 "http://www.icra.org/ratingsv02.html" l gen true r (cz 1 lz 1 nz 1 oz 1 vz 1) "http://www.rsac.org/ratingsv01.html" l gen true r (n 0 s 0 v 0 l 0) "http://www.classify.org/safesurf/" l gen true r (SS~~000 1))' />
+<meta content="reference" name="DC.Type" />
+<meta name="DC.Title" content="java.sql.ResultSet interface: supported JDBC 2.0 methods" />
+<meta scheme="URI" name="DC.Relation" content="rrefjdbc2_0summary.html" />
+<meta scheme="URI" name="DC.Relation" content="rrefjdbc52637.html" />
+<meta scheme="URI" name="DC.Relation" content="rrefjdbc80004.html" />
+<meta scheme="URI" name="DC.Relation" content="rrefjdbc66688.html" />
+<meta scheme="URI" name="DC.Relation" content="rrefjdbc99392.html" />
+<meta scheme="URI" name="DC.Relation" content="rrefjdbc71949.html" />
+<meta scheme="URI" name="DC.Relation" content="rrefjdbc59162.html" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="rrefjdbc77156" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<link href="commonltr.css" type="text/css" rel="stylesheet" />
+<title>java.sql.ResultSet interface: supported JDBC 2.0 methods</title>
+</head>
+<body id="rrefjdbc77156"><a name="rrefjdbc77156"><!-- --></a>
+
+
+<h1 class="topictitle1">java.sql.ResultSet interface: supported JDBC 2.0 methods</h1>
+
+<div>
+
+<div class="tablenoborder"><table summary="" cellspacing="0" cellpadding="4" frame="border" border="1" rules="all"><caption>Table 1. JDBC 2.0 ResultSet Methods Supported</caption>
+
+<thead align="left">
+<tr>
+<th align="left" valign="bottom" width="13%" id="N1004B">Returns</th>
+
+<th align="left" valign="bottom" width="36%" id="N10054">Signature</th>
+
+<th align="left" valign="bottom" width="51%" id="N1005D">Implementation Notes</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>boolean</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>absolute(int row)</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">&nbsp;</td>
+
+</tr>
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>void</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>afterLast()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">&nbsp;</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>void</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>beforeFirst()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">&nbsp;</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>void</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>deleteRow()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">After the row is deleted, the ResultSet object will
+be positioned before the next row. Before issuing any methods other
+than close on the ResultSet object, the program will need to
+reposition the ResultSet object.</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>boolean</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>first()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">&nbsp;</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>Blob</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>getBlob(int columnIndex)</em></td>
+
+<td rowspan="4" valign="top" width="51%" headers="N1005D ">See <a href="rrefjdbc96386.html#rrefjdbc96386">Mapping of java.sql.Blob and java.sql.Clob interfaces</a></td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>Blob</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>getBlob(String column-Name)</em></td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>Clob</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>getClob(int columnIndex)</em></td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>Clob</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>getClob(String column-Name)</em></td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>int</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>getConcurrency()</em></td>
+
+<td valign="top" width="51%" headers="N1005D "><p>If the Statement object has <em>CONCUR_READ_ONLY</em> concurrency,
+then this method will return <em>ResultSet.CONCUR_READ_ONLY</em>. But if the
+Statement object has <em>CONCUR_UPDATABLE</em> concurrency, then the return
+value will depend on whether the underlying language ResultSet is updatable
+or not. If the language ResultSet is updatable, then <em>getConcurrency()</em> will
+return <em>ResultSet.CONCUR_UPDATABLE</em>. If the language ResultSet is not
+updatable, then <em>getConcurrency()</em> will return <em>ResultSet.CONCUR_READ_ONLY</em>.</p>
+</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>int</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>getFetchDirection()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">&nbsp;</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>int</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>getFetchSize()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">Always returns 1.</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>int</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>getRow()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">&nbsp;</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>void</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>insertRow()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">&nbsp;</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>boolean</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>isAfterLast()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">&nbsp;</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>boolean</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>isBeforeFirst</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">&nbsp;</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>boolean</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>isFirst()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">&nbsp;</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>boolean</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>isLast()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">&nbsp;</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>boolean</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>last()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">&nbsp;</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>void</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>moveToCurrentRow()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">&nbsp;</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>void</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>moveToInsertRow()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">&nbsp;</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>boolean</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>previous()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">&nbsp;</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>boolean</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>rowDeleted()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">For forward-only result sets this method always returns <em>false</em>, for 
+scrollable result sets it returns <em>true</em> if the row has been deleted, via result set or positioned delete.</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>boolean</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>rowInserted()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">Always returns <em>false</em></td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>boolean</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>rowUpdated()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">For forward-only result sets this method always returns <em>false</em>, for 
+scrollable result sets it returns <em>true</em> if the row has been updated, via result set or positioned update.</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>boolean</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>relative(int rows)</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">&nbsp;</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>void</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>setFetchDirection(int direction)</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">&nbsp;</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>void</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>setFetchSize(int rows)</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">A fetch size of 1 is the only size supported.</td>
+
+</tr>
+
+<tr>
+<td valign="top" width="13%" headers="N1004B "><em>void</em></td>
+
+<td valign="top" width="36%" headers="N10054 "><em>updateRow()</em></td>
+
+<td valign="top" width="51%" headers="N1005D ">After the row is updated, the ResultSet object will be
+positioned before the next row. Before issuing any methods other than close
+on the ResultSet object, the program will need to reposition the ResultSet
+object.</td>
+
+</tr>
+
+</tbody>
+
+</table>
+</div>
+
+</div>
+
+<div>
+<div class="familylinks">
+<div class="parentlink"><strong>Parent topic:</strong> <a href="rrefjdbc2_0summary.html" title="">JDBC 2.0 features</a></div>
+</div>
+<div class="relref"><strong>Related reference</strong><br />
+<div><a href="rrefjdbc52637.html" title="">java.sql.CallableStatement interface: supported JDBC 2.0 methods</a></div>
+<div><a href="rrefjdbc80004.html" title="">java.sql.Connection interface: supported JDBC 2.0 methods</a></div>
+<div><a href="rrefjdbc66688.html" title="">java.sql.DatabaseMetaData interface: supported JDBC 2.0 methods</a></div>
+<div><a href="rrefjdbc99392.html" title="">java.sql.PreparedStatement interface: supported JDBC 2.0 methods</a></div>
+<div><a href="rrefjdbc71949.html" title="">java.sql.ResultSetMetaData interface: supported JDBC 2.0 methods</a></div>
+<div><a href="rrefjdbc59162.html" title="">java.sql.Statement interface: supported JDBC 2.0 methods</a></div>
+</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<registration_data version="1.0">
+   <environment>
+      <hostname>cluster1</hostname>
+      <hostId>7c8c75b6</hostId>
+      <osName>Linux</osName>
+      <osVersion>2.6.23.17-88.fc7</osVersion>
+      <osArchitecture>i386</osArchitecture>
+      <systemModel>i386</systemModel>
+      <systemManufacturer/>
+      <cpuManufacturer>GenuineIntel</cpuManufacturer>
+      <serialNumber/>
+   </environment>
+   <registry urn="urn:st:72513df3-acd9-4e28-8cc7-21c094247c2b" version="1.0">
+      <service_tag>
+         <instance_urn>urn:st:bcf6cc2f-5c51-4395-8aa6-e1b3ecd55379</instance_urn>
+         <product_name>Java SE 6 Development Kit</product_name>
+         <product_version>1.6.0_12</product_version>
+         <product_urn>urn:uuid:b58ef9a8-5ae8-11db-a023-080020a9ed93</product_urn>
+         <product_parent_urn>urn:uuid:fdc90b21-018d-4cab-b866-612c7c119ed3</product_parent_urn>
+         <product_parent>Java Platform Standard Edition 6 (Java SE 6)</product_parent>
+         <product_defined_inst_id>id=1.6.0_12-b04 i386,dir=/cluster/3/home/mask/tmp/4.22/android-pxa270/mydroid/jdk1.6.0_12/jre</product_defined_inst_id>
+         <product_vendor>Sun Microsystems</product_vendor>
+         <platform_arch>i386</platform_arch>
+         <timestamp>2009-04-23 02:58:37 GMT</timestamp>
+         <container>global</container>
+         <source>jdk-6u12-fcs-bin-b04-linux-i586-17_jan_2009.bin</source>
+         <installer_uid>-1</installer_uid>
+      </service_tag>
+   </registry>
+</registration_data>
