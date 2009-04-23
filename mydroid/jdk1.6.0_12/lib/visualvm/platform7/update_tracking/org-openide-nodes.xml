@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module codename="org.openide.nodes">
+    <module_version install_time="1201631022569" last="true" origin="installer" specification_version="7.2.1.1">
+        <file crc="4025276026" name="config/Modules/org-openide-nodes.xml"/>
+        <file crc="2035653967" name="modules/org-openide-nodes.jar"/>
+    </module_version>
+</module>

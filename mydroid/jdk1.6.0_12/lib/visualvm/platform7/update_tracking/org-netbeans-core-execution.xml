@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module codename="org.netbeans.core.execution/1">
+    <module_version install_time="1201630343328" last="true" origin="installer" specification_version="1.10.1.1">
+        <file crc="3140597161" name="config/Modules/org-netbeans-core-execution.xml"/>
+        <file crc="480887216" name="modules/org-netbeans-core-execution.jar"/>
+    </module_version>
+</module>
