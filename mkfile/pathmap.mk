@@ -27,10 +27,12 @@
 # A mapping from shorthand names to include directories.
 #
 pathmap := \
-    toolchain:util/toolchain \
+    toolchain:scripts/toolchain \
     kernel:kernel \
     busybox:app \
-    rootfs:rootfs
+    rootfs:rootfs \
+    target-rootfs:target/rootfs \
+    target-bin:target/bin
 
 #
 # Returns the path to the requested module's include directory,

@@ -1,14 +1,19 @@
 
-export PRJROOT:=$(PWD)
+#export PRJROOT:=$(PWD)
+export PRJROOT:=$(shell pwd)
 
 include $(PRJROOT)/Rules.mak
 -include $(PRJROOT)/.config
 
-TOOLCHAIN_DIR			:= $(PRJROOT)/scripts/toolchain
-TOOLCHAIN			:= $(TOOLCHAIN_DIR)/$(patsubst "%",%,$(TOOLCHAIN))
-export PATH			:= $(TOOLCHAIN_DIR)/bin:$(shell echo $$PATH)
+#TOOLCHAIN_DIR			:= $(PRJROOT)/scripts/toolchain
+#TOOLCHAIN			:= $(TOOLCHAIN_DIR)/$(patsubst "%",%,$(TOOLCHAIN))
+#export PATH			:= $(TOOLCHAIN_DIR)/bin:$(shell echo $$PATH)
 CONFIG_DIR			:= $(PRJROOT)/config
-KERNEL_SRC_DIR			:= $(PRJROOT)/$(patsubst "%",%,$(KERNEL_SRC))
+###KERNEL_SRC_DIR := $(PRJROOT)/$(call path-for,kernel)/$(patsubst "%",%,$(KERNEL_SRC))
+include mkfile/pathmap.mk
+include mkfile/toolchain.mk
+export PATH := $(shell find $(PRJROOT)/$(call path-for,toolchain) -maxdepth 2 -name "bin" -type d):$(shell echo $$PATH)
+include mkfile/kernel.mk
 ROOTFS_DIR			:= $(PRJROOT)/rootfs
 export BASE_ROOTFS		:= $(ROOTFS_DIR)/$(patsubst "%",%,$(BASE_ROOTFS))
 BUSYBOX_SRC_DIR			:= $(PRJROOT)/$(patsubst "%",%,$(BUSYBOX_SRC))
@@ -58,7 +63,8 @@ check_dir:
 	@test -d $(TARGET_DIR) || mkdir -p $(TARGET_DIR)
 	@test -d $(TARGET_ROOTFS_DIR) || mkdir -p $(TARGET_ROOTFS_DIR)
 	@test -d $(TARGET_BIN_DIR) || mkdir -p $(TARGET_BIN_DIR)
-	@test -d $(TOOLCHAIN_DIR)/bin || $(MAKE) build_toolchain
+	test -d $(PRJROOT)/$(call path-for,toolchain)/bin || $(MAKE) build_toolchain
+	###@test -d $(TOOLCHAIN_DIR)/bin || $(MAKE) build_toolchain
 
 build: $(addprefix build_,$(modules))
 
@@ -70,52 +76,52 @@ distclean: $(addprefix clean_, $(filter-out toolchain,$(modules)) toolchain)
 	$(MAKE) clean_menuconfig
 	-rm -f .config
 
-.PHONY: build_toolchain install_toolchain clean_toolchain
-build_toolchain:
-	@if [ ! -e $(TOOLCHAIN_DIR)/bin ] ; then \
-		file -b $(TOOLCHAIN) | awk '{print $$1 " -d -c -v $(TOOLCHAIN)"}' | sh - | tar xvf - --strip-components=1 -C $(TOOLCHAIN_DIR); \
-	fi
+#.PHONY: build_toolchain install_toolchain clean_toolchain
+#build_toolchain:
+#	@if [ ! -e $(TOOLCHAIN_DIR)/bin ] ; then \
+#		file -b $(TOOLCHAIN) | awk '{print $$1 " -d -c -v $(TOOLCHAIN)"}' | sh - | tar xvf - --strip-components=1 -C $(TOOLCHAIN_DIR); \
+#	fi
+#
+#install_toolchain:
+#clean_toolchain:
+#	-find $(TOOLCHAIN_DIR)/* -maxdepth 0 -type d -exec rm -rf {} \;
 
-install_toolchain:
-clean_toolchain:
-	-find $(TOOLCHAIN_DIR)/* -maxdepth 0 -type d -exec rm -rf {} \;
+#.PHONY: build_kernel install_kernel clean_kernel
+#build_kernel:
+#	@$(MAKE) check_dir
+#	@if [ ! -e $(KERNEL_SRC_DIR)/.config ]; then \
+#		cd $(KERNEL_SRC_DIR) && $(MAKE) defconfig; \
+#	fi
+#	cd $(KERNEL_SRC_DIR) && $(MAKE)
+#
+#install_kernel:
+#	cd $(KERNEL_SRC_DIR) && $(MAKE) INSTALL_MOD_PATH=$(TARGET_ROOTFS_DIR) modules_install 
+#	cp -f $(KERNEL_SRC_DIR)/arch/$(ARCH)/boot/zImage $(TARGET_BIN_DIR)
+#	gzip -9 -f $(TARGET_BIN_DIR)/zImage
+#	rm -f $(TARGET_BIN_DIR)/uImage
+#	$(PRJROOT)/scripts/bin/mkimage -A arm -O linux -T kernel -C gzip -a 0xa0008000 -e 0xa0008000 -n "EPS-Android" -d $(TARGET_BIN_DIR)/zImage.gz $(TARGET_BIN_DIR)/uImage
+#	rm -f $(TARGET_BIN_DIR)/zImage.gz
+#
+#clean_kernel:
+#	cd $(KERNEL_SRC_DIR) && $(MAKE) distclean
 
-.PHONY: build_kernel install_kernel clean_kernel
-build_kernel:
-	@$(MAKE) check_dir
-	@if [ ! -e $(KERNEL_SRC_DIR)/.config ]; then \
-		cd $(KERNEL_SRC_DIR) && $(MAKE) defconfig; \
-	fi
-	cd $(KERNEL_SRC_DIR) && $(MAKE)
-
-install_kernel:
-	cd $(KERNEL_SRC_DIR) && $(MAKE) INSTALL_MOD_PATH=$(TARGET_ROOTFS_DIR) modules_install 
-	cp -f $(KERNEL_SRC_DIR)/arch/$(ARCH)/boot/zImage $(TARGET_BIN_DIR)
-	gzip -9 -f $(TARGET_BIN_DIR)/zImage
-	rm -f $(TARGET_BIN_DIR)/uImage
-	$(PRJROOT)/scripts/bin/mkimage -A arm -O linux -T kernel -C gzip -a 0xa0008000 -e 0xa0008000 -n "EPS-Android" -d $(TARGET_BIN_DIR)/zImage.gz $(TARGET_BIN_DIR)/uImage
-	rm -f $(TARGET_BIN_DIR)/zImage.gz
-
-clean_kernel:
-	cd $(KERNEL_SRC_DIR) && $(MAKE) distclean
-
-.PHONY: build_busybox install_busybox clean_busybox
-build_busybox:
-	@$(MAKE) check_dir
-	@if [ ! -e $(BUSYBOX_SRC_DIR)/.config ] ; then \
-		cp $(CONFIG_DIR)/busybox_config $(BUSYBOX_SRC_DIR)/.config; \
-		cd $(BUSYBOX_SRC_DIR) && $(MAKE) oldconfig; \
-	fi
-	cd $(BUSYBOX_SRC_DIR) && $(MAKE)
-
-install_busybox:
-	cd $(BUSYBOX_SRC_DIR) && $(MAKE) install
-	@if [ -e $(TARGET_ROOTFS_DIR)/bin/busybox ] ; then \
-		chmod u+s $(TARGET_ROOTFS_DIR)/bin/busybox; \
-	fi
-
-clean_busybox:
-	cd $(BUSYBOX_SRC_DIR) && $(MAKE) distclean
+#.PHONY: build_busybox install_busybox clean_busybox
+#build_busybox:
+#	@$(MAKE) check_dir
+#	@if [ ! -e $(BUSYBOX_SRC_DIR)/.config ] ; then \
+#		cp $(CONFIG_DIR)/busybox_config $(BUSYBOX_SRC_DIR)/.config; \
+#		cd $(BUSYBOX_SRC_DIR) && $(MAKE) oldconfig; \
+#	fi
+#	cd $(BUSYBOX_SRC_DIR) && $(MAKE)
+#
+#install_busybox:
+#	cd $(BUSYBOX_SRC_DIR) && $(MAKE) install
+#	@if [ -e $(TARGET_ROOTFS_DIR)/bin/busybox ] ; then \
+#		chmod u+s $(TARGET_ROOTFS_DIR)/bin/busybox; \
+#	fi
+#
+#clean_busybox:
+#	cd $(BUSYBOX_SRC_DIR) && $(MAKE) distclean
 
 .PHONY: build_rootfs install_rootfs clean_rootfs
 build_rootfs:
