@@ -5,7 +5,12 @@ MODULES += toolchain
 
 OLD_MD5 := $(PRJROOT)/$(call path-for,toolchain)/md5
 
-checksum :=
+checksum = 199
+new =
+old =
+
+true := 1
+false := 0
 
 .PHONY: build_toolchain install_toolchain clean_toolchain check_toolchain
 #build_toolchain: clean_toolchain
@@ -44,61 +49,31 @@ hihi:
 		echo 3; \
 	fi
 
-define yaya
-$(if ,, \
-	new=`md5sum $(TOOLCHAIN) | awk '{print $$1}'`; \
-	old=`cat $(OLD_MD5)`; \
-	echo -- "$$new"; \
-	echo -- $$old; \
-	if [ 1 ] ; then \
-		echo shit; \
-	fi; \
-	if [ "$$new" != "$$old" ] ; then \
-		echo 2; \
-	else \
-		echo $$new; \
-		echo $$old; \
-		echo 3; \
-	fi \
-)
-endef
-
-#hihi:
-#	new=`md5sum $(TOOLCHAIN) | awk '{print $$1}'`;
-#	old=`cat $(OLD_MD5)`;
-#	echo -- "$$new";
-#	echo -- $$old;
-#	@if [ 1 ] ; then \
-#		echo shit; \
-#	fi
-#	@if [ "$$new" != "$$old" ] ; then \
-#		echo 2; \
-#	else \
-#		echo $$new; \
-#		echo $$old; \
-#		echo 3; \
-#	fi
-#	$(call if-same-toolchain)
-#	echo $(var)
-
 .PHONY: if_same_toolchain
 if_same_toolchain:
 	@if [ ! -e $(TOOLCHAIN) ] ; then \
 		echo Missing toolchain $(TOOLCHAIN); \
 		exit 1; \
 	elif [ ! -e $(OLD_MD5) ] ; then \
-		$(checksum) := false ; \
+		$(checksum)="false"; \
 	else \
+	$(checksum)="flse"; \
+	tt=$(checksum); \
+	echo "$$tt"; \
 	new=`md5sum $(TOOLCHAIN) | awk '{print $$1}'`; \
 	old=`cat $(OLD_MD5)`; \
 	echo $$new; \
 	echo $$old; \
-	fi
+	fi; \
 	if [ "$$new" != "$$old" ] ; then \
-		$(checksum) := false; \
+		echo oooxx; \
+		check=0; \
+		echo aabb; \
 	else \
-		$(checksum) := true; \
-	fi
+		$(checksum)=true; \
+	fi; \
+	checksum="$(checksum)"; \
+	echo $(checksum)
 
 
 #define if-same-toolchain
