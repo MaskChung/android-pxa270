@@ -8,44 +8,96 @@ OLD_MD5 := $(PRJROOT)/$(call path-for,toolchain)/md5
 checksum :=
 
 .PHONY: build_toolchain install_toolchain clean_toolchain check_toolchain
-build_toolchain: clean_toolchain
-	if [ -e $(PRJROOT)/$(call path-for,toolchain)/$(MD5SUM) ] ; then \
-		NEW=`md5sum $(TOOLCHAIN) | awk '{print $$1}'`; \
-	fi
-	file -b $(TOOLCHAIN) | awk '{print $$1 " -d -c -v $(TOOLCHAIN)"}' | sh - | tar xvf - -C $(PRJROOT)/$(call path-for,toolchain)
-
-install_toolchain:
-clean_toolchain:
-#	find $(PRJROOT)/$(call path-for,toolchain)/* -maxdepth 0 -type d -exec rm -rf {} \;
-
-check_toolchain:
-	if [ $(call unzip-jar-files,1,2) ] ; then \
-		echo "0"; \
-	fi
+#build_toolchain: clean_toolchain
+#	if [ -e $(PRJROOT)/$(call path-for,toolchain)/$(MD5SUM) ] ; then \
+#		NEW=`md5sum $(TOOLCHAIN) | awk '{print $$1}'`; \
+#	fi
+#	file -b $(TOOLCHAIN) | awk '{print $$1 " -d -c -v $(TOOLCHAIN)"}' | sh - | tar xvf - -C $(PRJROOT)/$(call path-for,toolchain)
+#
+#install_toolchain:
+#clean_toolchain:
+##	find $(PRJROOT)/$(call path-for,toolchain)/* -maxdepth 0 -type d -exec rm -rf {} \;
+#
+#check_toolchain:
+#	if [ $(call unzip-jar-files,1,2) ] ; then \
+#		echo "0"; \
+#	fi
+#
+#hihi:
+#	$(call yaya)
 
 hihi:
-	$(call if-same-toolchain)
-	echo $(var)
+	@new=`md5sum $(TOOLCHAIN) | awk '{print $$1}'`; \
+	old=`cat $(OLD_MD5)`; \
+	echo -- "$$new"; \
+	echo -- $$old; \
+	if [ 1 ] ; then \
+		echo shit; \
+	fi; \
+	if [ "$$new" != "$$old" ] ; then \
+		echo $$new; \
+		echo $$old; \
+		echo 2; \
+	else \
+		echo $$new; \
+		echo $$old; \
+		echo 3; \
+	fi
+
+define yaya
+$(if ,, \
+	new=`md5sum $(TOOLCHAIN) | awk '{print $$1}'`; \
+	old=`cat $(OLD_MD5)`; \
+	echo -- "$$new"; \
+	echo -- $$old; \
+	if [ 1 ] ; then \
+		echo shit; \
+	fi; \
+	if [ "$$new" != "$$old" ] ; then \
+		echo 2; \
+	else \
+		echo $$new; \
+		echo $$old; \
+		echo 3; \
+	fi \
+)
+endef
+
+#hihi:
+#	new=`md5sum $(TOOLCHAIN) | awk '{print $$1}'`;
+#	old=`cat $(OLD_MD5)`;
+#	echo -- "$$new";
+#	echo -- $$old;
+#	@if [ 1 ] ; then \
+#		echo shit; \
+#	fi
+#	@if [ "$$new" != "$$old" ] ; then \
+#		echo 2; \
+#	else \
+#		echo $$new; \
+#		echo $$old; \
+#		echo 3; \
+#	fi
+#	$(call if-same-toolchain)
+#	echo $(var)
 
 .PHONY: if_same_toolchain
 if_same_toolchain:
-	if [ -e /export/home/mask/android-pxa270/scripts/toolchain/md5 ] ; then \
-		$(error $(TOOLCHAIN) was not existed); \
-	else \
-		echo "shit"; \
-	fi
-#	elif [ ! -e $(OLD_MD5) ] ; then \
+	@if [ ! -e $(TOOLCHAIN) ] ; then \
+		echo Missing toolchain $(TOOLCHAIN); \
+		exit 1; \
+	elif [ ! -e $(OLD_MD5) ] ; then \
 		$(checksum) := false ; \
 	else \
 	new=`md5sum $(TOOLCHAIN) | awk '{print $$1}'`; \
 	old=`cat $(OLD_MD5)`; \
 	echo $$new; \
 	echo $$old; \
+	fi
 	if [ "$$new" != "$$old" ] ; then \
 		$(checksum) := false; \
 	else \
 		$(checksum) := true; \
-	fi \
 	fi
 
 
@@ -75,11 +127,11 @@ if_same_toolchain:
 #	fi
 #endef
 
-define unzip-jar-files
-    @if [ 1 ]; then \
-      echo Missing file shit; \
-      exit 0; \
-    fi
-endef
+#define unzip-jar-files
+#    @if [ 1 ]; then \
+#      echo Missing file shit; \
+#      exit 0; \
+#    fi
+#endef
 
 
