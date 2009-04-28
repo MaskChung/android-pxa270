@@ -15,6 +15,7 @@ include mkfile/toolchain.mk
 export PATH := $(shell find $(PRJROOT)/$(call path-for,toolchain) -maxdepth 2 -name "bin" -type d):$(shell echo $$PATH)
 include mkfile/kernel.mk
 include mkfile/busybox.mk
+include mkfile/version.mk
 #ROOTFS_DIR			:= $(PRJROOT)/rootfs
 #export BASE_ROOTFS		:= $(ROOTFS_DIR)/$(patsubst "%",%,$(BASE_ROOTFS))
 #export TARGET_DIR		:= $(PRJROOT)/target
@@ -22,7 +23,7 @@ include mkfile/busybox.mk
 #export TARGET_ROOTFS_DIR	:= $(TARGET_DIR)/rootfs
 #export TARGET_BIN_DIR		:= $(TARGET_DIR)/bin
 
-BUILT_VERSION			:= $(TARGET_BIN_DIR)/built_version
+###BUILT_VERSION			:= $(TARGET_BIN_DIR)/built_version
 
 #export ANDROID
 #export ANDROID_ROOTFS		:= $(patsubst "%",%,$(ANDROID_ROOTFS))
