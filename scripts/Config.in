@@ -28,20 +28,20 @@ config BASE_ROOTFS
 	string "Base Root File System"
 	default "tiny_rootfs.tgz"
 config ANDROID
-	bool "Android Root File System"
+	bool "Enable Android"
 	default n
-config ANDROID_ROOTFS
-	string "Using which Version of Android Root File System"
-	depends on ANDROID
-	default "r1_rootfs.tar.gz"
-config ANDROID_GIT
-	bool "Android-git Root File System"
-	depends on ANDROID
+config ANDROID_DEMO
+	bool "Demostration of Android run-time system"
+	depends on ANDROID && !MYDROID
 	default y
-config ANDROID_GIT_ROOTFS
-	string "Using which Android-git Root File System"
-	depends on ANDROID_GIT
-	default "git.tgz"
+config MYDROID
+	bool "Compile Android run-time system from source except kernel"
+	depends on ANDROID && !ANDROID_DEMO
+	default n
+config MYDROID_SRC
+	string "Compile which version of git-source"
+	depends on MYDROID
+	default "cdma-import"
 config JFFS2
 	bool "Using JFFS2 Root File System"
 	default n
