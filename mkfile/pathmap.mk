@@ -32,7 +32,8 @@ pathmap := \
     busybox:app \
     rootfs:rootfs \
     target-rootfs:target/rootfs \
-    target-bin:target/bin
+    target-bin:target/bin \
+    target-android-rootfs:target/android-rootfs
 
 #
 # Returns the path to the requested module's include directory,
