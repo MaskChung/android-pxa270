@@ -32,11 +32,11 @@ config ANDROID
 	default n
 config ANDROID_DEMO
 	bool "Demostration of Android run-time system"
-	depends on ANDROID && !MYDROID
-	default y
+	depends on ANDROID
+	default (ANDROID && !MYDROID)
 config MYDROID
 	bool "Compile Android run-time system from source except kernel"
-	depends on ANDROID && !ANDROID_DEMO
+	depends on (ANDROID && !ANDROID_DEMO)
 	default n
 config MYDROID_SRC
 	string "Compile which version of git-source"
