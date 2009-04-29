@@ -6,7 +6,6 @@ include $(PRJROOT)/Rules.mak
 -include $(PRJROOT)/.config
 
 #export PATH			:= $(TOOLCHAIN_DIR)/bin:$(shell echo $$PATH)
-CONFIG_DIR			:= $(PRJROOT)/config
 MODULES :=
 hide := @
 err := -
@@ -19,10 +18,6 @@ include mkfile/busybox.mk
 include mkfile/version.mk
 include mkfile/mkfs-jffs2.mk
 #ROOTFS_DIR			:= $(PRJROOT)/rootfs
-#export TARGET_DIR		:= $(PRJROOT)/target
-
-#
-#export TARGET_APP_BIN		:= $(PRJROOT)/app/bin
 
 FS :=
 ifeq "$(JFFS2)" "y"
@@ -35,7 +30,7 @@ endif
 
 modules:=rootfs toolchain kernel busybox version
 
-.PHONY: all build install clean distclean menuconfig
+.PHONY: all install clean distclean menuconfig
 .PHONY: jffs2 yaffs2
 
 ### should build toolchain first
@@ -45,17 +40,11 @@ all:
 ifneq "$(FS)" ""
 	$(MAKE) $(FS)
 endif
-ifeq "$(HOST_TFTP)" "y"
-	cp -af $(TARGET_BIN_DIR)/* $(TFTP_DIR)
-endif
-ifeq "$(NFS_ROOT)" "y"
-	cp -af $(TARGET_ROOTFS_DIR) $(NFS_ROOT_DIR)
-endif
 
 
-build: $(addprefix build_,$(modules))
+build: $(addprefix build_,$(MODULES))
 
-install: $(addprefix install_,$(modules))
+install: $(addprefix install_,$(MODULES))
 
 clean: distclean
 distclean: $(addprefix clean_, $(filter-out toolchain,$(MODULES)) toolchain)
