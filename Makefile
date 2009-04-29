@@ -11,6 +11,7 @@ MODULES :=
 hide := @
 err := -
 include mkfile/pathmap.mk
+include mkfile/rootfs.mk
 include mkfile/toolchain.mk
 export PATH := $(shell find $(PRJROOT)/$(call path-for,toolchain) -maxdepth 2 -name "bin" -type d):$(shell echo $$PATH)
 include mkfile/kernel.mk
