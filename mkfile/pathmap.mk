@@ -33,9 +33,13 @@ pathmap := \
     rootfs:rootfs \
     rootfs-overwrite:rootfs/overwrite \
     rootfs-overwrite-android:rootfs/overwrite-android \
+    target:target \
     target-rootfs:target/rootfs \
     target-bin:target/bin \
-    target-android-rootfs:target/android-rootfs
+    target-android-rootfs:target/android-rootfs \
+    mkyaffs2image:scripts/bin/yaffs2/utils \
+    mkfs-jffs2:scripts/bin/mtd/util \
+    config:config
 
 #
 # Returns the path to the requested module's include directory,

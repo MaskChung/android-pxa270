@@ -17,19 +17,10 @@ export PATH := $(shell find $(PRJROOT)/$(call path-for,toolchain) -maxdepth 2 -n
 include mkfile/kernel.mk
 include mkfile/busybox.mk
 include mkfile/version.mk
+include mkfile/mkfs-jffs2.mk
 #ROOTFS_DIR			:= $(PRJROOT)/rootfs
-#export BASE_ROOTFS		:= $(ROOTFS_DIR)/$(patsubst "%",%,$(BASE_ROOTFS))
 #export TARGET_DIR		:= $(PRJROOT)/target
 
-#export TARGET_ROOTFS_DIR	:= $(TARGET_DIR)/rootfs
-#export TARGET_BIN_DIR		:= $(TARGET_DIR)/bin
-
-
-#export ANDROID
-#export ANDROID_ROOTFS		:= $(patsubst "%",%,$(ANDROID_ROOTFS))
-##export TARGET_ANDROID_ROOTFS_DIR	:= $(TARGET_DIR)/android_rootfs
-#export ANDROID_GIT
-#export ANDROID_GIT_ROOTFS	:= $(patsubst "%",%,$(ANDROID_GIT_ROOTFS))
 #
 #export TARGET_APP_BIN		:= $(PRJROOT)/app/bin
 
@@ -47,7 +38,7 @@ modules:=rootfs toolchain kernel busybox version
 .PHONY: all build install clean distclean menuconfig
 .PHONY: jffs2 yaffs2
 
-#all: check_dir
+### should build toolchain first
 all:
 	$(MAKE) build
 	$(MAKE) install
@@ -61,39 +52,18 @@ ifeq "$(NFS_ROOT)" "y"
 	cp -af $(TARGET_ROOTFS_DIR) $(NFS_ROOT_DIR)
 endif
 
-#check_dir:
-#	@test -d $(TARGET_DIR) || mkdir -p $(TARGET_DIR)
-#	@test -d $(TARGET_ROOTFS_DIR) || mkdir -p $(TARGET_ROOTFS_DIR)
-#	@test -d $(TARGET_BIN_DIR) || mkdir -p $(TARGET_BIN_DIR)
-#	test -d $(PRJROOT)/$(call path-for,toolchain)/bin || $(MAKE) build_toolchain
-#	###@test -d $(TOOLCHAIN_DIR)/bin || $(MAKE) build_toolchain
 
 build: $(addprefix build_,$(modules))
 
 install: $(addprefix install_,$(modules))
 
 clean: distclean
-#distclean: $(addprefix clean_, $(filter-out toolchain,$(modules)) toolchain)
-#	-rm -rf $(TARGET_DIR)
-#	$(MAKE) clean_menuconfig
-#	-rm -f .config
+distclean: $(addprefix clean_, $(filter-out toolchain,$(MODULES)) toolchain)
+	-rm -rf $(PRJROOT)/$(call path-for,target)
+	$(MAKE) clean_menuconfig
+	-rm -f .config
 
 
-#.PHONY: build_rootfs install_rootfs clean_rootfs
-#build_rootfs:
-#	cd $(ROOTFS_DIR) && $(MAKE)
-#
-#install_rootfs:
-#	rm -rf $(TARGET_ROOTFS_DIR)
-#	$(MAKE) check_dir
-#	cd $(ROOTFS_DIR) && $(MAKE) install
-#	$(MAKE) build_version
-#	$(MAKE) install_version
-#	#rsync -r --exclude='.svn' $(PRJROOT)/rootfs/rootfs.overwrite/* $(TARGET_ROOTFS_DIR)
-#	#rm -f ContactsProvider.apk
-#
-#clean_rootfs:
-#	cd $(ROOTFS_DIR) && $(MAKE) distclean
 
 menuconfig:
 	@if [ ! -e $(PRJROOT)/scripts/config/mconf ] ; then \
@@ -137,40 +107,19 @@ help:
 	done
 	@echo ""
 
-#strip_rootfs:
-#	-find $(TARGET_ROOTFS_DIR) -type l -prune -o -name "*.ko" -prune -o -print -exec $(STRIP) {} \;
-#	-find $(TARGET_ROOTFS_DIR) -name "*.ko" -exec $(STRIP) -g -S -d --strip-debug {} \;
-#
-#mkfs.jffs2:
-#	if [ ! -e $(PRJROOT)/scripts/bin/mtd/util/mkfs.jffs2 ] ; then \
-#		cd $(PRJROOT)/scripts/bin && $(MAKE) mkfs.jffs2; \
-#	fi
-#
-#clean_mkfs.jffs2:
-#	@if [ -e $(PRJROOT)/scripts/bin/mtd/util/mkfs.jffs2 ] ; then \
-#		cd $(PRJROOT)/scripts/bin && $(MAKE) clean_mkfs.jffs2; \
-#	fi
-#
-#jffs2: strip_rootfs mkfs.jffs2
-#	#$(PRJROOT)/scripts/bin/mkfs.jffs2 -e 131072 --pad=0xf00000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
-#	#$(PRJROOT)/scripts/bin/mtd/util/mkfs.jffs2 -v -e 131072 --pad=0x1B80000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
-#	#$(PRJROOT)/scripts/bin/mtd/util/mkfs.jffs2 -v -e 131072 --pad=0x400000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
-#	#$(PRJROOT)/scripts/bin/mtd/util/mkfs.jffs2 -v -e 131072 --pad=0xA00000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
-#	$(PRJROOT)/scripts/bin/mtd/util/mkfs.jffs2 -v -e 131072 --pad=0x500000 -r $(TARGET_ROOTFS_DIR) -o $(TARGET_BIN_DIR)/rootfs.jffs2
-#
-#mkyaffs2image:
-#	@if [ ! -e $(PRJROOT)/scripts/bin/yaffs2/utils/mkyaffs2image ] ; then \
-#		cd $(PRJROOT)/scripts/bin && $(MAKE) mkyaffs2image; \
-#	fi
-#
-#clean_mkyaffs2image:
-#	@if [ -e $(PRJROOT)/scripts/bin/yaffs2/utils/mkyaffs2image ] ; then \
-#		cd $(PRJROOT)/scripts/bin && $(MAKE) clean_mkyaffs2image; \
-#	fi
-#
-#yaffs2: strip_rootfs mkyaffs2image
-#	$(PRJROOT)/scripts/bin/yaffs2/utils/mkyaffs2image $(TARGET_ROOTFS_DIR) $(TARGET_BIN_DIR)/rootfs.yaffs2
-#
+### remember to strip android rootfs later, maybe it can NOT be strip
+strip_rootfs:
+	-find $(PRJROOT)/$(call path-for,target-rootfs) -type l -prune -o -name "*.ko" -prune -o -print -exec $(STRIP) {} \;
+	-find $(PRJROOT)/$(call path-for,target-rootfs) -name "*.ko" -exec $(STRIP) -g -S -d --strip-debug {} \;
+
+
+jffs2: strip_rootfs build_mkfs_jffs2
+	$(PRJROOT)/$(call path-for,mkfs-jffs2)/mkfs.jffs2 -v -e 131072 --pad=0x500000 -r $(PRJROOT)/$(call path-for,target-rootfs) -o $(PRJROOT)/$(call path-for,target-bin)/rootfs.jffs2
+
+
+yaffs2: strip_rootfs build_mkyaffs2image
+	$(PRJROOT)/$(call path-for,mkyaffs2image)/mkyaffs2image $(PRJROOT)/$(call path-for,target-rootfs) $(PRJROOT)/$(call path-for,target-bin)/rootfs.yaffs2
+
 #strace:
 #	cd app && $(MAKE) strace
 #	#cd $(PRJROOT)/scripts/bin && $(MAKE) strace
