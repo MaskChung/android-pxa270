@@ -30,16 +30,14 @@ config BASE_ROOTFS
 config ANDROID
 	bool "Enable Android"
 	default n
-choice
-	prompt "ooxx"
-	default ANDROID_DEMO
 config ANDROID_DEMO
 	bool "Demostration of Android run-time system"
-	depends on ANDROID
+	depends on ANDROID && !MYDROID
+	default n
 config MYDROID
 	bool "Compile Android run-time system from source except kernel"
-	depends on ANDROID
-endchoice
+	depends on ANDROID && !ANDROID_DEMO
+	default n
 config MYDROID_SRC
 	string "Compile which version of git-source"
 	depends on MYDROID
