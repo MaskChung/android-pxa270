@@ -23,7 +23,6 @@ include mkfile/version.mk
 #export TARGET_ROOTFS_DIR	:= $(TARGET_DIR)/rootfs
 #export TARGET_BIN_DIR		:= $(TARGET_DIR)/bin
 
-###BUILT_VERSION			:= $(TARGET_BIN_DIR)/built_version
 
 #export ANDROID
 #export ANDROID_ROOTFS		:= $(patsubst "%",%,$(ANDROID_ROOTFS))
@@ -137,28 +136,6 @@ help:
 	done
 	@echo ""
 
-.PHONY: build_version install_version clean_version
-#build_version:
-#install_version:
-#	@if [ ! -d $(TARGET_BIN_DIR) ] ; then \
-#		mkdir -p $(TARGET_BIN_DIR); \
-#	fi
-#	@echo "EPS Android Build" > $(BUILT_VERSION)
-#	@echo "---" >> $(BUILT_VERSION)
-#	@echo -n "Built date: " >> $(BUILT_VERSION)
-#	@echo "$(shell date --rfc-3339=second)" >> $(BUILT_VERSION)
-#	@echo "Builder: $(USER)" >> $(BUILT_VERSION)
-#	@echo -n "SVN revision: " >> $(BUILT_VERSION)
-#	@echo "$(shell LANG=C ; svn info $(PRJROOT) | grep -i "revision" | awk '{print $$2}')" >> $(BUILT_VERSION)
-#	@echo "---" >> $(BUILT_VERSION)
-#	@if [ ! -d $(TARGET_ROOTFS_DIR)/etc ] ; then \
-#		mkdir -p $(TARGET_ROOTFS_DIR)/etc; \
-#	fi
-#	cp $(BUILT_VERSION) $(TARGET_ROOTFS_DIR)/etc
-#
-#clean_version:
-#	-rm -f $(BUILT_VERSION)
-#
 #strip_rootfs:
 #	-find $(TARGET_ROOTFS_DIR) -type l -prune -o -name "*.ko" -prune -o -print -exec $(STRIP) {} \;
 #	-find $(TARGET_ROOTFS_DIR) -name "*.ko" -exec $(STRIP) -g -S -d --strip-debug {} \;
