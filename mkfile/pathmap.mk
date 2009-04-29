@@ -31,6 +31,8 @@ pathmap := \
     kernel:kernel \
     busybox:app \
     rootfs:rootfs \
+    rootfs-overwrite:rootfs/overwrite \
+    rootfs-overwrite-android:rootfs/overwrite-android \
     target-rootfs:target/rootfs \
     target-bin:target/bin \
     target-android-rootfs:target/android-rootfs
