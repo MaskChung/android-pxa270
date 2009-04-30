@@ -42,7 +42,8 @@ pathmap := \
     config:config \
     app-bin:app/bin \
     mconf:scripts/config \
-    mconf-conf-in:scripts
+    mconf-conf-in:scripts \
+    mkfile:mkfile
 
 #
 # Returns the path to the requested module's include directory,
