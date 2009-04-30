@@ -1,20 +1,21 @@
 
 export PRJROOT:=$(shell pwd)
 
-include $(PRJROOT)/Rules.mak
 -include $(PRJROOT)/.config
 
 MODULES :=
 hide := @
 err := -
+
 include mkfile/pathmap.mk
-include mkfile/toolchain.mk
-include mkfile/rootfs.mk
+include $(call path-for,mkfile)/rules.mk
+include $(call path-for,mkfile)/toolchain.mk
+include $(call path-for,mkfile)/rootfs.mk
 export PATH := $(shell find $(PRJROOT)/$(call path-for,toolchain) -maxdepth 2 -name "bin" -type d):$(shell echo $$PATH)
-include mkfile/kernel.mk
-include mkfile/busybox.mk
-include mkfile/version.mk
-include mkfile/mkfs-jffs2.mk
+include $(call path-for,mkfile)/kernel.mk
+include $(call path-for,mkfile)/busybox.mk
+include $(call path-for,mkfile)/version.mk
+include $(call path-for,mkfile)/mkfs-jffs2.mk
 
 FS :=
 ifeq "$(JFFS2)" "y"
@@ -109,6 +110,3 @@ yaffs2: strip_rootfs
 	fi
 	$(PRJROOT)/$(call path-for,mkyaffs2image)/mkyaffs2image $(PRJROOT)/$(call path-for,target-rootfs) $(PRJROOT)/$(call path-for,target-bin)/rootfs.yaffs2
 
-#strace:
-#	cd app && $(MAKE) strace
-#	#cd $(PRJROOT)/scripts/bin && $(MAKE) strace
