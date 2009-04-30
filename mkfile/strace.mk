@@ -15,3 +15,19 @@ clean_strace:
 #strace:
 #	cd app && $(MAKE) strace
 #	#cd $(PRJROOT)/scripts/bin && $(MAKE) strace
+
+unexport CPP
+.PHONY: all clean distclean
+all:
+	if [ ! -d strace-4.5.18 ] ; then \
+		tar jxvf strace-4.5.18.tar.bz2;\
+	fi
+	cd strace-4.5.18 && ./configure --prefix=$(TARGET_APP_BIN) --host=$(patsubst %-,%,$(CROSS_COMPILE)) && $(MAKE)
+	#cd strace-4.5.18 && ./configure --prefix=$(TARGET_APP_BIN) --host=arm-none-linux-gnueabi && $(MAKE)
+
+clean:
+	cd strace-4.5.18 && $(MAKE) clean
+
+distclean:
+	rm -rf strace-4.5.18
+
