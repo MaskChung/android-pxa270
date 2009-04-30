@@ -40,7 +40,9 @@ pathmap := \
     mkyaffs2image:scripts/bin/yaffs2/utils \
     mkfs-jffs2:scripts/bin/mtd/util \
     config:config \
-    app-bin:app/bin
+    app-bin:app/bin \
+    mconf:scripts/config \
+    mconf-conf-in:scripts
 
 #
 # Returns the path to the requested module's include directory,

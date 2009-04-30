@@ -18,7 +18,7 @@ install_busybox:
 	mkdir -p $(PRJROOT)/$(call path-for,target-rootfs)
 	mkdir -p $(PRJROOT)/$(call path-for,target-bin)
 	$(MAKE) -C $(BUSYBOX_SRC) CONFIG_PREFIX=$(PRJROOT)/$(call path-for,target-rootfs) install
-	if [ ! -e $(PRJROOT)/$(call path-for,target-rootfs)/bin/busybox ] ; then \
+	if [ ! -x $(PRJROOT)/$(call path-for,target-rootfs)/bin/busybox ] ; then \
 		echo $(PRJROOT)/$(call path-for,target-rootfs)/bin/busybox was not be installed; \
 		exit 1; \
 	else \
