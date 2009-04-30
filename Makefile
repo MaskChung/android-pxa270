@@ -1,23 +1,20 @@
 
-#export PRJROOT:=$(PWD)
 export PRJROOT:=$(shell pwd)
 
 include $(PRJROOT)/Rules.mak
 -include $(PRJROOT)/.config
 
-#export PATH			:= $(TOOLCHAIN_DIR)/bin:$(shell echo $$PATH)
 MODULES :=
 hide := @
 err := -
 include mkfile/pathmap.mk
-include mkfile/rootfs.mk
 include mkfile/toolchain.mk
+include mkfile/rootfs.mk
 export PATH := $(shell find $(PRJROOT)/$(call path-for,toolchain) -maxdepth 2 -name "bin" -type d):$(shell echo $$PATH)
 include mkfile/kernel.mk
 include mkfile/busybox.mk
 include mkfile/version.mk
 include mkfile/mkfs-jffs2.mk
-#ROOTFS_DIR			:= $(PRJROOT)/rootfs
 
 FS :=
 ifeq "$(JFFS2)" "y"
@@ -27,42 +24,37 @@ ifeq "$(YAFFS2)" "y"
 	FS += yaffs2
 endif
 
-
-modules:=rootfs toolchain kernel busybox version
-
 .PHONY: all install clean distclean menuconfig
 .PHONY: jffs2 yaffs2
 
-### should build toolchain first
-all:
-	$(MAKE) build
-	$(MAKE) install
+all: $(addprefix build_,$(MODULES)) $(addprefix install_,$(MODULES))
 ifneq "$(FS)" ""
 	$(MAKE) $(FS)
 endif
-
-
-build: $(addprefix build_,$(MODULES))
 
 install: $(addprefix install_,$(MODULES))
 
 clean: distclean
 distclean: $(addprefix clean_, $(filter-out toolchain,$(MODULES)) toolchain)
 	-rm -rf $(PRJROOT)/$(call path-for,target)
-	$(MAKE) clean_menuconfig
+	$(MAKE) clean_mconf
 	-rm -f .config
 
-
-
 menuconfig:
-	@if [ ! -e $(PRJROOT)/scripts/config/mconf ] ; then \
-		cd $(PRJROOT)/scripts/config/ && $(MAKE); \
+	if [ ! -d $(PRJROOT)/$(call path-for,mconf) ] ; then \
+		echo Missing mconf: $(PRJROOT)/$(call path-for,mconf); \
+		exit 1; \
+	else \
+		$(MAKE) -C $(PRJROOT)/$(call path-for,mconf); \
+		if [ ! -x $(PRJROOT)/$(call path-for,mconf)/mconf ] ; then \
+			echo Missing mconf: $(PRJROOT)/$(call path-for,mconf)/mconf; \
+			exit 1; \
+		fi; \
 	fi
-	#@./scripts/kconfig/mconf ./scripts/Config.in
-	@$(PRJROOT)/scripts/config/mconf $(PRJROOT)/scripts/Config.in
+	$(PRJROOT)/$(call path-for,mconf)/mconf $(PRJROOT)/$(call path-for,mconf-conf-in)/Config.in
 
-clean_menuconfig:
-	-cd $(PRJROOT)/scripts/config && $(MAKE) clean
+clean_mconf:
+	$(MAKE) -C $(PRJROOT)/$(call path-for,mconf) clean
 
 # compound rules
 rebuild_%:
@@ -91,7 +83,7 @@ help:
 	@echo "  update_<module>  - run build_<module> and install_<module>"
 	@echo ""
 	@echo "Module list:"
-	@for i in $(modules); do\
+	@for i in $(MODULES); do\
 		echo "  $$i"; \
 	done
 	@echo ""
@@ -102,11 +94,19 @@ strip_rootfs:
 	-find $(PRJROOT)/$(call path-for,target-rootfs) -name "*.ko" -exec $(STRIP) -g -S -d --strip-debug {} \;
 
 
-jffs2: strip_rootfs build_mkfs_jffs2
+jffs2: strip_rootfs
+	if [ ! -x $(PRJROOT)/$(call path-for,mkfs-jffs2)/mkfs.jffs2 ] ; then \
+		echo Missing mkfs.jffs2: $(PRJROOT)/$(call path-for,mkfs-jffs2)/mkfs.jffs2; \
+		exit 1; \
+	fi
 	$(PRJROOT)/$(call path-for,mkfs-jffs2)/mkfs.jffs2 -v -e 131072 --pad=0x500000 -r $(PRJROOT)/$(call path-for,target-rootfs) -o $(PRJROOT)/$(call path-for,target-bin)/rootfs.jffs2
 
 
-yaffs2: strip_rootfs build_mkyaffs2image
+yaffs2: strip_rootfs
+	if [ ! -x $(PRJROOT)/$(call path-for,mkyaffs2image)/mkyaffs2image ] ; then \
+		echo Missing mkyaffs2image: $(PRJROOT)/$(call path-for,mkyaffs2image)/mkyaffs2image; \
+		exit 1; \
+	fi
 	$(PRJROOT)/$(call path-for,mkyaffs2image)/mkyaffs2image $(PRJROOT)/$(call path-for,target-rootfs) $(PRJROOT)/$(call path-for,target-bin)/rootfs.yaffs2
 
 #strace:
