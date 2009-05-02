@@ -14,7 +14,7 @@ include $(call path-for,mkfile)/setenv.mk
 include $(call path-for,mkfile)/rules.mk
 include $(call path-for,mkfile)/toolchain.mk
 #include $(call path-for,mkfile)/rootfs.mk
-export PATH := $(shell find $(PRJROOT)/$(call path-for,toolchain) -maxdepth 2 -name "bin" -type d):$(shell echo $$PATH)
+export PATH = $(shell find $(PRJROOT)/$(call path-for,toolchain) -maxdepth 2 -name "bin" -type d):$(shell echo $$PATH)
 include $(call path-for,mkfile)/kernel.mk
 include $(call path-for,mkfile)/busybox.mk
 include $(call path-for,mkfile)/version.mk
