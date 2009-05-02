@@ -3,18 +3,19 @@ export PRJROOT:=$(shell pwd)
 
 -include $(PRJROOT)/.config
 
+export PATH = $(shell find $(PRJROOT)/$(call path-for,toolchain) -maxdepth 2 -name "bin" -type d):$(shell echo $$PATH)
+
 MODULES :=
 hide := @
 err := -
 
-_all: all
+all:
 
 include mkfile/pathmap.mk
 include $(call path-for,mkfile)/setenv.mk
 include $(call path-for,mkfile)/rules.mk
 include $(call path-for,mkfile)/toolchain.mk
 #include $(call path-for,mkfile)/rootfs.mk
-export PATH = $(shell find $(PRJROOT)/$(call path-for,toolchain) -maxdepth 2 -name "bin" -type d):$(shell echo $$PATH)
 include $(call path-for,mkfile)/kernel.mk
 include $(call path-for,mkfile)/busybox.mk
 include $(call path-for,mkfile)/version.mk
@@ -28,7 +29,7 @@ ifeq "$(YAFFS2)" "y"
 	FS += yaffs2
 endif
 
-.PHONY: all install clean distclean menuconfig
+.PHONY: all install clean distclean menuconfig help
 .PHONY: jffs2 yaffs2
 
 all: $(addprefix build_,$(MODULES)) $(addprefix install_,$(MODULES))
@@ -69,7 +70,6 @@ update_%:
 	$(MAKE) build_$*
 	$(MAKE) install_$*
 
-.PHONY: help
 help:
 	@echo ""
 	@echo "*** EPS Android build script ***"
