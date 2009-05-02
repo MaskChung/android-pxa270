@@ -1,0 +1,2 @@
+ifdef MYDROID
+endif
