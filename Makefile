@@ -20,6 +20,7 @@ include $(call path-for,mkfile)/kernel.mk
 include $(call path-for,mkfile)/busybox.mk
 include $(call path-for,mkfile)/version.mk
 include $(call path-for,mkfile)/mkfs-jffs2.mk
+include $(call path-for,mkfile)/mydroid.mk
 
 FS :=
 ifeq "$(JFFS2)" "y"
@@ -32,12 +33,16 @@ endif
 .PHONY: all install clean distclean menuconfig help
 .PHONY: jffs2 yaffs2
 
-all: $(addprefix build_,$(MODULES)) $(addprefix install_,$(MODULES))
+all: $(addprefix build_,$(MODULES))
+	$(MAKE) install
 ifneq "$(FS)" ""
 	$(MAKE) $(FS)
 endif
 
-install: $(addprefix install_,$(MODULES))
+install:
+	for i in $(MODULES); do \
+		$(MAKE) $(addprefix install_,$$i); \
+	done
 
 clean: distclean
 distclean: $(addprefix clean_, $(filter-out toolchain,$(MODULES)) toolchain)
