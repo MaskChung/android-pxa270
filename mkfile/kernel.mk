@@ -9,7 +9,7 @@ build_kernel:
 		echo Missing kernel source: $(KERNEL_SRC); \
 		exit 1; \
 	elif [ ! -e $(KERNEL_SRC)/.config ]; then \
-		$(MAKE) -C $(KERNEL_SRC) defconfig; \
+		$(MAKE) -C $(KERNEL_SRC) defconfig ARCH=$(ARCH); \
 	fi
 	$(MAKE) -C $(KERNEL_SRC)
 
