@@ -30,10 +30,16 @@ ifeq "$(YAFFS2)" "y"
 	FS += yaffs2
 endif
 
+TOP_CONF := $(PRJROOT)/$(call path-for,config)/top.conf
+
 .PHONY: all install clean distclean menuconfig help
 .PHONY: jffs2 yaffs2
 
-all: $(addprefix build_,$(MODULES))
+all:
+	if [ ! -e $(PRJROOT)/.config ] ; then \
+		cp $(TOP_CONF) $(PRJROOT)/.config; \
+	fi
+	$(MAKE) $(addprefix build_,$(MODULES))
 	$(MAKE) install
 ifneq "$(FS)" ""
 	$(MAKE) $(FS)
