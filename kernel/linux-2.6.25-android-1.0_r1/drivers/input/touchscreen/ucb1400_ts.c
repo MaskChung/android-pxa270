@@ -621,8 +621,8 @@ static int ucb1400_ts_probe(struct device *dev)
 	idev->close		= ucb1400_ts_close;
 //	idev->evbit[0]		= BIT(EV_ABS);
 	//idev->evbit[0]		= BIT_MASK(EV_ABS);
-	set_bit(EV_ASB,input_dev->evbit);
-	set_bit(EV_SYN,input_dev->evbit);
+	set_bit(EV_ABS,idev->evbit);
+	set_bit(EV_SYN,idev->evbit);
 
 	ucb1400_adc_enable(ucb);
 	x_res = ucb1400_ts_read_xres(ucb);
