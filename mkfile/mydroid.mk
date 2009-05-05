@@ -13,3 +13,6 @@ endif
 
 install_mydroid:
 clean_mydroid:
+ifneq "$(MYDROID_SRC)" ""
+	$(MAKE) -C $(PRJROOT)/$(call path-for,mydroid) clean
+endif
