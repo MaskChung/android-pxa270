@@ -141,35 +141,48 @@ static unsigned int lookup_keycode(unsigned int hw_key)
 	return keymap[i].keycode;
 }
 
-#define MAX_IDLE_MSEC (1*1000) // 1 sec
+#define MAX_IDLE_MSEC (1*500) // 0.5 sec
+//#define MAX_IDLE_MSEC (1*1000) // 1 sec
 #define MIN_IDLE_MSEC (1*100) // 0.1 sec
 #define IDLE_STEPS 3
 static unsigned int min_idle_msec = MAX_IDLE_MSEC;
 static unsigned int max_idle_msec = MIN_IDLE_MSEC;
 static unsigned int idle_steps = IDLE_STEPS;
 #define SCAN(r3,r2,r1,r0) ( (r3<<3)|(r2<<2)|(r1<<1)|r0 )
+unsigned short scan_key[] = {
+SCAN(1,1,1,0),
+SCAN(1,1,0,1),
+SCAN(1,0,1,1),
+SCAN(0,1,1,1),
+};
 static int android_keypad_thread(void * data)
 {
 	struct android_keypad *keypad = data;
 	struct sched_param param = { .sched_priority = 1 };
 	unsigned short scan;
 	unsigned int keycode;
+	int i;
 
 	keypad->idle_period = min_idle_msec;
 	//keypad->idle_period = msecs_to_jiffies(min_idle_msec);
 	sched_setscheduler(current, SCHED_FIFO, &param);
 	current->flags |= PF_NOFREEZE;
 	do {
-		scan = SCAN(1,1,1,0);
+//		scan = SCAN(1,1,1,0);
+		i = 0;
+		//scan = scan_key[i];
 		spin_lock(&keypad->spinlock);
 		do
 		{
+		scan = scan_key[i];
 			io_reg2_write(scan); // maybe change to 0xe because bit 4~7 don't care
 			keycode = lookup_keycode( (scan << 4) | ((io_reg1_read() & 0x0f00) >> 8));
 			if(keycode != KEY_UNKNOWN)
 				break;
-			scan = ((scan << 1) | (scan >> 3)) & 0xf;
-		} while(scan != SCAN(1,1,1,0));
+//			scan = ((scan << 1) | (scan >> 3)) & 0xf;
+			++i;
+		} while(i < ARRAY_SIZE(scan_key));
+		//} while(scan != SCAN(1,1,1,0));
 		spin_unlock(&keypad->spinlock);
 		if(keycode == KEY_UNKNOWN) // no input --- need to modify
 		{
@@ -292,7 +305,10 @@ static int __devinit android_keypad_probe(struct platform_device *pdev)
 	//	BIT_MASK(EV_REL);
 	//input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP) |
 	//	BIT(EV_REL);
-	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
+	//input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
+	set_bit(EV_KEY,input_dev->evbit); 
+	set_bit(EV_SYN,input_dev->evbit); 
+	set_bit(EV_REP,input_dev->evbit); 
 
 	android_keypad_setkeycode(keypad);
 	platform_set_drvdata(pdev, keypad);

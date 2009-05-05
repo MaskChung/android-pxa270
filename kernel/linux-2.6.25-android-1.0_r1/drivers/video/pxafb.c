@@ -70,6 +70,17 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state);
 static char g_options[PXAFB_OPTIONS_SIZE] __devinitdata = "";
 #endif
 
+static int pxafb_pan_display(struct fb_var_screeninfo *var, struct fb_info *info)
+{
+	struct pxafb_info *fbi = (struct pxafb_info *)info;
+	if (fbi->dmadesc_fbhigh_cpu->fsadr == fbi->screen_dma) {
+		fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma +((fbi->fb.var.yoffset / fbi->fb.var.yres) * (fbi->fb.var.yres) * (fbi->fb.var.xres) * 2);
+	}
+	else
+		fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma;
+	return 0;
+}
+
 static inline void pxafb_schedule_work(struct pxafb_info *fbi, u_int state)
 {
 	unsigned long flags;
@@ -499,6 +510,7 @@ static struct fb_ops pxafb_ops = {
 	.fb_imageblit	= cfb_imageblit,
 	.fb_blank	= pxafb_blank,
 	.fb_mmap	= pxafb_mmap,
+//	.fb_mmap	= pxafb_pan_display,
 };
 
 /*
@@ -1178,8 +1190,12 @@ static struct pxafb_info * __init pxafb_init_fbinfo(struct device *dev)
 
 	fbi->fb.var.nonstd	= 0;
 	fbi->fb.var.activate	= FB_ACTIVATE_NOW;
+	/*
 	fbi->fb.var.height	= -1;
 	fbi->fb.var.width	= -1;
+	*/
+	fbi->fb.var.height	= 71;
+	fbi->fb.var.width	= 53;
 	fbi->fb.var.accel_flags	= 0;
 	fbi->fb.var.vmode	= FB_VMODE_NONINTERLACED;
 
