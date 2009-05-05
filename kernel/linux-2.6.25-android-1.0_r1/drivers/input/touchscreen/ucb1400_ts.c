@@ -342,6 +342,9 @@ static inline void ucb1400_ts_irq_disable(struct ucb1400 *ucb)
 
 static void ucb1400_ts_evt_add(struct input_dev *idev, u16 pressure, u16 x, u16 y)
 {
+printk(" ----------- report x = %u\n",x);
+printk(" ----------- report y = %u\n",y);
+printk(" ----------- report pressure = %u\n",pressure);
 	input_report_abs(idev, ABS_X, x);
 	input_report_abs(idev, ABS_Y, y);
 	input_report_abs(idev, ABS_PRESSURE, pressure);
@@ -385,6 +388,7 @@ printk("%s:%s ---------- into\n",__FILE__,__func__);
 		unsigned int x, y, p;
 		long timeout;
 
+	printk(" haha --------------------\n");
 		ucb->ts_restart = 0;
 
 		if (ucb->irq_pending) {
@@ -615,7 +619,10 @@ static int ucb1400_ts_probe(struct device *dev)
 	idev->id.product	= id;
 	idev->open		= ucb1400_ts_open;
 	idev->close		= ucb1400_ts_close;
-	idev->evbit[0]		= BIT_MASK(EV_ABS);
+//	idev->evbit[0]		= BIT(EV_ABS);
+	//idev->evbit[0]		= BIT_MASK(EV_ABS);
+	set_bit(EV_ASB,input_dev->evbit);
+	set_bit(EV_SYN,input_dev->evbit);
 
 	ucb1400_adc_enable(ucb);
 	x_res = ucb1400_ts_read_xres(ucb);
