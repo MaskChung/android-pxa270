@@ -1,4 +1,5 @@
-include $(PRJROOT)/mkfile/unsetenv.mk
+include $(PRJROOT)/mkfile/pathmap.mk
+include $(PRJROOT)/$(call path-for,mkfile)/unsetenv.mk
 export PATH := $(PRJROOT)/$(call path-for,jdk)/bin:$(shell echo $$PATH)
 
 all:
