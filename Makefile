@@ -39,6 +39,7 @@ all:
 	if [ ! -e $(PRJROOT)/.config ] ; then \
 		cp $(TOP_CONF) $(PRJROOT)/.config; \
 	fi
+	$(MAKE) build_toolchain
 	$(MAKE) $(addprefix build_,$(MODULES))
 	$(MAKE) install
 ifneq "$(FS)" ""
@@ -51,7 +52,8 @@ install:
 	done
 
 clean: distclean
-distclean: $(addprefix clean_, $(filter-out toolchain,$(MODULES)) toolchain)
+distclean: $(addprefix clean_, $(filter-out toolchain,$(MODULES)))
+	$(MAKE) clean_toolchain
 	-rm -rf $(PRJROOT)/$(call path-for,target)
 	$(MAKE) clean_mconf
 	-rm -f .config
