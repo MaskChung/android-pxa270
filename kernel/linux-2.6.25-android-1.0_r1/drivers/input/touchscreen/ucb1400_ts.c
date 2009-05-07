@@ -342,9 +342,26 @@ static inline void ucb1400_ts_irq_disable(struct ucb1400 *ucb)
 
 static void ucb1400_ts_evt_add(struct input_dev *idev, u16 pressure, u16 x, u16 y)
 {
+/* it's hard code here, may be you should modify */
+u16 _min_x = 90;
+u16 _min_y = 100;
+u16 _max_x = 950;
+u16 _max_y = 970;
 printk(" ----------- report x = %u\n",x);
 printk(" ----------- report y = %u\n",y);
 printk(" ----------- report pressure = %u\n",pressure);
+x = x > _max_x ? _max_x : x;
+y = y > _max_y ? _max_y : y;
+x = x < _min_x ? _min_x : x;
+y = y < _min_y ? _min_y : y;
+x = (x * 240) / (_max_x - _min_x);
+y = (y * 320) / (_max_y - _min_y);
+printk(" ----------- cal x = %u\n",x);
+printk(" ----------- cal y = %u\n",y);
+x = x > 240 ? 240-1 : x;
+y = y > 320 ? 320-1 : y;
+y = 320 - y - 1;
+printk(" ----------- cal y = %u\n",y);
 	input_report_abs(idev, ABS_X, x);
 	input_report_abs(idev, ABS_Y, y);
 	input_report_abs(idev, ABS_PRESSURE, pressure);
@@ -630,8 +647,9 @@ static int ucb1400_ts_probe(struct device *dev)
 	ucb1400_adc_disable(ucb);
 	printk("UCB1400: x/y = %d/%d\n", x_res, y_res);
 
-	input_set_abs_params(idev, ABS_X, 0, x_res, 0, 0);
-	input_set_abs_params(idev, ABS_Y, 0, y_res, 0, 0);
+/* it's hard code here, may be you should modify */
+	input_set_abs_params(idev, ABS_X, 0, 240, 0, 0);
+	input_set_abs_params(idev, ABS_Y, 0, 320, 0, 0);
 	input_set_abs_params(idev, ABS_PRESSURE, 0, 0, 0, 0);
 
 	error = input_register_device(idev);
