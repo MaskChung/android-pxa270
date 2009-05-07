@@ -95,6 +95,7 @@ LOCAL_STATIC_LIBRARIES += liblog
 
 have_readline := $(wildcard /usr/include/readline/readline.h)
 have_history := $(wildcard /usr/lib/libhistory*)
+have_termcap := $(wildcard /usr/lib/libtermcap*)
 ifneq ($(strip $(have_readline)),)
 LOCAL_CFLAGS += -DHAVE_READLINE=1
 endif
@@ -106,6 +107,9 @@ LOCAL_LDLIBS += -lreadline
 endif
 ifneq ($(strip $(have_history)),)
 LOCAL_LDLIBS += -lhistory
+endif
+ifneq ($(strip $(have_termcap)),)
+LOCAL_LDLIBS += -ltermcap
 endif
 
 LOCAL_MODULE := sqlite3

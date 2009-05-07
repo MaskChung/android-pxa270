@@ -549,7 +549,7 @@ ifeq ($(strip $(SHOW_COMMANDS)),)
 define pretty
 @echo $1
 endef
-hide := @
+hide := 
 else
 define pretty
 endef

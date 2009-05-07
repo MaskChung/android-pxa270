@@ -45,7 +45,8 @@ pathmap := \
     mconf-conf-in:scripts \
     mkfile:mkfile \
     mydroid:mydroid \
-    jdk:mydroid/jdk1.5.0_18
+    jdk:mydroid/jdk1.5.0_18 \
+    jdk-64:mydroid/jdk1.5.0_18-amd64
 
 #
 # Returns the path to the requested module's include directory,
