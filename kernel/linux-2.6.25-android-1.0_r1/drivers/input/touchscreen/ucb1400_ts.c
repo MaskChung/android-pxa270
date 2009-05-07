@@ -362,6 +362,7 @@ x = x > 240 ? 240-1 : x;
 y = y > 320 ? 320-1 : y;
 y = 320 - y - 1;
 printk(" ----------- cal y = %u\n",y);
+	input_report_key(idev, BTN_TOUCH, 1);
 	input_report_abs(idev, ABS_X, x);
 	input_report_abs(idev, ABS_Y, y);
 	input_report_abs(idev, ABS_PRESSURE, pressure);
@@ -370,6 +371,8 @@ printk(" ----------- cal y = %u\n",y);
 
 static void ucb1400_ts_event_release(struct input_dev *idev)
 {
+printk(" ----------- into ucb1400_ts_event_release\n");
+	input_report_key(idev, BTN_TOUCH, 0);
 	input_report_abs(idev, ABS_PRESSURE, 0);
 	input_sync(idev);
 }
@@ -638,8 +641,10 @@ static int ucb1400_ts_probe(struct device *dev)
 	idev->close		= ucb1400_ts_close;
 //	idev->evbit[0]		= BIT(EV_ABS);
 	//idev->evbit[0]		= BIT_MASK(EV_ABS);
+	set_bit(EV_KEY,idev->evbit);
 	set_bit(EV_ABS,idev->evbit);
 	set_bit(EV_SYN,idev->evbit);
+	set_bit(BTN_TOUCH,idev->keybit);
 
 	ucb1400_adc_enable(ucb);
 	x_res = ucb1400_ts_read_xres(ucb);
