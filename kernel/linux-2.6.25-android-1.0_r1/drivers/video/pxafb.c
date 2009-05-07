@@ -510,7 +510,7 @@ static struct fb_ops pxafb_ops = {
 	.fb_imageblit	= cfb_imageblit,
 	.fb_blank	= pxafb_blank,
 	.fb_mmap	= pxafb_mmap,
-//	.fb_mmap	= pxafb_pan_display,
+//	.fb_pan_display	= pxafb_pan_display,
 };
 
 /*
@@ -717,12 +717,16 @@ static int pxafb_activate_var(struct fb_var_screeninfo *var, struct pxafb_info *
 
 	fbi->dmadesc_palette_cpu->fsadr = fbi->palette_dma;
 	fbi->dmadesc_palette_cpu->fidr  = 0;
+		fbi->dmadesc_palette_cpu->ldcmd = fbi->palette_size *
+							sizeof(u16);
+	/*
 	if ((fbi->lccr4 & LCCR4_PAL_FOR_MASK) == LCCR4_PAL_FOR_0)
 		fbi->dmadesc_palette_cpu->ldcmd = fbi->palette_size *
 							sizeof(u16);
 	else
 		fbi->dmadesc_palette_cpu->ldcmd = fbi->palette_size *
 							sizeof(u32);
+							*/
 	fbi->dmadesc_palette_cpu->ldcmd |= LDCMD_PAL;
 
 	if (var->bits_per_pixel == 16) {
@@ -762,8 +766,10 @@ static int pxafb_activate_var(struct fb_var_screeninfo *var, struct pxafb_info *
 	fbi->reg_lccr1 = new_regs.lccr1;
 	fbi->reg_lccr2 = new_regs.lccr2;
 	fbi->reg_lccr3 = new_regs.lccr3;
+	/*
 	fbi->reg_lccr4 = LCCR4 & (~LCCR4_PAL_FOR_MASK);
 	fbi->reg_lccr4 |= (fbi->lccr4 & LCCR4_PAL_FOR_MASK);
+	*/
 	set_hsync_time(fbi, pcd);
 	local_irq_restore(flags);
 
@@ -870,7 +876,7 @@ static void pxafb_enable_controller(struct pxafb_info *fbi)
 	pr_debug("LCCR1 0x%08x\n", (unsigned int) LCCR1);
 	pr_debug("LCCR2 0x%08x\n", (unsigned int) LCCR2);
 	pr_debug("LCCR3 0x%08x\n", (unsigned int) LCCR3);
-	pr_debug("LCCR4 0x%08x\n", (unsigned int) LCCR4);
+//	pr_debug("LCCR4 0x%08x\n", (unsigned int) LCCR4);
 }
 
 static void pxafb_disable_controller(struct pxafb_info *fbi)
@@ -886,7 +892,8 @@ static void pxafb_disable_controller(struct pxafb_info *fbi)
 	LCCR0 &= ~LCCR0_LDM;	/* Enable LCD Disable Done Interrupt */
 	LCCR0 |= LCCR0_DIS;	/* Disable LCD Controller */
 
-	schedule_timeout(200 * HZ / 1000);
+	schedule_timeout(20 * HZ / 1000);
+	//schedule_timeout(200 * HZ / 1000);
 	remove_wait_queue(&fbi->ctrlr_wait, &wait);
 
 	/* disable LCD controller clock */
@@ -1141,12 +1148,13 @@ static int __init pxafb_map_video_memory(struct pxafb_info *fbi)
 		 */
 		fbi->fb.fix.smem_start = fbi->screen_dma;
 		fbi->palette_size = fbi->fb.var.bits_per_pixel == 8 ? 256 : 16;
-
+			palette_mem_size = fbi->palette_size * sizeof(u16);
+/*
 		if ((fbi->lccr4 & LCCR4_PAL_FOR_MASK) == LCCR4_PAL_FOR_0)
 			palette_mem_size = fbi->palette_size * sizeof(u16);
 		else
 			palette_mem_size = fbi->palette_size * sizeof(u32);
-
+*/
 		pr_debug("pxafb: palette_mem_size = 0x%08lx\n", palette_mem_size);
 
 		fbi->palette_cpu = (u16 *)(fbi->map_cpu + PAGE_SIZE - palette_mem_size);
@@ -1214,7 +1222,7 @@ static struct pxafb_info * __init pxafb_init_fbinfo(struct device *dev)
 
 	fbi->lccr0			= inf->lccr0;
 	fbi->lccr3			= inf->lccr3;
-	fbi->lccr4			= inf->lccr4;
+	//fbi->lccr4			= inf->lccr4;
 	fbi->state			= C_STARTUP;
 	fbi->task_state			= (u_char)-1;
 
