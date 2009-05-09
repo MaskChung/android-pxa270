@@ -70,7 +70,12 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state);
 static char g_options[PXAFB_OPTIONS_SIZE] __devinitdata = "";
 #endif
 
-#define C_CHANGE_DMA_BASE      (10)
+static int pxafb_pan_display(struct fb_var_screeninfo *var, struct fb_info *info)
+{
+	struct pxafb_info *fbi = (struct pxafb_info *)info;
+	fbi->task_state = C_ANDROID_NOP;
+	return 0;
+}
 
 static inline void pxafb_schedule_work(struct pxafb_info *fbi, u_int state)
 {
@@ -85,15 +90,10 @@ static inline void pxafb_schedule_work(struct pxafb_info *fbi, u_int state)
 	 *  2. When we are blanking, but immediately unblank before we have
 	 *     blanked.  We do the "REENABLE" thing here as well, just to be sure.
 	 */
-	 printk("task_state = %d\n",fbi->task_state);
-	 printk("state = %d\n",state);
 	if (fbi->task_state == C_ENABLE && state == C_REENABLE)
 		state = (u_int) -1;
 	if (fbi->task_state == C_DISABLE && state == C_ENABLE)
-	{
-		printk("2\n");
 		state = C_REENABLE;
-	}
 
 	if (state != (u_int)-1) {
 		fbi->task_state = state;
@@ -101,32 +101,6 @@ static inline void pxafb_schedule_work(struct pxafb_info *fbi, u_int state)
 	}
 	local_irq_restore(flags);
 }
-
-static int pxafb_pan_display(struct fb_var_screeninfo *var, struct fb_info *info)
-{
-	struct pxafb_info *fbi = (struct pxafb_info *)info;
-	fbi->fb.var.yoffset = var->yoffset;
-	/*
-	printk("pxafb_pan_display -------------- yoffset = %d\n",fbi->fb.var.yoffset);
-	*/
-//	pxafb_schedule_work(fbi, C_CHANGE_DMA_BASE);
-		fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma + (fbi->fb.var.xres*fbi->fb.var.yoffset*fbi->fb.var.bits_per_pixel/8);
-
-	/*
-		fbi->dmadesc_fblow_cpu->fdadr = fbi->screen_dma + (fbi->fb.var.xres*fbi->fb.var.yoffset*fbi->fb.var.bits_per_pixel/8) + fbi->fb.fix.line_length * fbi->fb.var.yres;
-		printk(" jiffies = %lu\n",jiffies);
-		*/
-/*
-	if (fbi->dmadesc_fbhigh_cpu->fsadr == fbi->screen_dma) {
-		fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma +((fbi->fb.var.yoffset / fbi->fb.var.yres) * (fbi->fb.var.yres) * (fbi->fb.var.xres) * 2);
-	}
-	else
-		fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma;
-		*/
-	return 0;
-}
-
-
 
 static inline u_int chan_to_field(u_int chan, struct fb_bitfield *bf)
 {
@@ -483,7 +457,6 @@ static int pxafb_blank(int blank, struct fb_info *info)
 	int i;
 
 	pr_debug("pxafb: blank=%d\n", blank);
-	printk(" --------- into pxafb_blank\n");
 
 	switch (blank) {
 	case FB_BLANK_POWERDOWN:
@@ -500,18 +473,11 @@ static int pxafb_blank(int blank, struct fb_info *info)
 		break;
 
 	case FB_BLANK_UNBLANK:
-	printk(" --- FB_BLANK_UNBLANK\n");
 		//TODO if (pxafb_blank_helper) pxafb_blank_helper(blank);
 		if (fbi->fb.fix.visual == FB_VISUAL_PSEUDOCOLOR ||
 		    fbi->fb.fix.visual == FB_VISUAL_STATIC_PSEUDOCOLOR)
 			fb_set_cmap(&fbi->fb.cmap, info);
 		pxafb_schedule_work(fbi, C_ENABLE);
-		break;
-		/*
-	case C_CHANGE_DMA_BASE:
-		fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma + (fbi->fb.var.xres*fbi->fb.var.yoffset*fbi->fb.var.bits_per_pixel/8);
-		break;
-		*/
 	}
 	return 0;
 }
@@ -734,7 +700,6 @@ static int pxafb_activate_var(struct fb_var_screeninfo *var, struct pxafb_info *
 	/* populate descriptors */
 	fbi->dmadesc_fblow_cpu->fdadr = fbi->dmadesc_fblow_dma;
 //	fbi->dmadesc_fblow_cpu->fsadr = fbi->screen_dma + BYTES_PER_PANEL;
-printk("------------- yoffset = %d\n",fbi->fb.var.yoffset);
 	fbi->dmadesc_fblow_cpu->fsadr = fbi->screen_dma + BYTES_PER_PANEL + ((fbi->fb.var.yoffset / fbi->fb.var.yres) * (fbi->fb.var.yres) * (fbi->fb.var.xres) * 2);
 	fbi->dmadesc_fblow_cpu->fidr  = 0;
 	fbi->dmadesc_fblow_cpu->ldcmd = BYTES_PER_PANEL;
@@ -748,16 +713,12 @@ printk("------------- yoffset = %d\n",fbi->fb.var.yoffset);
 
 	fbi->dmadesc_palette_cpu->fsadr = fbi->palette_dma;
 	fbi->dmadesc_palette_cpu->fidr  = 0;
-		fbi->dmadesc_palette_cpu->ldcmd = fbi->palette_size *
-							sizeof(u16);
-	/*
 	if ((fbi->lccr4 & LCCR4_PAL_FOR_MASK) == LCCR4_PAL_FOR_0)
 		fbi->dmadesc_palette_cpu->ldcmd = fbi->palette_size *
 							sizeof(u16);
 	else
 		fbi->dmadesc_palette_cpu->ldcmd = fbi->palette_size *
 							sizeof(u32);
-							*/
 	fbi->dmadesc_palette_cpu->ldcmd |= LDCMD_PAL;
 
 	if (var->bits_per_pixel == 16) {
@@ -797,10 +758,8 @@ printk("------------- yoffset = %d\n",fbi->fb.var.yoffset);
 	fbi->reg_lccr1 = new_regs.lccr1;
 	fbi->reg_lccr2 = new_regs.lccr2;
 	fbi->reg_lccr3 = new_regs.lccr3;
-	/*
 	fbi->reg_lccr4 = LCCR4 & (~LCCR4_PAL_FOR_MASK);
 	fbi->reg_lccr4 |= (fbi->lccr4 & LCCR4_PAL_FOR_MASK);
-	*/
 	set_hsync_time(fbi, pcd);
 	local_irq_restore(flags);
 
@@ -811,10 +770,7 @@ printk("------------- yoffset = %d\n",fbi->fb.var.yoffset);
 	if ((LCCR0  != fbi->reg_lccr0) || (LCCR1  != fbi->reg_lccr1) ||
 	    (LCCR2  != fbi->reg_lccr2) || (LCCR3  != fbi->reg_lccr3) ||
 	    (FDADR0 != fbi->fdadr0)    || (FDADR1 != fbi->fdadr1))
-	    {
-	    	printk("1\n");
 		pxafb_schedule_work(fbi, C_REENABLE);
-	    }
 
 	return 0;
 }
@@ -910,7 +866,7 @@ static void pxafb_enable_controller(struct pxafb_info *fbi)
 	pr_debug("LCCR1 0x%08x\n", (unsigned int) LCCR1);
 	pr_debug("LCCR2 0x%08x\n", (unsigned int) LCCR2);
 	pr_debug("LCCR3 0x%08x\n", (unsigned int) LCCR3);
-//	pr_debug("LCCR4 0x%08x\n", (unsigned int) LCCR4);
+	pr_debug("LCCR4 0x%08x\n", (unsigned int) LCCR4);
 }
 
 static void pxafb_disable_controller(struct pxafb_info *fbi)
@@ -926,8 +882,7 @@ static void pxafb_disable_controller(struct pxafb_info *fbi)
 	LCCR0 &= ~LCCR0_LDM;	/* Enable LCD Disable Done Interrupt */
 	LCCR0 |= LCCR0_DIS;	/* Disable LCD Controller */
 
-	schedule_timeout(20 * HZ / 1000);
-	//schedule_timeout(200 * HZ / 1000);
+	schedule_timeout(200 * HZ / 1000);
 	remove_wait_queue(&fbi->ctrlr_wait, &wait);
 
 	/* disable LCD controller clock */
@@ -972,7 +927,6 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state)
 
 	switch (state) {
 	case C_DISABLE_CLKCHANGE:
-	printk("into ----------- C_DISABLE_CLKCHANGE\n");
 		/*
 		 * Disable controller for clock change.  If the
 		 * controller is already disabled, then do nothing.
@@ -986,7 +940,6 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state)
 
 	case C_DISABLE_PM:
 	case C_DISABLE:
-	printk("into ----------- C_DISABLE\n");
 		/*
 		 * Disable controller
 		 */
@@ -1000,7 +953,6 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state)
 		break;
 
 	case C_ENABLE_CLKCHANGE:
-	printk("into ----------- C_ENABLE_CLKCHANGE\n");
 		/*
 		 * Enable the controller after clock change.  Only
 		 * do this if we were disabled for the clock change.
@@ -1013,7 +965,6 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state)
 		break;
 
 	case C_REENABLE:
-	printk("into ----------- C_REENABLE\n");
 		/*
 		 * Re-enable the controller only if it was already
 		 * enabled.  This is so we reprogram the control
@@ -1029,7 +980,6 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state)
 		break;
 
 	case C_ENABLE_PM:
-	printk("into ----------- C_ENABLE_PM\n");
 		/*
 		 * Re-enable the controller after PM.  This is not
 		 * perfect - think about the case where we were doing
@@ -1040,7 +990,6 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state)
 		/* fall through */
 
 	case C_ENABLE:
-	printk("into ----------- C_ENABLE\n");
 		/*
 		 * Power up the LCD screen, enable controller, and
 		 * turn on the backlight.
@@ -1053,11 +1002,6 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state)
 			__pxafb_backlight_power(fbi, 1);
 		}
 		break;
-	case C_CHANGE_DMA_BASE:
-//		printk(" jiffies = %lu\n",jiffies);
-		fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma + (fbi->fb.var.xres*fbi->fb.var.yoffset*fbi->fb.var.bits_per_pixel/8);
-		break;
-
 	}
 	up(&fbi->ctrlr_sem);
 }
@@ -1193,13 +1137,12 @@ static int __init pxafb_map_video_memory(struct pxafb_info *fbi)
 		 */
 		fbi->fb.fix.smem_start = fbi->screen_dma;
 		fbi->palette_size = fbi->fb.var.bits_per_pixel == 8 ? 256 : 16;
-			palette_mem_size = fbi->palette_size * sizeof(u16);
-/*
+
 		if ((fbi->lccr4 & LCCR4_PAL_FOR_MASK) == LCCR4_PAL_FOR_0)
 			palette_mem_size = fbi->palette_size * sizeof(u16);
 		else
 			palette_mem_size = fbi->palette_size * sizeof(u32);
-*/
+
 		pr_debug("pxafb: palette_mem_size = 0x%08lx\n", palette_mem_size);
 
 		fbi->palette_cpu = (u16 *)(fbi->map_cpu + PAGE_SIZE - palette_mem_size);
@@ -1267,7 +1210,7 @@ static struct pxafb_info * __init pxafb_init_fbinfo(struct device *dev)
 
 	fbi->lccr0			= inf->lccr0;
 	fbi->lccr3			= inf->lccr3;
-	//fbi->lccr4			= inf->lccr4;
+	fbi->lccr4			= inf->lccr4;
 	fbi->state			= C_STARTUP;
 	fbi->task_state			= (u_char)-1;
 

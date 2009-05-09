@@ -141,7 +141,7 @@ static unsigned int lookup_keycode(unsigned int hw_key)
 	return keymap[i].keycode;
 }
 
-#define MAX_IDLE_MSEC (1*500) // 0.5 sec
+#define MAX_IDLE_MSEC (1*300) // 0.5 sec
 //#define MAX_IDLE_MSEC (1*1000) // 1 sec
 #define MIN_IDLE_MSEC (1*100) // 0.1 sec
 #define IDLE_STEPS 3
