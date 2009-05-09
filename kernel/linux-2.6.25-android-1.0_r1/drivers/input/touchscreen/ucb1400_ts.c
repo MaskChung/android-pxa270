@@ -187,6 +187,7 @@ struct ucb1400 {
 static int adcsync;
 static int ts_delay = 55; /* us */
 static int ts_delay_pressure;	/* us */
+static test_cnt = 0;
 
 static inline u16 ucb1400_reg_read(struct ucb1400 *ucb, u16 reg)
 {
@@ -343,30 +344,44 @@ static inline void ucb1400_ts_irq_disable(struct ucb1400 *ucb)
 static void ucb1400_ts_evt_add(struct input_dev *idev, u16 pressure, u16 x, u16 y)
 {
 /* it's hard code here, may be you should modify */
+/*
 u16 _min_x = 90;
 u16 _min_y = 100;
 u16 _max_x = 950;
 u16 _max_y = 970;
+*/
+u16 _min_x = 90;
+u16 _min_y = 80;
+u16 _max_x = 920;
+u16 _max_y = 950;
 printk(" ----------- report x = %u\n",x);
 printk(" ----------- report y = %u\n",y);
 printk(" ----------- report pressure = %u\n",pressure);
-x = x > _max_x ? _max_x : x;
-y = y > _max_y ? _max_y : y;
+x = x > _max_x ? _max_x-1 : x;
+y = y > _max_y ? _max_y-1 : y;
 x = x < _min_x ? _min_x : x;
 y = y < _min_y ? _min_y : y;
+/*
 x = (x * 240) / (_max_x - _min_x);
 y = (y * 320) / (_max_y - _min_y);
+*/
 printk(" ----------- cal x = %u\n",x);
 printk(" ----------- cal y = %u\n",y);
-x = x > 240 ? 240-1 : x;
-y = y > 320 ? 320-1 : y;
-y = 320 - y - 1;
+/*
+x = x >= 240 ? 240-1 : x;
+y = y >= 320 ? 320-1 : y;
+*/
+y = _max_y - y;
+y = (y <= 0) ? 1 : y;
+printk(" ----------- cal x = %u\n",x);
 printk(" ----------- cal y = %u\n",y);
+if(test_cnt == 0)
 	input_report_key(idev, BTN_TOUCH, 1);
 	input_report_abs(idev, ABS_X, x);
 	input_report_abs(idev, ABS_Y, y);
-	input_report_abs(idev, ABS_PRESSURE, pressure);
+	input_report_abs(idev, ABS_PRESSURE, pressure ? 1 : 0);
 	input_sync(idev);
+++test_cnt;
 }
 
 static void ucb1400_ts_event_release(struct input_dev *idev)
@@ -375,6 +390,7 @@ printk(" ----------- into ucb1400_ts_event_release\n");
 	input_report_key(idev, BTN_TOUCH, 0);
 	input_report_abs(idev, ABS_PRESSURE, 0);
 	input_sync(idev);
+test_cnt=0;
 }
 
 static void ucb1400_handle_pending_irq(struct ucb1400 *ucb)
@@ -643,7 +659,7 @@ static int ucb1400_ts_probe(struct device *dev)
 	//idev->evbit[0]		= BIT_MASK(EV_ABS);
 	set_bit(EV_KEY,idev->evbit);
 	set_bit(EV_ABS,idev->evbit);
-	set_bit(EV_SYN,idev->evbit);
+//	set_bit(EV_SYN,idev->evbit);
 	set_bit(BTN_TOUCH,idev->keybit);
 
 	ucb1400_adc_enable(ucb);
@@ -653,9 +669,13 @@ static int ucb1400_ts_probe(struct device *dev)
 	printk("UCB1400: x/y = %d/%d\n", x_res, y_res);
 
 /* it's hard code here, may be you should modify */
+/*
 	input_set_abs_params(idev, ABS_X, 0, 240, 0, 0);
 	input_set_abs_params(idev, ABS_Y, 0, 320, 0, 0);
-	input_set_abs_params(idev, ABS_PRESSURE, 0, 0, 0, 0);
+	*/
+	input_set_abs_params(idev, ABS_X, 0, 920, 0, 0);
+	input_set_abs_params(idev, ABS_Y, 0, 950, 0, 0);
+	input_set_abs_params(idev, ABS_PRESSURE, 0, 1, 0, 0);
 
 	error = input_register_device(idev);
 	if (error)

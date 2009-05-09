@@ -22,6 +22,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.MotionEvent;
 import android.widget.LinearLayout;
+import android.util.Log;
 
 
 /**
@@ -59,6 +60,10 @@ public class LinearLayoutWithDefaultTouchRecepient extends LinearLayout {
         }
         mTempRect.set(0, 0, 0, 0);
         offsetRectIntoDescendantCoords(mDefaultTouchRecepient, mTempRect);
+	Log.i("LinearLayoutWithDefaultTouchRecepient.java:", "ev.getX = " + ev.getX());
+	Log.i("LinearLayoutWithDefaultTouchRecepient.java:", "mTempRect.left = " + mTempRect.left);
+	Log.i("LinearLayoutWithDefaultTouchRecepient.java:", "ev.getY = " + ev.getY());
+	Log.i("LinearLayoutWithDefaultTouchRecepient.java:", "mTempRect.top = " + mTempRect.top);
         ev.setLocation(ev.getX() + mTempRect.left, ev.getY() + mTempRect.top);
         return mDefaultTouchRecepient.dispatchTouchEvent(ev);
     }

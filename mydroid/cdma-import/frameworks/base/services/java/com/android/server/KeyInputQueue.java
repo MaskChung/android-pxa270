@@ -292,9 +292,11 @@ public abstract class KeyInputQueue {
                         } else if (ev.type == RawInputEvent.EV_ABS &&
                                 (classes&RawInputEvent.CLASS_TOUCHSCREEN) != 0) {
                             if (ev.scancode == RawInputEvent.ABS_X) {
+			    	Log.i(TAG, "x = " + ev.value);
                                 di.mAbs.changed = true;
                                 di.mAbs.x = ev.value;
                             } else if (ev.scancode == RawInputEvent.ABS_Y) {
+			    	Log.i(TAG, "y = " + ev.value);
                                 di.mAbs.changed = true;
                                 di.mAbs.y = ev.value;
                             } else if (ev.scancode == RawInputEvent.ABS_PRESSURE) {
