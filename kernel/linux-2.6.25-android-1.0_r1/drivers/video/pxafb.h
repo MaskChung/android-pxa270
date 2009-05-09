@@ -109,6 +109,7 @@ struct pxafb_info {
 #define C_DISABLE_PM		(5)
 #define C_ENABLE_PM		(6)
 #define C_STARTUP		(7)
+#define C_ANDROID_NOP		(99)
 
 #define PXA_NAME	"PXA"
 
