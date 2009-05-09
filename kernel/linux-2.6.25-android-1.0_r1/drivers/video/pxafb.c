@@ -85,10 +85,15 @@ static inline void pxafb_schedule_work(struct pxafb_info *fbi, u_int state)
 	 *  2. When we are blanking, but immediately unblank before we have
 	 *     blanked.  We do the "REENABLE" thing here as well, just to be sure.
 	 */
+	 printk("task_state = %d\n",fbi->task_state);
+	 printk("state = %d\n",state);
 	if (fbi->task_state == C_ENABLE && state == C_REENABLE)
 		state = (u_int) -1;
 	if (fbi->task_state == C_DISABLE && state == C_ENABLE)
+	{
+		printk("2\n");
 		state = C_REENABLE;
+	}
 
 	if (state != (u_int)-1) {
 		fbi->task_state = state;
@@ -103,11 +108,14 @@ static int pxafb_pan_display(struct fb_var_screeninfo *var, struct fb_info *info
 	fbi->fb.var.yoffset = var->yoffset;
 	/*
 	printk("pxafb_pan_display -------------- yoffset = %d\n",fbi->fb.var.yoffset);
-	pxafb_schedule_work(fbi, C_CHANGE_DMA_BASE);
 	*/
+//	pxafb_schedule_work(fbi, C_CHANGE_DMA_BASE);
 		fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma + (fbi->fb.var.xres*fbi->fb.var.yoffset*fbi->fb.var.bits_per_pixel/8);
 
-		fbi->dmadesc_fblow_cpu->fdadr = fbi->screen_dma + fbi->fb.fix.line_length * fbi->fb.var.yres;
+	/*
+		fbi->dmadesc_fblow_cpu->fdadr = fbi->screen_dma + (fbi->fb.var.xres*fbi->fb.var.yoffset*fbi->fb.var.bits_per_pixel/8) + fbi->fb.fix.line_length * fbi->fb.var.yres;
+		printk(" jiffies = %lu\n",jiffies);
+		*/
 /*
 	if (fbi->dmadesc_fbhigh_cpu->fsadr == fbi->screen_dma) {
 		fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma +((fbi->fb.var.yoffset / fbi->fb.var.yres) * (fbi->fb.var.yres) * (fbi->fb.var.xres) * 2);
@@ -475,6 +483,7 @@ static int pxafb_blank(int blank, struct fb_info *info)
 	int i;
 
 	pr_debug("pxafb: blank=%d\n", blank);
+	printk(" --------- into pxafb_blank\n");
 
 	switch (blank) {
 	case FB_BLANK_POWERDOWN:
@@ -491,6 +500,7 @@ static int pxafb_blank(int blank, struct fb_info *info)
 		break;
 
 	case FB_BLANK_UNBLANK:
+	printk(" --- FB_BLANK_UNBLANK\n");
 		//TODO if (pxafb_blank_helper) pxafb_blank_helper(blank);
 		if (fbi->fb.fix.visual == FB_VISUAL_PSEUDOCOLOR ||
 		    fbi->fb.fix.visual == FB_VISUAL_STATIC_PSEUDOCOLOR)
@@ -801,7 +811,10 @@ printk("------------- yoffset = %d\n",fbi->fb.var.yoffset);
 	if ((LCCR0  != fbi->reg_lccr0) || (LCCR1  != fbi->reg_lccr1) ||
 	    (LCCR2  != fbi->reg_lccr2) || (LCCR3  != fbi->reg_lccr3) ||
 	    (FDADR0 != fbi->fdadr0)    || (FDADR1 != fbi->fdadr1))
+	    {
+	    	printk("1\n");
 		pxafb_schedule_work(fbi, C_REENABLE);
+	    }
 
 	return 0;
 }
@@ -959,6 +972,7 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state)
 
 	switch (state) {
 	case C_DISABLE_CLKCHANGE:
+	printk("into ----------- C_DISABLE_CLKCHANGE\n");
 		/*
 		 * Disable controller for clock change.  If the
 		 * controller is already disabled, then do nothing.
@@ -972,6 +986,7 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state)
 
 	case C_DISABLE_PM:
 	case C_DISABLE:
+	printk("into ----------- C_DISABLE\n");
 		/*
 		 * Disable controller
 		 */
@@ -985,6 +1000,7 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state)
 		break;
 
 	case C_ENABLE_CLKCHANGE:
+	printk("into ----------- C_ENABLE_CLKCHANGE\n");
 		/*
 		 * Enable the controller after clock change.  Only
 		 * do this if we were disabled for the clock change.
@@ -997,6 +1013,7 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state)
 		break;
 
 	case C_REENABLE:
+	printk("into ----------- C_REENABLE\n");
 		/*
 		 * Re-enable the controller only if it was already
 		 * enabled.  This is so we reprogram the control
@@ -1012,6 +1029,7 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state)
 		break;
 
 	case C_ENABLE_PM:
+	printk("into ----------- C_ENABLE_PM\n");
 		/*
 		 * Re-enable the controller after PM.  This is not
 		 * perfect - think about the case where we were doing
@@ -1022,6 +1040,7 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state)
 		/* fall through */
 
 	case C_ENABLE:
+	printk("into ----------- C_ENABLE\n");
 		/*
 		 * Power up the LCD screen, enable controller, and
 		 * turn on the backlight.
@@ -1035,7 +1054,7 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state)
 		}
 		break;
 	case C_CHANGE_DMA_BASE:
-printk(".\n");
+//		printk(" jiffies = %lu\n",jiffies);
 		fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma + (fbi->fb.var.xres*fbi->fb.var.yoffset*fbi->fb.var.bits_per_pixel/8);
 		break;
 
