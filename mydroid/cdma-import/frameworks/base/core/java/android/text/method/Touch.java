@@ -22,6 +22,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.TextView;
+import android.util.Log;
 
 public class Touch {
     private Touch() { }
@@ -45,12 +46,15 @@ public class Touch {
         for (int i = top; i <= bottom; i++) {
             left = (int) Math.min(left, layout.getLineLeft(i));
             right = (int) Math.max(right, layout.getLineRight(i));
+	    Log.i("Touch.java:", "left = " + left);
+	    Log.i("Touch.java:", "right = " + right);
         }
 
         padding = widget.getTotalPaddingLeft() + widget.getTotalPaddingRight();
         x = Math.min(x, right - (widget.getWidth() - padding));
         x = Math.max(x, left);
 
+	    Log.i("Touch.java:", "(x,y) = " + x + "," + y);
         widget.scrollTo(x, y);
     }
 
@@ -61,6 +65,8 @@ public class Touch {
     public static boolean onTouchEvent(TextView widget, Spannable buffer,
                                        MotionEvent event) {
         DragState[] ds;
+	Log.i("Touch.java:", "x = " + event.getX());
+	Log.i("Touch.java:", "y = " + event.getY());
 
         switch (event.getAction()) {
         case MotionEvent.ACTION_DOWN:
@@ -114,6 +120,8 @@ public class Touch {
                                                             padding));
                     ny = Math.max(ny, 0);
         
+		Log.i("Touch.java:", "nx = " + nx);
+		Log.i("Touch.java:", "ny = " + ny);
                     scrollTo(widget, layout, nx, ny);
                     widget.cancelLongPress();
                     return true;

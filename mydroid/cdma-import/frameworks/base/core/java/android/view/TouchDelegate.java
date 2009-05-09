@@ -20,6 +20,7 @@ import android.graphics.Rect;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.util.Log;
 
 /**
  * Helper class to handle situations where you want a view to have a larger touch area than its
@@ -103,7 +104,9 @@ public class TouchDelegate {
      */
     public boolean onTouchEvent(MotionEvent event) {
         int x = (int)event.getX();
+	Log.i("TouchDelegate:", "x = " + x);
         int y = (int)event.getY();
+	Log.i("TouchDelegate:", "y = " + y);
         boolean sendToDelegate = false;
         boolean hit = true;
         boolean handled = false;

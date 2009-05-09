@@ -20,7 +20,7 @@ include $(call path-for,mkfile)/kernel.mk
 include $(call path-for,mkfile)/busybox.mk
 include $(call path-for,mkfile)/version.mk
 include $(call path-for,mkfile)/mkfs-jffs2.mk
-include $(call path-for,mkfile)/mydroid.mk
+#include $(call path-for,mkfile)/mydroid.mk
 
 FS :=
 ifeq "$(JFFS2)" "y"

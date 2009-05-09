@@ -70,16 +70,7 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state);
 static char g_options[PXAFB_OPTIONS_SIZE] __devinitdata = "";
 #endif
 
-static int pxafb_pan_display(struct fb_var_screeninfo *var, struct fb_info *info)
-{
-	struct pxafb_info *fbi = (struct pxafb_info *)info;
-	if (fbi->dmadesc_fbhigh_cpu->fsadr == fbi->screen_dma) {
-		fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma +((fbi->fb.var.yoffset / fbi->fb.var.yres) * (fbi->fb.var.yres) * (fbi->fb.var.xres) * 2);
-	}
-	else
-		fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma;
-	return 0;
-}
+#define C_CHANGE_DMA_BASE      (10)
 
 static inline void pxafb_schedule_work(struct pxafb_info *fbi, u_int state)
 {
@@ -105,6 +96,29 @@ static inline void pxafb_schedule_work(struct pxafb_info *fbi, u_int state)
 	}
 	local_irq_restore(flags);
 }
+
+static int pxafb_pan_display(struct fb_var_screeninfo *var, struct fb_info *info)
+{
+	struct pxafb_info *fbi = (struct pxafb_info *)info;
+	fbi->fb.var.yoffset = var->yoffset;
+	/*
+	printk("pxafb_pan_display -------------- yoffset = %d\n",fbi->fb.var.yoffset);
+	pxafb_schedule_work(fbi, C_CHANGE_DMA_BASE);
+	*/
+		fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma + (fbi->fb.var.xres*fbi->fb.var.yoffset*fbi->fb.var.bits_per_pixel/8);
+
+		fbi->dmadesc_fblow_cpu->fdadr = fbi->screen_dma + fbi->fb.fix.line_length * fbi->fb.var.yres;
+/*
+	if (fbi->dmadesc_fbhigh_cpu->fsadr == fbi->screen_dma) {
+		fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma +((fbi->fb.var.yoffset / fbi->fb.var.yres) * (fbi->fb.var.yres) * (fbi->fb.var.xres) * 2);
+	}
+	else
+		fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma;
+		*/
+	return 0;
+}
+
+
 
 static inline u_int chan_to_field(u_int chan, struct fb_bitfield *bf)
 {
@@ -482,6 +496,12 @@ static int pxafb_blank(int blank, struct fb_info *info)
 		    fbi->fb.fix.visual == FB_VISUAL_STATIC_PSEUDOCOLOR)
 			fb_set_cmap(&fbi->fb.cmap, info);
 		pxafb_schedule_work(fbi, C_ENABLE);
+		break;
+		/*
+	case C_CHANGE_DMA_BASE:
+		fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma + (fbi->fb.var.xres*fbi->fb.var.yoffset*fbi->fb.var.bits_per_pixel/8);
+		break;
+		*/
 	}
 	return 0;
 }
@@ -510,7 +530,7 @@ static struct fb_ops pxafb_ops = {
 	.fb_imageblit	= cfb_imageblit,
 	.fb_blank	= pxafb_blank,
 	.fb_mmap	= pxafb_mmap,
-//	.fb_pan_display	= pxafb_pan_display,
+	.fb_pan_display	= pxafb_pan_display,
 };
 
 /*
@@ -704,6 +724,7 @@ static int pxafb_activate_var(struct fb_var_screeninfo *var, struct pxafb_info *
 	/* populate descriptors */
 	fbi->dmadesc_fblow_cpu->fdadr = fbi->dmadesc_fblow_dma;
 //	fbi->dmadesc_fblow_cpu->fsadr = fbi->screen_dma + BYTES_PER_PANEL;
+printk("------------- yoffset = %d\n",fbi->fb.var.yoffset);
 	fbi->dmadesc_fblow_cpu->fsadr = fbi->screen_dma + BYTES_PER_PANEL + ((fbi->fb.var.yoffset / fbi->fb.var.yres) * (fbi->fb.var.yres) * (fbi->fb.var.xres) * 2);
 	fbi->dmadesc_fblow_cpu->fidr  = 0;
 	fbi->dmadesc_fblow_cpu->ldcmd = BYTES_PER_PANEL;
@@ -1013,6 +1034,11 @@ static void set_ctrlr_state(struct pxafb_info *fbi, u_int state)
 			__pxafb_backlight_power(fbi, 1);
 		}
 		break;
+	case C_CHANGE_DMA_BASE:
+printk(".\n");
+		fbi->dmadesc_fbhigh_cpu->fsadr = fbi->screen_dma + (fbi->fb.var.xres*fbi->fb.var.yoffset*fbi->fb.var.bits_per_pixel/8);
+		break;
+
 	}
 	up(&fbi->ctrlr_sem);
 }
