@@ -600,10 +600,12 @@ public abstract class KeyInputQueue {
 	    Log.i(TAG,"absSize="+absSize);
 	    */
 	    Log.i(TAG,"------------");
+	    /*
 	    absX.dump();
 	    absY.dump();
 	    absPressure.dump();
 	    absSize.dump();
+	    */
         } else {
             absX = null;
             absY = null;
