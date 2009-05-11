@@ -24,7 +24,13 @@
 #include <ui/EventHub.h>
 #include <utils/threads.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus
 #include <stdio.h>
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 namespace android {
 
