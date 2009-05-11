@@ -280,7 +280,7 @@ bool EventHub::getEvent(int32_t* outDeviceId, int32_t* outType,
         // First, report any devices that had last been added/removed.
         if (mClosingDevices != NULL) {
             device_t* device = mClosingDevices;
-            LOGV("Reporting device closed: id=0x%x, name=%s\n",
+            LOGI("Reporting device closed: id=0x%x, name=%s\n",
                  device->id, device->path.string());
             mClosingDevices = device->next;
             *outDeviceId = device->id;
@@ -291,7 +291,7 @@ bool EventHub::getEvent(int32_t* outDeviceId, int32_t* outType,
         }
         if (mOpeningDevices != NULL) {
             device_t* device = mOpeningDevices;
-            LOGV("Reporting device opened: id=0x%x, name=%s\n",
+            LOGI("Reporting device opened: id=0x%x, name=%s\n",
                  device->id, device->path.string());
             mOpeningDevices = device->next;
             *outDeviceId = device->id;
@@ -320,11 +320,11 @@ bool EventHub::getEvent(int32_t* outDeviceId, int32_t* outType,
         }
         for(i = 1; i < mFDCount; i++) {
             if(mFDs[i].revents) {
-                LOGV("revents for %d = 0x%08x", i, mFDs[i].revents);
+                LOGI("revents for %d = 0x%08x", i, mFDs[i].revents);
                 if(mFDs[i].revents & POLLIN) {
                     res = read(mFDs[i].fd, &iev, sizeof(iev));
                     if (res == sizeof(iev)) {
-                        LOGV("%s got: t0=%d, t1=%d, type=%d, code=%d, v=%d",
+                        LOGI("%s got: t0=%d, t1=%d, type=%d, code=%d, v=%d",
                              mDevices[i]->path.string(),
                              (int) iev.time.tv_sec, (int) iev.time.tv_usec,
                              iev.type, iev.code, iev.value);
@@ -334,7 +334,7 @@ bool EventHub::getEvent(int32_t* outDeviceId, int32_t* outType,
                         *outScancode = iev.code;
                         if (iev.type == EV_KEY) {
                             err = mDevices[i]->layoutMap->map(iev.code, outKeycode, outFlags);
-                            LOGV("iev.code=%d outKeycode=%d outFlags=0x%08x err=%d\n",
+                            LOGI("iev.code=%d outKeycode=%d outFlags=0x%08x err=%d\n",
                                 iev.code, *outKeycode, *outFlags, err);
                             if (err != 0) {
                                 *outKeycode = 0;
