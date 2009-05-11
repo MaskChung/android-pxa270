@@ -138,12 +138,12 @@ public abstract class KeyInputQueue {
                     if ((d.classes&RawInputEvent.CLASS_TOUCHSCREEN) != 0) {
                         config.touchscreen
                                 = Configuration.TOUCHSCREEN_FINGER;
-                        //Log.i("foo", "***** HAVE TOUCHSCREEN!");
+                        Log.i("foo", "***** HAVE TOUCHSCREEN!");
                     }
                     if ((d.classes&RawInputEvent.CLASS_TRACKBALL) != 0) {
                         config.navigation
                                 = Configuration.NAVIGATION_TRACKBALL;
-                        //Log.i("foo", "***** HAVE TRACKBALL!");
+                        Log.i("foo", "***** HAVE TRACKBALL!");
                     }
                 }
             }
@@ -328,7 +328,7 @@ public abstract class KeyInputQueue {
                                 MotionEvent me;
                                 me = di.mAbs.generateMotion(di, curTime, true,
                                         mDisplay, mOrientation, mGlobalMetaState);
-                                if (false) Log.v(TAG, "Absolute: x=" + di.mAbs.x
+                                if (true) Log.i(TAG, "Absolute: x=" + di.mAbs.x
                                         + " y=" + di.mAbs.y + " ev=" + me);
                                 if (me != null) {
                                     if (WindowManagerPolicy.WATCH_POINTER) {
@@ -339,7 +339,7 @@ public abstract class KeyInputQueue {
                                 }
                                 me = di.mRel.generateMotion(di, curTime, false,
                                         mDisplay, mOrientation, mGlobalMetaState);
-                                if (false) Log.v(TAG, "Relative: x=" + di.mRel.x
+                                if (true) Log.i(TAG, "Relative: x=" + di.mRel.x
                                         + " y=" + di.mRel.y + " ev=" + me);
                                 if (me != null) {
                                     addLocked(di, curTime, ev.flags,
@@ -593,6 +593,17 @@ public abstract class KeyInputQueue {
             absY = loadAbsoluteInfo(deviceId, RawInputEvent.ABS_Y, "Y");
             absPressure = loadAbsoluteInfo(deviceId, RawInputEvent.ABS_PRESSURE, "Pressure");
             absSize = loadAbsoluteInfo(deviceId, RawInputEvent.ABS_TOOL_WIDTH, "Size");
+	    /*
+	    Log.i(TAG,"absX="+absX);
+	    Log.i(TAG,"absY="+absY);
+	    Log.i(TAG,"absPressure="+absPressure);
+	    Log.i(TAG,"absSize="+absSize);
+	    */
+	    Log.i(TAG,"------------");
+	    absX.dump();
+	    absY.dump();
+	    absPressure.dump();
+	    absSize.dump();
         } else {
             absX = null;
             absY = null;

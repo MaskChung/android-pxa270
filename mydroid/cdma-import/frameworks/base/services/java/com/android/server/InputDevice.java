@@ -70,6 +70,8 @@ public class InputDevice {
                 return null;
             }
             
+	    Log.i("InputDevice.java: ", "isAbs = " + isAbs);
+	    Log.i("InputDevice.java: ", "orientation = " + orientation);
             float scaledX = x;
             float scaledY = y;
             float temp;
@@ -85,10 +87,18 @@ public class InputDevice {
                     h = tmp;
                 }
                 if (device.absX != null) {
+	    Log.i("InputDevice.java: ", "absX = "+device.absX.minValue);
+	    Log.i("InputDevice.java: ", "scaledX = "+scaledX);
+	    Log.i("InputDevice.java: ", "device.absX.range = "+device.absX.range);
+	    Log.i("InputDevice.java: ", "w = "+w);
                     scaledX = ((scaledX-device.absX.minValue)
                                 / device.absX.range) * w;
                 }
                 if (device.absY != null) {
+	    Log.i("InputDevice.java: ", "absY = "+device.absY.minValue);
+	    Log.i("InputDevice.java: ", "scaledY = "+scaledY);
+	    Log.i("InputDevice.java: ", "device.absY.range = "+device.absY.range);
+	    Log.i("InputDevice.java: ", "h = "+h);
                     scaledY = ((scaledY-device.absY.minValue)
                                 / device.absY.range) * h;
                 }
@@ -151,6 +161,8 @@ public class InputDevice {
             } else if (scaledY == display.getHeight() - 1.0f) {
                 edgeFlags += MotionEvent.EDGE_BOTTOM;
             }
+	    Log.i("InputDevice.java: ", "display.getWidth() = "+display.getWidth());
+	    Log.i("InputDevice.java: ", "display.getHeight() = "+display.getHeight());
             
             changed = false;
             if (down != lastDown) {
@@ -194,6 +206,15 @@ public class InputDevice {
         int range;
         int flat;
         int fuzz;
+
+	void dump()
+	{
+		Log.i("InputDevice.java: ", "minValue = "+minValue);
+		Log.i("InputDevice.java: ", "maxValue = "+maxValue);
+		Log.i("InputDevice.java: ", "range = "+range);
+		Log.i("InputDevice.java: ", "flat = "+flat);
+		Log.i("InputDevice.java: ", "fuzz = "+fuzz);
+	};
     };
     
     InputDevice(int _id, int _classes, String _name,

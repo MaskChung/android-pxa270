@@ -1870,6 +1870,8 @@ public class Activity extends ContextThemeWrapper
      * @return boolean Return true if this event was consumed.
      */
     public boolean dispatchTouchEvent(MotionEvent ev) {
+    Log.i("Activity", "Activity=" + this + ", " + ev.toString());
+    	ev.dump();
         if (getWindow().superDispatchTouchEvent(ev)) {
             return true;
         }
