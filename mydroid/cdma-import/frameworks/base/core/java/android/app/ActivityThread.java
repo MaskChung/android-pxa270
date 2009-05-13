@@ -1913,8 +1913,8 @@ public final class ActivityThread {
                 context.getResources().updateConfiguration(
                         getConfiguration(), getDisplayMetricsLocked());
                 mSystemContext = context;
-                //Log.i(TAG, "Created system resources " + context.getResources()
-                //        + ": " + context.getResources().getConfiguration());
+                Log.i(TAG, "Created system resources " + context.getResources()
+                        + ": " + context.getResources().getConfiguration());
             }
         }
         return mSystemContext;

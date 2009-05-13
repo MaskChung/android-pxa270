@@ -111,6 +111,15 @@ bool DisplayHardwareBase::DisplayEventThread::threadLoop()
         if (flinger != 0)
             flinger->screenAcquired(0);
     }
+    /*
+        sp<SurfaceFlinger> flinger = mFlinger.promote();
+        if (flinger != 0) {
+            mBarrier.close();
+            flinger->screenReleased(0);
+            mBarrier.wait();
+            flinger->screenAcquired(0);
+        }
+*/
     return true;
 }
 
@@ -126,7 +135,7 @@ status_t DisplayHardwareBase::DisplayEventThread::readyToRun()
         LOGE("Couldn't open %s or %s", kSleepFileName, kWakeFileName);
         return NO_INIT;
     }
-    return NO_ERROR;
+    //return NO_ERROR;
 }
 
 status_t DisplayHardwareBase::DisplayEventThread::initCheck() const
@@ -134,6 +143,7 @@ status_t DisplayHardwareBase::DisplayEventThread::initCheck() const
     return (access(kSleepFileName, R_OK) == 0 &&
             access(kWakeFileName, R_OK) == 0 &&
             access(kFbconSysDir, F_OK) != 0) ? NO_ERROR : NO_INIT;
+	//return NO_ERROR;
 }
 
 // ----------------------------------------------------------------------------

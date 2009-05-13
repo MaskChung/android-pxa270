@@ -84,9 +84,12 @@ acquire_wake_lock(int lock, const char* id)
 {
     initialize_fds();
 
-//    LOGI("acquire_wake_lock lock=%d id='%s'\n", lock, id);
+    LOGI("acquire_wake_lock lock=%d id='%s'\n", lock, id);
 
-    if (g_error) return g_error;
+    if (g_error)
+    { LOGI("g_error = %d,strerror = %s\n",g_error,strerror(g_error));
+    return g_error;
+    }
 
     int fd;
 
@@ -108,9 +111,12 @@ release_wake_lock(const char* id)
 {
     initialize_fds();
 
-//    LOGI("release_wake_lock id='%s'\n", id);
+    LOGI("release_wake_lock id='%s'\n", id);
 
-    if (g_error) return g_error;
+    if (g_error)
+    {LOGI("g_error = %d,strerror = %s\n",g_error,strerror(g_error));
+    return g_error;
+    }
 
     ssize_t len = write(g_fds[RELEASE_WAKE_LOCK], id, strlen(id));
     return len >= 0;
@@ -119,7 +125,7 @@ release_wake_lock(const char* id)
 int
 set_last_user_activity_timeout(int64_t delay)
 {
-//    LOGI("set_last_user_activity_timeout delay=%d\n", ((int)(delay)));
+    LOGI("set_last_user_activity_timeout delay=%d\n", ((int)(delay)));
 
     int fd = open(AUTO_OFF_TIMEOUT_DEV, O_RDWR);
     if (fd >= 0) {
@@ -139,7 +145,7 @@ set_a_light(const char* path, int value)
 {
     int fd;
 
-    // LOGI("set_a_light(%s, %d)\n", path, value);
+     LOGI("set_a_light(%s, %d)\n", path, value);
 
     fd = open(path, O_RDWR);
     if (fd) {
@@ -148,7 +154,7 @@ set_a_light(const char* path, int value)
         write(fd, buffer, bytes);
         close(fd);
     } else {
-        LOGE("set_a_light failed to open %s\n", path);
+        LOGI("set_a_light failed to open %s\n", path);
     }
 }
 
@@ -157,8 +163,8 @@ set_light_brightness(unsigned int mask, unsigned int brightness)
 {
     initialize_fds();
 
-//    LOGI("set_light_brightness mask=0x%08x brightness=%d now=%lld g_error=%s\n",
-//            mask, brightness, systemTime(), strerror(g_error));
+    LOGI("set_light_brightness mask=0x%08x brightness=%d now=%lld g_error=%s\n",
+            mask, brightness, systemTime(), strerror(g_error));
 
     if (mask & KEYBOARD_LIGHT) {
         set_a_light(KEYBOARD_BACKLIGHT, brightness);
@@ -179,15 +185,23 @@ set_light_brightness(unsigned int mask, unsigned int brightness)
 int
 set_screen_state(int on)
 {
-    //LOGI("*** set_screen_state %d", on);
+    LOGI("*** set_screen_state %d", on);
+    if(!on)
+    	return -EIO;
 
     initialize_fds();
 
     //LOGI("go_to_sleep eventTime=%lld now=%lld g_error=%s\n", eventTime,
       //      systemTime(), strerror(g_error));
-
-    if (g_error) return g_error;
-
+    LOGI("go_to_sleep now=%lld g_error=%s\n", 
+            systemTime(), strerror(g_error));
+/*
+    if (g_error)
+    {
+    LOGI("g_error = %d, strerror(g_error) = %s\n",g_error,strerror(g_error));
+    return g_error;
+    }
+*/
     char buf[32];
     int len;
     if(on)
@@ -196,7 +210,8 @@ set_screen_state(int on)
         len = sprintf(buf, "standby");
     len = write(g_fds[REQUEST_STATE], buf, len);
     if(len < 0) {
-        LOGE("Failed setting last user activity: g_error=%d\n", g_error);
+        LOGI("Failed setting last user activity: g_error=%d\n", g_error);
+	return errno;
     }
     return 0;
 }

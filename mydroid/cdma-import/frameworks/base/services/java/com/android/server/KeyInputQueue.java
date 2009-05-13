@@ -189,7 +189,7 @@ public abstract class KeyInputQueue {
                     boolean send = false;
                     boolean configChanged = false;
                     
-                    if (false) {
+                    if (true) {
                         Log.i(TAG, "Input event: dev=0x"
                                 + Integer.toHexString(ev.deviceId)
                                 + " type=0x" + Integer.toHexString(ev.type)
@@ -199,6 +199,7 @@ public abstract class KeyInputQueue {
                     }
                     
                     if (ev.type == RawInputEvent.EV_DEVICE_ADDED) {
+Log.i(TAG," into ---------------- EV_DEVICE_ADDED");
                         synchronized (mFirst) {
                             di = newInputDevice(ev.deviceId);
                             mDevices.put(ev.deviceId, di);
@@ -221,6 +222,10 @@ public abstract class KeyInputQueue {
                         
                         // first crack at it
                         send = preprocessEvent(di, ev);
+			Log.i(TAG,"ev.type = " +ev.type);
+			Log.i(TAG,"ev.value = " +ev.value);
+			Log.i(TAG,"ev.scancode = " +ev.scancode);
+			Log.i(TAG,"di.classes = " +di.classes);
 
                         if (ev.type == RawInputEvent.EV_KEY) {
                             di.mMetaKeysState = makeMetaState(ev.keycode,
@@ -256,6 +261,10 @@ public abstract class KeyInputQueue {
                         final int type = ev.type;
                         final int scancode = ev.scancode;
                         send = false;
+			Log.i(TAG,"-----------------------");
+			Log.i(TAG,"type = "+type);
+			Log.i(TAG,"ev.type = "+ev.type);
+			Log.i(TAG,"di.classes ="+di.classes);
                         
                         // Is it a key event?
                         if (type == RawInputEvent.EV_KEY &&
@@ -291,6 +300,7 @@ public abstract class KeyInputQueue {
     
                         } else if (ev.type == RawInputEvent.EV_ABS &&
                                 (classes&RawInputEvent.CLASS_TOUCHSCREEN) != 0) {
+				Log.i(TAG,"into ---------- CLASS_TOUCHSCREEN");
                             if (ev.scancode == RawInputEvent.ABS_X) {
 			    	Log.i(TAG, "x = " + ev.value);
                                 di.mAbs.changed = true;
@@ -309,11 +319,14 @@ public abstract class KeyInputQueue {
     
                         } else if (ev.type == RawInputEvent.EV_REL &&
                                 (classes&RawInputEvent.CLASS_TRACKBALL) != 0) {
+				Log.i(TAG,"into ---------- CLASS_TRACKBALL");
                             // Add this relative movement into our totals.
                             if (ev.scancode == RawInputEvent.REL_X) {
+			    	Log.i(TAG, "REL_x = " + ev.value);
                                 di.mRel.changed = true;
                                 di.mRel.x += ev.value;
                             } else if (ev.scancode == RawInputEvent.REL_Y) {
+			    	Log.i(TAG, "REL_y = " + ev.value);
                                 di.mRel.changed = true;
                                 di.mRel.y += ev.value;
                             }

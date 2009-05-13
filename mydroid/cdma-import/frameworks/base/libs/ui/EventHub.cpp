@@ -412,7 +412,7 @@ int EventHub::open_device(const char *deviceName)
     char idstr[80];
     struct input_id id;
 
-    LOGV("Opening device: %s", deviceName);
+    LOGI("Opening device: %s", deviceName);
 
     AutoMutex _l(mLock);
     
@@ -434,11 +434,11 @@ int EventHub::open_device(const char *deviceName)
     location[sizeof(location) - 1] = '\0';
     idstr[sizeof(idstr) - 1] = '\0';
     if(ioctl(fd, EVIOCGNAME(sizeof(name) - 1), &name) < 1) {
-        //fprintf(stderr, "could not get device name for %s, %s\n", deviceName, strerror(errno));
+        fprintf(stderr, "could not get device name for %s, %s\n", deviceName, strerror(errno));
         name[0] = '\0';
     }
     if(ioctl(fd, EVIOCGPHYS(sizeof(location) - 1), &location) < 1) {
-        //fprintf(stderr, "could not get location for %s, %s\n", deviceName, strerror(errno));
+        fprintf(stderr, "could not get location for %s, %s\n", deviceName, strerror(errno));
         location[0] = '\0';
     }
     if(ioctl(fd, EVIOCGUNIQ(sizeof(idstr) - 1), &idstr) < 1) {

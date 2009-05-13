@@ -4055,10 +4055,18 @@ public class WindowManagerService extends IWindowManager.Stub implements Watchdo
                 case RawInputEvent.EV_ABS: {
                     boolean screenIsOff = !mPowerManager.screenIsOn();
                     boolean screenIsDim = !mPowerManager.screenIsBright();
+		    if(screenIsOff)
+		    Log.i(TAG,"screenIsOff = true");
+		    else
+		    Log.i(TAG,"screenIsOff = false");
+		    if(screenIsDim)
+		    Log.i(TAG,"screenIsDim = true");
+		    else
+		    Log.i(TAG,"screenIsDim = false");
                     if (screenIsOff) {
                         if (!mPolicy.isWakeAbsMovementTq(event.deviceId,
                                 device.classes, event)) {
-                            //Log.i(TAG, "dropping because screenIsOff and !isWakeKey");
+                            Log.i(TAG, "dropping because screenIsOff and !isWakeKey");
                             return false;
                         }
                         event.flags |= WindowManagerPolicy.FLAG_WOKE_HERE;
