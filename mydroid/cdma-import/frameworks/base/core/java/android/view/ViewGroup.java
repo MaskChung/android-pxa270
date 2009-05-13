@@ -761,11 +761,6 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
         final float scrolledYFloat = yf + mScrollY;
         final Rect frame = mTempRect;
 
-Log.i("ViewGroup.java: ", "action = " +action);
-Log.i("ViewGroup.java: ", "xf = " +xf);
-Log.i("ViewGroup.java: ", "xy = " +yf);
-Log.i("ViewGroup.java: ", "scrolledXFloat = " +scrolledXFloat);
-Log.i("ViewGroup.java: ", "scrolledYFloat = " +scrolledYFloat);
         boolean disallowIntercept = (mGroupFlags & FLAG_DISALLOW_INTERCEPT) != 0;
 
         if (action == MotionEvent.ACTION_DOWN) {

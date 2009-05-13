@@ -20,7 +20,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
 import android.util.Config;
-import android.util.Log;
 
 /**
  * Object used to report movement (mouse, pen, finger, trackball) events.  This
@@ -213,22 +212,6 @@ public final class MotionEvent implements Parcelable {
             ev.mHistoryTimes = (long[])o.mHistoryTimes.clone();
         }
         return ev;
-    }
-
-    public void dump() {
-        //Log.w("MotionEvent", "Recycling event " + this, mRecycledLocation);
-    Log.i("MotionEvent","mAction" + mAction);
-    Log.i("MotionEvent","mX"+mX);
-    Log.i("MotionEvent","mY"+mY);
-    Log.i("MotionEvent","mRawX"+mRawX);
-    Log.i("MotionEvent","mRawY"+mRawY);
-    Log.i("MotionEvent","mPressure"+mPressure);
-    Log.i("MotionEvent","mSize"+mSize);
-    Log.i("MotionEvent","mMetaState"+mMetaState);
-    Log.i("MotionEvent","mXPrecision"+mXPrecision);
-    Log.i("MotionEvent","mYPrecision"+mYPrecision);
-    Log.i("MotionEvent","mDeviceId"+mDeviceId);
-    Log.i("MotionEvent","mEdgeFlags"+mEdgeFlags);
     }
     
     /**

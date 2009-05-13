@@ -181,19 +181,18 @@ static void android_server_BatteryService_update(JNIEnv* env, jobject obj)
     setIntField(env, obj, BATTERY_CAPACITY_PATH, gFieldIds.mBatteryLevel);
     setIntField(env, obj, BATTERY_VOLTAGE_PATH, gFieldIds.mBatteryVoltage);
     setIntField(env, obj, BATTERY_TEMPERATURE_PATH, gFieldIds.mBatteryTemperature);
-*/   
-    env->SetBooleanField(obj, gFieldIds.mAcOnline,true);
-    env->SetBooleanField(obj, gFieldIds.mUsbOnline,true);
-    env->SetBooleanField(obj, gFieldIds.mBatteryPresent,true);
-    
-    env->SetIntField(obj, gFieldIds.mBatteryLevel,100);
-    env->SetIntField(obj, gFieldIds.mBatteryVoltage,3);
-    env->SetIntField(obj, gFieldIds.mBatteryTemperature,10);
+    */
+	env->SetBooleanField(obj, gFieldIds.mAcOnline,true);
+	env->SetBooleanField(obj, gFieldIds.mUsbOnline,true);
+	env->SetBooleanField(obj, gFieldIds.mBatteryPresent,true);
+	env->SetIntField(obj, gFieldIds.mBatteryLevel,100);
+	env->SetIntField(obj, gFieldIds.mBatteryVoltage,3);
+	env->SetIntField(obj, gFieldIds.mBatteryTemperature,10);
 
+    /*
     const int SIZE = 128;
     char buf[SIZE];
     
-    /*
     if (readFromFile(BATTERY_STATUS_PATH, buf, SIZE) > 0)
         env->SetIntField(obj, gFieldIds.mBatteryStatus, getBatteryStatus(buf));
     

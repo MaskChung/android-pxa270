@@ -388,7 +388,6 @@ setinputfile(const char *fname, int push)
 {
 	int fd;
 	int fd2;
-	printf(" --------- ./system/core/sh/input.c: fname = %s\n",fname);
 
 	INTOFF;
 	if ((fd = open(fname, O_RDONLY)) < 0)

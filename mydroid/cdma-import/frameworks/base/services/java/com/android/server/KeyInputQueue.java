@@ -138,12 +138,12 @@ public abstract class KeyInputQueue {
                     if ((d.classes&RawInputEvent.CLASS_TOUCHSCREEN) != 0) {
                         config.touchscreen
                                 = Configuration.TOUCHSCREEN_FINGER;
-                        Log.i("foo", "***** HAVE TOUCHSCREEN!");
+                        //Log.i("foo", "***** HAVE TOUCHSCREEN!");
                     }
                     if ((d.classes&RawInputEvent.CLASS_TRACKBALL) != 0) {
                         config.navigation
                                 = Configuration.NAVIGATION_TRACKBALL;
-                        Log.i("foo", "***** HAVE TRACKBALL!");
+                        //Log.i("foo", "***** HAVE TRACKBALL!");
                     }
                 }
             }
@@ -189,7 +189,7 @@ public abstract class KeyInputQueue {
                     boolean send = false;
                     boolean configChanged = false;
                     
-                    if (true) {
+                    if (false) {
                         Log.i(TAG, "Input event: dev=0x"
                                 + Integer.toHexString(ev.deviceId)
                                 + " type=0x" + Integer.toHexString(ev.type)
@@ -199,7 +199,6 @@ public abstract class KeyInputQueue {
                     }
                     
                     if (ev.type == RawInputEvent.EV_DEVICE_ADDED) {
-Log.i(TAG," into ---------------- EV_DEVICE_ADDED");
                         synchronized (mFirst) {
                             di = newInputDevice(ev.deviceId);
                             mDevices.put(ev.deviceId, di);
@@ -222,10 +221,6 @@ Log.i(TAG," into ---------------- EV_DEVICE_ADDED");
                         
                         // first crack at it
                         send = preprocessEvent(di, ev);
-			Log.i(TAG,"ev.type = " +ev.type);
-			Log.i(TAG,"ev.value = " +ev.value);
-			Log.i(TAG,"ev.scancode = " +ev.scancode);
-			Log.i(TAG,"di.classes = " +di.classes);
 
                         if (ev.type == RawInputEvent.EV_KEY) {
                             di.mMetaKeysState = makeMetaState(ev.keycode,
@@ -261,10 +256,6 @@ Log.i(TAG," into ---------------- EV_DEVICE_ADDED");
                         final int type = ev.type;
                         final int scancode = ev.scancode;
                         send = false;
-			Log.i(TAG,"-----------------------");
-			Log.i(TAG,"type = "+type);
-			Log.i(TAG,"ev.type = "+ev.type);
-			Log.i(TAG,"di.classes ="+di.classes);
                         
                         // Is it a key event?
                         if (type == RawInputEvent.EV_KEY &&
@@ -300,13 +291,10 @@ Log.i(TAG," into ---------------- EV_DEVICE_ADDED");
     
                         } else if (ev.type == RawInputEvent.EV_ABS &&
                                 (classes&RawInputEvent.CLASS_TOUCHSCREEN) != 0) {
-				Log.i(TAG,"into ---------- CLASS_TOUCHSCREEN");
                             if (ev.scancode == RawInputEvent.ABS_X) {
-			    	Log.i(TAG, "x = " + ev.value);
                                 di.mAbs.changed = true;
                                 di.mAbs.x = ev.value;
                             } else if (ev.scancode == RawInputEvent.ABS_Y) {
-			    	Log.i(TAG, "y = " + ev.value);
                                 di.mAbs.changed = true;
                                 di.mAbs.y = ev.value;
                             } else if (ev.scancode == RawInputEvent.ABS_PRESSURE) {
@@ -319,14 +307,11 @@ Log.i(TAG," into ---------------- EV_DEVICE_ADDED");
     
                         } else if (ev.type == RawInputEvent.EV_REL &&
                                 (classes&RawInputEvent.CLASS_TRACKBALL) != 0) {
-				Log.i(TAG,"into ---------- CLASS_TRACKBALL");
                             // Add this relative movement into our totals.
                             if (ev.scancode == RawInputEvent.REL_X) {
-			    	Log.i(TAG, "REL_x = " + ev.value);
                                 di.mRel.changed = true;
                                 di.mRel.x += ev.value;
                             } else if (ev.scancode == RawInputEvent.REL_Y) {
-			    	Log.i(TAG, "REL_y = " + ev.value);
                                 di.mRel.changed = true;
                                 di.mRel.y += ev.value;
                             }
@@ -341,7 +326,7 @@ Log.i(TAG," into ---------------- EV_DEVICE_ADDED");
                                 MotionEvent me;
                                 me = di.mAbs.generateMotion(di, curTime, true,
                                         mDisplay, mOrientation, mGlobalMetaState);
-                                if (true) Log.i(TAG, "Absolute: x=" + di.mAbs.x
+                                if (false) Log.v(TAG, "Absolute: x=" + di.mAbs.x
                                         + " y=" + di.mAbs.y + " ev=" + me);
                                 if (me != null) {
                                     if (WindowManagerPolicy.WATCH_POINTER) {
@@ -352,7 +337,7 @@ Log.i(TAG," into ---------------- EV_DEVICE_ADDED");
                                 }
                                 me = di.mRel.generateMotion(di, curTime, false,
                                         mDisplay, mOrientation, mGlobalMetaState);
-                                if (true) Log.i(TAG, "Relative: x=" + di.mRel.x
+                                if (false) Log.v(TAG, "Relative: x=" + di.mRel.x
                                         + " y=" + di.mRel.y + " ev=" + me);
                                 if (me != null) {
                                     addLocked(di, curTime, ev.flags,
@@ -606,19 +591,6 @@ Log.i(TAG," into ---------------- EV_DEVICE_ADDED");
             absY = loadAbsoluteInfo(deviceId, RawInputEvent.ABS_Y, "Y");
             absPressure = loadAbsoluteInfo(deviceId, RawInputEvent.ABS_PRESSURE, "Pressure");
             absSize = loadAbsoluteInfo(deviceId, RawInputEvent.ABS_TOOL_WIDTH, "Size");
-	    /*
-	    Log.i(TAG,"absX="+absX);
-	    Log.i(TAG,"absY="+absY);
-	    Log.i(TAG,"absPressure="+absPressure);
-	    Log.i(TAG,"absSize="+absSize);
-	    */
-	    Log.i(TAG,"------------");
-	    /*
-	    absX.dump();
-	    absY.dump();
-	    absPressure.dump();
-	    absSize.dump();
-	    */
         } else {
             absX = null;
             absY = null;

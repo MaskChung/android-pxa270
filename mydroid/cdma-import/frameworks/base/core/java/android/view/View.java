@@ -3171,8 +3171,6 @@ public class View implements Drawable.Callback, KeyEvent.Callback {
      * @return True if the event was handled by the view, false otherwise.
      */
     public boolean dispatchTouchEvent(MotionEvent event) {
-        Log.i("view", "view=" + this + ", " + event.toString());
-    	event.dump();
         if (mOnTouchListener != null && (mViewFlags & ENABLED_MASK) == ENABLED &&
                 mOnTouchListener.onTouch(this, event)) {
             return true;

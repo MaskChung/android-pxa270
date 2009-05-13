@@ -91,8 +91,7 @@ public final class Log {
      * @param msg The message you would like logged.
      */
     public static int v(String tag, String msg) {
-    	return i(tag,msg);
-//        return println(VERBOSE, tag, msg);
+        return println(VERBOSE, tag, msg);
     }
 
     /**
@@ -103,8 +102,7 @@ public final class Log {
      * @param tr An exception to log
      */
     public static int v(String tag, String msg, Throwable tr) {
-    	return i(tag,msg,tr);
-//        return println(VERBOSE, tag, msg + '\n' + getStackTraceString(tr));
+        return println(VERBOSE, tag, msg + '\n' + getStackTraceString(tr));
     }
 
     /**
@@ -114,8 +112,7 @@ public final class Log {
      * @param msg The message you would like logged.
      */
     public static int d(String tag, String msg) {
-    	return i(tag,msg);
-//        return println(DEBUG, tag, msg);
+        return println(DEBUG, tag, msg);
     }
 
     /**
@@ -126,8 +123,7 @@ public final class Log {
      * @param tr An exception to log
      */
     public static int d(String tag, String msg, Throwable tr) {
-    	return i(tag,msg,tr);
-//        return println(DEBUG, tag, msg + '\n' + getStackTraceString(tr));
+        return println(DEBUG, tag, msg + '\n' + getStackTraceString(tr));
     }
 
     /**
@@ -158,8 +154,7 @@ public final class Log {
      * @param msg The message you would like logged.
      */
     public static int w(String tag, String msg) {
-    	return i(tag,msg);
-//        return println(WARN, tag, msg);
+        return println(WARN, tag, msg);
     }
 
     /**
@@ -170,8 +165,7 @@ public final class Log {
      * @param tr An exception to log
      */
     public static int w(String tag, String msg, Throwable tr) {
-    	return i(tag,msg,tr);
-//        return println(WARN, tag, msg + '\n' + getStackTraceString(tr));
+        return println(WARN, tag, msg + '\n' + getStackTraceString(tr));
     }
 
     /**
@@ -201,8 +195,7 @@ public final class Log {
      * @param tr An exception to log
      */
     public static int w(String tag, Throwable tr) {
-    	return i(tag,"",tr);
-    //    return println(WARN, tag, getStackTraceString(tr));
+        return println(WARN, tag, getStackTraceString(tr));
     }
 
     /**
@@ -212,8 +205,7 @@ public final class Log {
      * @param msg The message you would like logged.
      */
     public static int e(String tag, String msg) {
-    	return i(tag,msg);
-//        return println(ERROR, tag, msg);
+        return println(ERROR, tag, msg);
     }
 
     /**
@@ -226,7 +218,6 @@ public final class Log {
     public static int e(String tag, String msg, Throwable tr) {
         int r = println(ERROR, tag, msg + '\n' + getStackTraceString(tr));
         RuntimeInit.reportException(tag, tr, false);  // asynchronous
-    	i(tag,msg,tr);
         return r;
     }
 

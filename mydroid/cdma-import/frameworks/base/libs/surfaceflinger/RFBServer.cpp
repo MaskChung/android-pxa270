@@ -702,7 +702,6 @@ void RFBServer::EventInjector::injectKey(uint16_t code, uint16_t value)
 #ifdef HAVE_ANDROID_OS
     // XXX: we need to open the right event device
     int version;
-    LOGI(" -------------- into RFBServer::EventInjector::injectKey");
     mFD = open("/dev/input/event0", O_RDWR);
     ioctl(mFD, EVIOCGVERSION, &version);
 
