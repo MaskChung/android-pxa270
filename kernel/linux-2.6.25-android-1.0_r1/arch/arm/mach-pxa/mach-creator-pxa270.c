@@ -362,17 +362,12 @@ static struct platform_device android_keypad_device = {
 	.name	= "android-keypad",
 	.id	= -1,
 };
-static struct platform_device android_ts_device = {
-	.name	= "ucb1400_ts",
-	.id	= -1,
-};
 
 static struct platform_device *devices[] __initdata = {
 	&creator_pxa270_smc91x_device,
 	&creator_pxa270_mst_audio_device,
 	&creator_pxa270_cfi_flash_device,
 	&android_keypad_device,
-	&android_ts_device,
 };
 
 
