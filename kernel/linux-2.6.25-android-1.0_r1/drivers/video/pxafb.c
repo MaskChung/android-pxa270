@@ -73,7 +73,12 @@ static char g_options[PXAFB_OPTIONS_SIZE] __devinitdata = "";
 static int pxafb_pan_display(struct fb_var_screeninfo *var, struct fb_info *info)
 {
 	struct pxafb_info *fbi = (struct pxafb_info *)info;
+	unsigned long flags;
+
+	local_irq_save(flags);
+
 	fbi->task_state = C_ANDROID_NOP;
+	local_irq_restore(flags);
 	return 0;
 }
 

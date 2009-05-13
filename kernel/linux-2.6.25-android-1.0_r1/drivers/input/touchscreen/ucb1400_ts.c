@@ -187,7 +187,10 @@ struct ucb1400 {
 static int adcsync;
 static int ts_delay = 55; /* us */
 static int ts_delay_pressure;	/* us */
-static test_cnt = 0;
+static u16 g_min_x = 90;
+static u16 g_min_y = 80;
+static u16 g_max_x = 920;
+static u16 g_max_y = 950;
 
 static inline u16 ucb1400_reg_read(struct ucb1400 *ucb, u16 reg)
 {
@@ -344,23 +347,25 @@ static inline void ucb1400_ts_irq_disable(struct ucb1400 *ucb)
 static void ucb1400_ts_evt_add(struct input_dev *idev, u16 pressure, u16 x, u16 y)
 {
 /* it's hard code here, may be you should modify */
-/*
-u16 _min_x = 90;
-u16 _min_y = 100;
-u16 _max_x = 950;
-u16 _max_y = 970;
-*/
-u16 _min_x = 90;
-u16 _min_y = 80;
-u16 _max_x = 920;
-u16 _max_y = 950;
 printk(" ----------- report x = %u\n",x);
 printk(" ----------- report y = %u\n",y);
 printk(" ----------- report pressure = %u\n",pressure);
+/*
 x = x > _max_x ? _max_x-1 : x;
 y = y > _max_y ? _max_y-1 : y;
 x = x < _min_x ? _min_x : x;
 y = y < _min_y ? _min_y : y;
+*/
+if(x > g_max_x)
+	x = g_max_x-1;
+else if(x<g_min_x)
+	x=g_min_x+1;
+if(y > g_max_y)
+	y = g_max_y-1;
+else if(y<g_min_y)
+	y = g_min_y+1;
+x -= g_min_x;
+y -= g_min_y;
 /*
 x = (x * 240) / (_max_x - _min_x);
 y = (y * 320) / (_max_y - _min_y);
@@ -371,17 +376,16 @@ printk(" ----------- cal y = %u\n",y);
 x = x >= 240 ? 240-1 : x;
 y = y >= 320 ? 320-1 : y;
 */
-y = _max_y - y;
-y = (y <= 0) ? 1 : y;
+//y = _max_y - y;
+y = (g_max_y -g_min_y)- y;
+//y = (y <= 0) ? 1 : y;
 printk(" ----------- cal x = %u\n",x);
 printk(" ----------- cal y = %u\n",y);
-if(test_cnt == 0)
 	input_report_key(idev, BTN_TOUCH, 1);
 	input_report_abs(idev, ABS_X, x);
 	input_report_abs(idev, ABS_Y, y);
 	input_report_abs(idev, ABS_PRESSURE, pressure ? 1 : 0);
 	input_sync(idev);
-++test_cnt;
 }
 
 static void ucb1400_ts_event_release(struct input_dev *idev)
@@ -390,7 +394,6 @@ printk(" ----------- into ucb1400_ts_event_release\n");
 	input_report_key(idev, BTN_TOUCH, 0);
 	input_report_abs(idev, ABS_PRESSURE, 0);
 	input_sync(idev);
-test_cnt=0;
 }
 
 static void ucb1400_handle_pending_irq(struct ucb1400 *ucb)
@@ -650,6 +653,7 @@ static int ucb1400_ts_probe(struct device *dev)
 	input_set_drvdata(idev, ucb);
 
 	idev->dev.parent	= dev;
+	//idev->name		= "UCB1400-touchscreen";
 	idev->name		= "UCB1400 touchscreen interface";
 	idev->id.vendor		= ucb1400_reg_read(ucb, AC97_VENDOR_ID1);
 	idev->id.product	= id;
@@ -673,8 +677,12 @@ static int ucb1400_ts_probe(struct device *dev)
 	input_set_abs_params(idev, ABS_X, 0, 240, 0, 0);
 	input_set_abs_params(idev, ABS_Y, 0, 320, 0, 0);
 	*/
+	input_set_abs_params(idev, ABS_X, 0, g_max_x-g_min_x, 0, 0);
+	input_set_abs_params(idev, ABS_Y, 0, g_max_y-g_min_y, 0, 0);
+	/*
 	input_set_abs_params(idev, ABS_X, 0, 920, 0, 0);
 	input_set_abs_params(idev, ABS_Y, 0, 950, 0, 0);
+	*/
 	input_set_abs_params(idev, ABS_PRESSURE, 0, 1, 0, 0);
 
 	error = input_register_device(idev);
