@@ -173,6 +173,7 @@ static void setIntField(JNIEnv* env, jobject obj, const char* path, jfieldID fie
 
 static void android_server_BatteryService_update(JNIEnv* env, jobject obj)
 {
+/*
     setBooleanField(env, obj, AC_ONLINE_PATH, gFieldIds.mAcOnline);
     setBooleanField(env, obj, USB_ONLINE_PATH, gFieldIds.mUsbOnline);
     setBooleanField(env, obj, BATTERY_PRESENT_PATH, gFieldIds.mBatteryPresent);
@@ -180,10 +181,19 @@ static void android_server_BatteryService_update(JNIEnv* env, jobject obj)
     setIntField(env, obj, BATTERY_CAPACITY_PATH, gFieldIds.mBatteryLevel);
     setIntField(env, obj, BATTERY_VOLTAGE_PATH, gFieldIds.mBatteryVoltage);
     setIntField(env, obj, BATTERY_TEMPERATURE_PATH, gFieldIds.mBatteryTemperature);
+*/   
+    env->SetBooleanField(obj, gFieldIds.mAcOnline,true);
+    env->SetBooleanField(obj, gFieldIds.mUsbOnline,true);
+    env->SetBooleanField(obj, gFieldIds.mBatteryPresent,true);
     
+    env->SetIntField(obj, gFieldIds.mBatteryLevel,100);
+    env->SetIntField(obj, gFieldIds.mBatteryVoltage,3);
+    env->SetIntField(obj, gFieldIds.mBatteryTemperature,10);
+
     const int SIZE = 128;
     char buf[SIZE];
     
+    /*
     if (readFromFile(BATTERY_STATUS_PATH, buf, SIZE) > 0)
         env->SetIntField(obj, gFieldIds.mBatteryStatus, getBatteryStatus(buf));
     
@@ -192,6 +202,9 @@ static void android_server_BatteryService_update(JNIEnv* env, jobject obj)
 
     if (readFromFile(BATTERY_TECHNOLOGY_PATH, buf, SIZE) > 0)
         env->SetObjectField(obj, gFieldIds.mBatteryTechnology, env->NewStringUTF(buf));
+	*/
+	env->SetIntField(obj, gFieldIds.mBatteryStatus,gConstants.statusCharging);
+	env->SetIntField(obj, gFieldIds.mBatteryHealth,gConstants.healthGood);
 }
 
 static JNINativeMethod sMethods[] = {

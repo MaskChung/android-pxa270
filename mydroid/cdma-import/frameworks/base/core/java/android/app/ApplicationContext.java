@@ -297,7 +297,7 @@ class ApplicationContext extends Context {
         synchronized (sSharedPrefs) {
             sp = sSharedPrefs.get(f);
             if (sp != null && !sp.hasFileChanged()) {
-                //Log.i(TAG, "Returning existing prefs " + name + ": " + sp);
+                Log.i(TAG, "Returning existing prefs " + name + ": " + sp);
                 return sp;
             }
         }
@@ -314,7 +314,7 @@ class ApplicationContext extends Context {
 
         synchronized (sSharedPrefs) {
             if (sp != null) {
-                //Log.i(TAG, "Updating existing prefs " + name + " " + sp + ": " + map);
+                Log.i(TAG, "Updating existing prefs " + name + " " + sp + ": " + map);
                 sp.replace(map);
             } else {
                 sp = sSharedPrefs.get(f);
@@ -1353,7 +1353,7 @@ class ApplicationContext extends Context {
     }
 
     final void performFinalCleanup(String who, String what) {
-        //Log.i(TAG, "Cleanup up context: " + this);
+        Log.i(TAG, "Cleanup up context: " + this);
         mPackageInfo.removeContextRegistrations(getOuterContext(), who, what);
     }
 
@@ -1985,7 +1985,7 @@ class ApplicationContext extends Context {
                         while (it.hasNext()) {
                             ResourceName nm = it.next();
                             if (nm.packageName.equals(ssp)) {
-                                //Log.i(TAG, "Removing cached drawable for " + nm);
+                                Log.i(TAG, "Removing cached drawable for " + nm);
                                 it.remove();
                                 needCleanup = true;
                             }
@@ -1994,7 +1994,7 @@ class ApplicationContext extends Context {
                         while (it.hasNext()) {
                             ResourceName nm = it.next();
                             if (nm.packageName.equals(ssp)) {
-                                //Log.i(TAG, "Removing cached string for " + nm);
+                                Log.i(TAG, "Removing cached string for " + nm);
                                 it.remove();
                                 needCleanup = true;
                             }

@@ -750,7 +750,7 @@ int main(int argc, char **argv)
 		"\n"
 		"\n"
 		"\n"
-		"\n"
+		"     cycdisk@gmail.com\n"
 		"\n"  // console is 40 cols x 30 lines
 		"\n"
 		"\n"

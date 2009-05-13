@@ -183,7 +183,7 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
     private int mTouchCycles;
 
     // could be either static or controllable at runtime
-    private static final boolean mSpew = false;
+    private static final boolean mSpew = true;
 
     /*
     static PrintStream mLog;
@@ -444,6 +444,15 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
     }
 
     private void updateWakeLockLocked() {
+                    Log.i(TAG, " --------- into updateWakeLockLocked");
+		    if(mStayOnWhilePluggedIn)
+                    Log.i(TAG, " --------- mStayOnWhilePluggedIn true");
+		    else
+                    Log.i(TAG, " --------- mStayOnWhilePluggedIn false");
+		    if(mBatteryService.isPowered())
+                    Log.i(TAG, " --------- mBatteryService.isPowered() true");
+		    else
+                    Log.i(TAG, " --------- mBatteryService.isPowered() false");
         if (mStayOnWhilePluggedIn && mBatteryService.isPowered()) {
             // keep the device on if we're plugged in and mStayOnWhilePluggedIn is set.
             mStayOnWhilePluggedInScreenDimLock.acquire();
@@ -475,7 +484,7 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
         int acquireType = -1;
 
         if (mSpew) {
-            Log.d(TAG, "acquireWakeLock flags=0x" + Integer.toHexString(flags) + " tag=" + tag);
+            Log.i(TAG, "acquireWakeLock flags=0x" + Integer.toHexString(flags) + " tag=" + tag);
         }
 
         int index = mLocks.getIndex(lock);
@@ -499,7 +508,7 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
                 default:
                     // just log and bail.  we're in the server, so don't
                     // throw an exception.
-                    Log.e(TAG, "bad wakelock type for lock '" + tag + "' "
+                    Log.i(TAG, "bad wakelock type for lock '" + tag + "' "
                             + " flags=" + flags);
                     return;
             }
@@ -517,7 +526,7 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
             if ((wl.flags & PowerManager.ACQUIRE_CAUSES_WAKEUP) != 0) {
                 reactivateWakeLocksLocked();
                 if (mSpew) {
-                    Log.d(TAG, "wakeup here mUserState=0x" + Integer.toHexString(mUserState)
+                    Log.i(TAG, "wakeup here mUserState=0x" + Integer.toHexString(mUserState)
                             + " mLocks.gatherState()=0x"
                             + Integer.toHexString(mLocks.gatherState())
                             + " mWakeLockState=0x" + Integer.toHexString(mWakeLockState));
@@ -525,7 +534,7 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
                 mWakeLockState = mLocks.gatherState();
             } else {
                 if (mSpew) {
-                    Log.d(TAG, "here mUserState=0x" + Integer.toHexString(mUserState)
+                    Log.i(TAG, "here mUserState=0x" + Integer.toHexString(mUserState)
                             + " mLocks.gatherState()=0x"
                             + Integer.toHexString(mLocks.gatherState())
                             + " mWakeLockState=0x" + Integer.toHexString(mWakeLockState));
@@ -579,7 +588,7 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
         }
         
         if (mSpew) {
-            Log.d(TAG, "releaseWakeLock flags=0x"
+            Log.i(TAG, "releaseWakeLock flags=0x"
                     + Integer.toHexString(wl.flags) + " tag=" + wl.tag);
         }
 
@@ -651,7 +660,7 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
     public void setPokeLock(int pokey, IBinder token, String tag) {
         mContext.enforceCallingOrSelfPermission(android.Manifest.permission.DEVICE_POWER, null);
         if (token == null) {
-            Log.e(TAG, "setPokeLock got null token for tag='" + tag + "'");
+            Log.i(TAG, "setPokeLock got null token for tag='" + tag + "'");
             return;
         }
 
@@ -825,7 +834,7 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
                         when += mDimDelay;
                         break;
                     } else {
-                        Log.w(TAG, "mDimDelay=" + mDimDelay + " while trying to dim");
+                        Log.i(TAG, "mDimDelay=" + mDimDelay + " while trying to dim");
                     }
                 case SCREEN_OFF:
                     synchronized (mLocks) {
@@ -834,7 +843,7 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
                     break;
             }
             if (mSpew) {
-                Log.d(TAG, "setTimeoutLocked now=" + now + " nextState=" + nextState
+                Log.i(TAG, "setTimeoutLocked now=" + now + " nextState=" + nextState
                         + " when=" + when);
             }
             mHandler.postAtTime(mTimeoutTask, when);
@@ -855,7 +864,7 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
         {
             synchronized (mLocks) {
                 if (mSpew) {
-                    Log.d(TAG, "user activity timeout timed out nextState=" + this.nextState);
+                    Log.i(TAG, "user activity timeout timed out nextState=" + this.nextState);
                 }
 
                 if (nextState == -1) {
@@ -906,7 +915,7 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
             mBroadcastWakeLock.release();
         } else {
             // else, same so do nothing -- maybe we should warn?
-            Log.w(TAG, "Duplicate notification: on=" + on + " why=" + why);
+            Log.i(TAG, "Duplicate notification: on=" + on + " why=" + why);
         }
     }
 
@@ -934,7 +943,7 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
                 }
 
                 if (mSpew) {
-                    Log.d(TAG, "mBroadcastWakeLock=" + mBroadcastWakeLock);
+                    Log.i(TAG, "mBroadcastWakeLock=" + mBroadcastWakeLock);
                 }
                 if (mContext != null) {
                     mContext.sendOrderedBroadcast(mScreenOnIntent, null,
@@ -1028,7 +1037,7 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
             int err;
 
             if (mSpew) {
-                Log.d(TAG, "setPowerState: mPowerState=0x" + Integer.toHexString(mPowerState)
+                Log.i(TAG, "setPowerState: mPowerState=0x" + Integer.toHexString(mPowerState)
                         + " newState=0x" + Integer.toHexString(newState)
                         + " noChangeLights=" + noChangeLights);
             }
@@ -1054,17 +1063,17 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
             boolean newScreenOn = (newState & SCREEN_ON_BIT) != 0;
 
             if (mSpew) {
-                Log.d(TAG, "setPowerState: mPowerState=" + mPowerState
+                Log.i(TAG, "setPowerState: mPowerState=" + mPowerState
                         + " newState=" + newState + " noChangeLights=" + noChangeLights);
-                Log.d(TAG, "  oldKeyboardBright=" + ((mPowerState & KEYBOARD_BRIGHT_BIT) != 0)
+                Log.i(TAG, "  oldKeyboardBright=" + ((mPowerState & KEYBOARD_BRIGHT_BIT) != 0)
                          + " newKeyboardBright=" + ((newState & KEYBOARD_BRIGHT_BIT) != 0));
-                Log.d(TAG, "  oldScreenBright=" + ((mPowerState & SCREEN_BRIGHT_BIT) != 0)
+                Log.i(TAG, "  oldScreenBright=" + ((mPowerState & SCREEN_BRIGHT_BIT) != 0)
                          + " newScreenBright=" + ((newState & SCREEN_BRIGHT_BIT) != 0));
-                Log.d(TAG, "  oldButtonBright=" + ((mPowerState & BUTTON_BRIGHT_BIT) != 0)
+                Log.i(TAG, "  oldButtonBright=" + ((mPowerState & BUTTON_BRIGHT_BIT) != 0)
                          + " newButtonBright=" + ((newState & BUTTON_BRIGHT_BIT) != 0));
-                Log.d(TAG, "  oldScreenOn=" + oldScreenOn
+                Log.i(TAG, "  oldScreenOn=" + oldScreenOn
                          + " newScreenOn=" + newScreenOn);
-                Log.d(TAG, "  oldBatteryLow=" + ((mPowerState & BATTERY_LOW_BIT) != 0)
+                Log.i(TAG, "  oldBatteryLow=" + ((mPowerState & BATTERY_LOW_BIT) != 0)
                          + " newBatteryLow=" + ((newState & BATTERY_LOW_BIT) != 0));
             }
 
@@ -1079,6 +1088,7 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
             if (oldScreenOn != newScreenOn) {
                 if (newScreenOn) {
                     err = Power.setScreenState(true);
+		    Log.i(TAG," --------------- err = "+err);
                     mScreenOnStartTime = SystemClock.elapsedRealtime();
                     mLastTouchDown = 0;
                     mTotalTouchDownTime = 0;
@@ -1109,6 +1119,7 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
                     mTotalTouchDownTime, mTouchCycles);
             mLastTouchDown = 0;
             int err = Power.setScreenState(false);
+		    Log.i(TAG," aabb --------------- err = "+err);
             mScreenOnTime += SystemClock.elapsedRealtime() - mScreenOnStartTime;
             mScreenOnStartTime = 0;
             if (err == 0) {
@@ -1249,8 +1260,9 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
         
         int err = 0;
         if (offMask != 0) {
-            //Log.i(TAG, "Setting brightess off: " + offMask);
+            Log.i(TAG, "Setting brightess off: " + offMask);
             err |= Power.setLightBrightness(offMask, Power.BRIGHTNESS_OFF);
+            Log.i(TAG, "Setting brightess off: err =" + err);
         }
         if (dimMask != 0) {
             int brightness = Power.BRIGHTNESS_DIM;
@@ -1401,22 +1413,22 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
         if (((mPokey & POKE_LOCK_IGNORE_CHEEK_EVENTS) != 0)
             && !((eventType == OTHER_EVENT) || (eventType == BUTTON_EVENT))) {
             if (false) {
-                Log.d(TAG, "dropping mPokey=0x" + Integer.toHexString(mPokey));
+                Log.i(TAG, "dropping mPokey=0x" + Integer.toHexString(mPokey));
             }
             return;
         }
 
         if (false) {
             if (((mPokey & POKE_LOCK_IGNORE_CHEEK_EVENTS) != 0)) {
-                Log.d(TAG, "userActivity !!!");//, new RuntimeException());
+                Log.i(TAG, "userActivity !!!");//, new RuntimeException());
             } else {
-                Log.d(TAG, "mPokey=0x" + Integer.toHexString(mPokey));
+                Log.i(TAG, "mPokey=0x" + Integer.toHexString(mPokey));
             }
         }
 
         synchronized (mLocks) {
             if (mSpew) {
-                Log.d(TAG, "userActivity mLastEventTime=" + mLastEventTime + " time=" + time
+                Log.i(TAG, "userActivity mLastEventTime=" + mLastEventTime + " time=" + time
                         + " mUserActivityAllowed=" + mUserActivityAllowed
                         + " mUserState=0x" + Integer.toHexString(mUserState)
                         + " mWakeLockState=0x" + Integer.toHexString(mWakeLockState));
@@ -1547,7 +1559,7 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
             }
         }
         if (mSpew) {
-            Log.d(TAG, "setScreenOffTimeouts mKeylightDelay=" + mKeylightDelay
+            Log.i(TAG, "setScreenOffTimeouts mKeylightDelay=" + mKeylightDelay
                     + " mDimDelay=" + mDimDelay + " mScreenOffDelay=" + mScreenOffDelay
                     + " mDimScreen=" + mDimScreen);
         }
@@ -1620,7 +1632,7 @@ class PowerManagerService extends IPowerManager.Stub implements LocalPowerManage
     
     void systemReady() {
         synchronized (mLocks) {
-            Log.d(TAG, "system ready!");
+            Log.i(TAG, "system ready!");
             mDoneBooting = true;
             userActivity(SystemClock.uptimeMillis(), false, BUTTON_EVENT, true);
             updateWakeLockLocked();
