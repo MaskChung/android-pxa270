@@ -24,13 +24,7 @@
 #include <ui/EventHub.h>
 #include <utils/threads.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif //__cplusplus
 #include <stdio.h>
-#ifdef __cplusplus
-}
-#endif //__cplusplus
 
 namespace android {
 
@@ -127,10 +121,6 @@ android_server_KeyInputQueue_getAbsoluteInfo(JNIEnv* env, jobject clazz,
     if (gHub != NULL) {
         res = gHub->getAbsoluteInfo(deviceId, axis,
                 &minValue, &maxValue, &flat, &fuzz);
-	printf("%s:%s minValue = %d\n",__FILE__,__func__,minValue);
-	printf("%s:%s maxValue = %d\n",__FILE__,__func__,maxValue);
-	printf("%s:%s flat = %d\n",__FILE__,__func__,flat);
-	printf("%s:%s fuzz = %d\n",__FILE__,__func__,fuzz);
     }
     gLock.unlock();
     
