@@ -1,6 +1,9 @@
 /*
  *  Philips UCB1400 touchscreen driver
  *
+ *  Author:	Mask <cycdisk@gmail.com>
+ *  Modified:	April, 2009
+ *
  *  Author:	Nicolas Pitre
  *  Created:	September 25, 2006
  *  Copyright:	MontaVista Software, Inc.
