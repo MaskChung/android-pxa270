@@ -83,7 +83,7 @@ unsigned short io_reg1_read(void)
 	return val;
 }
 
-/*	1(KEY_RESERVED)	2(KEY_UP)	3(KEY_RESERVED)	A(KEY_MENU)
+/*	1(KEY_BACK)	2(KEY_UP)	3(KEY_RESERVED)	A(KEY_MENU)
  *	4(KEY_LEFT)	5(KEY_RESERVED)	6(KEY_RIGHT)	B(KEY_HOME)
  *	7(KEY_RESERVED)	8(KEY_DOWN)	9(KEY_RESERVED)	C(KEY_BACKSPACE)
  *	*(KEY_LEFTSHIFT)0(KEY_RESERVED)	#(KEY_RESERVED)	D(KEY_SPACE)
@@ -96,7 +96,7 @@ struct android_keymap {
 #define KEY(r3,r2,r1,r0, c3,c2,c1,c0) \
 ( (r3<<7)|(r2<<6)|(r1<<5)|(r0<<4)|(c3<<3)|(c2<<2)|(c1<<1)|c0 )
 static struct android_keymap keymap[] = {
-{KEY(1,1,1,0, 1,1,1,0),		KEY_1,		KEY_RESERVED},
+{KEY(1,1,1,0, 1,1,1,0),		KEY_1,		KEY_BACK},
 {KEY(1,1,1,0, 1,1,0,1),		KEY_2,		KEY_UP},
 {KEY(1,1,1,0, 1,0,1,1),		KEY_3,		KEY_RESERVED},
 {KEY(1,1,1,0, 0,1,1,1),		KEY_A,		KEY_MENU},

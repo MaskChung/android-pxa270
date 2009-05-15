@@ -364,20 +364,27 @@ if(y > g_max_y)
 	y = g_max_y-1;
 else if(y<g_min_y)
 	y = g_min_y+1;
+	/*
 x -= g_min_x;
 y -= g_min_y;
-/*
-x = (x * 240) / (_max_x - _min_x);
-y = (y * 320) / (_max_y - _min_y);
 */
+x = ((x-g_min_x) * 239) / (g_max_x - g_min_x);
+y = ((y-g_min_y) * 319) / (g_max_y - g_min_y);
 printk(" ----------- cal x = %u\n",x);
 printk(" ----------- cal y = %u\n",y);
+/*
+if(x>=240)
+	x=239;
+if(y>=320)
+	y=319;
+	*/
 /*
 x = x >= 240 ? 240-1 : x;
 y = y >= 320 ? 320-1 : y;
 */
 //y = _max_y - y;
-y = (g_max_y -g_min_y)- y;
+//y = (g_max_y -g_min_y)- y;
+y=320-y;
 //y = (y <= 0) ? 1 : y;
 printk(" ----------- cal x = %u\n",x);
 printk(" ----------- cal y = %u\n",y);
@@ -444,7 +451,7 @@ printk("%s:%s ---------- into\n",__FILE__,__func__);
 		/* Switch back to interrupt mode. */
 		ucb1400_ts_mode_int(ucb);
 
-		msleep(10);
+		msleep(1);
 
 		if (ucb1400_ts_pen_down(ucb)) {
 			ucb1400_ts_irq_enable(ucb);
@@ -462,7 +469,7 @@ printk("%s:%s ---------- into\n",__FILE__,__func__);
 		} else {
 			valid = 1;
 			ucb1400_ts_evt_add(ucb->ts_idev, p, x, y);
-			timeout = msecs_to_jiffies(10);
+			timeout = msecs_to_jiffies(0);
 		}
 
 		wait_event_freezable_timeout(ucb->ts_wait,
@@ -677,13 +684,16 @@ static int ucb1400_ts_probe(struct device *dev)
 	input_set_abs_params(idev, ABS_X, 0, 240, 0, 0);
 	input_set_abs_params(idev, ABS_Y, 0, 320, 0, 0);
 	*/
-	input_set_abs_params(idev, ABS_X, 0, g_max_x-g_min_x, 0, 0);
-	input_set_abs_params(idev, ABS_Y, 0, g_max_y-g_min_y, 0, 0);
+//	input_set_abs_params(idev, ABS_X, 0, g_max_x-g_min_x, 6, 0);
+//	input_set_abs_params(idev, ABS_Y, 0, g_max_y-g_min_y, 6, 0);
+	input_set_abs_params(idev, ABS_X, 0, 240, 6, 0);
+	input_set_abs_params(idev, ABS_Y, 0, 320, 6, 0);
 	/*
 	input_set_abs_params(idev, ABS_X, 0, 920, 0, 0);
 	input_set_abs_params(idev, ABS_Y, 0, 950, 0, 0);
 	*/
-	input_set_abs_params(idev, ABS_PRESSURE, 0, 1, 0, 0);
+	input_set_abs_params(idev, ABS_PRESSURE, 0, 256, 0, 0);
+	//input_set_abs_params(idev, ABS_PRESSURE, 0, 1, 0, 0);
 
 	error = input_register_device(idev);
 	if (error)

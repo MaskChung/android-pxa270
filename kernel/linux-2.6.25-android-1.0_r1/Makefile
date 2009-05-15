@@ -1,7 +1,7 @@
 VERSION = 2
 PATCHLEVEL = 6
 SUBLEVEL = 25
-EXTRAVERSION = <cycdisk@gmail.com>
+EXTRAVERSION = [cycdisk@gmail.com]
 NAME = Funky Weasel is Jiggy wit it
 
 # *DOCUMENTATION*
