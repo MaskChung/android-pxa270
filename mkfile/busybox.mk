@@ -1,3 +1,4 @@
+ifdef BUSYBOX_SRC
 
 BUSYBOX_SRC := $(PRJROOT)/$(call path-for,busybox)/$(patsubst "%",%,$(BUSYBOX_SRC))
 BUSYBOX_CONF := $(PRJROOT)/$(call path-for,config)/busybox.conf
@@ -34,3 +35,4 @@ install_busybox:
 clean_busybox:
 	$(MAKE) -C $(BUSYBOX_SRC) distclean
 
+endif
