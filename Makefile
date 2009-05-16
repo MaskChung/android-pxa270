@@ -15,7 +15,7 @@ include mkfile/pathmap.mk
 include $(call path-for,mkfile)/setenv.mk
 include $(call path-for,mkfile)/rules.mk
 include $(call path-for,mkfile)/toolchain.mk
-#include $(call path-for,mkfile)/rootfs.mk
+include $(call path-for,mkfile)/rootfs.mk
 include $(call path-for,mkfile)/kernel.mk
 include $(call path-for,mkfile)/busybox.mk
 include $(call path-for,mkfile)/version.mk
