@@ -36,7 +36,6 @@ pathmap := \
     target:target \
     target-rootfs:target/rootfs \
     target-bin:target/bin \
-    target-android-rootfs:target/android-rootfs \
     target-android-demo-rootfs:target/android-demo-rootfs \
     target-mydroid-rootfs:target/mydroid-rootfs \
     mkyaffs2image:scripts/bin/yaffs2/utils \
