@@ -1,19 +1,15 @@
+ifdef MYDROID_SRC
 
 MODULES += mydroid
 
-ifneq "$(MYDROID_SRC)" ""
 export MYDROID_SRC := $(patsubst "%",%,$(MYDROID_SRC))
 MYDROID_BIN := $(PRJROOT)/$(call path-for,mydroid)/$(MYDROID_SRC)/out/target/product/generic
-endif
 
 .PHONY: build_mydroid install_mydroid clean_mydroid
 build_mydroid:
-ifneq "$(MYDROID_SRC)" ""
 	$(MAKE) -C $(PRJROOT)/$(call path-for,mydroid)
-endif
 
 install_mydroid:
-ifneq "$(MYDROID_SRC)" ""
 	-rm -rf $(PRJROOT)/$(call path-for,target-mydroid-rootfs)
 	mkdir -p $(PRJROOT)/$(call path-for,target-mydroid-rootfs)
 ifneq "$(BASE_ROOTFS)" ""
@@ -26,9 +22,8 @@ endif
 	cd $(PRJROOT)/$(call path-for,target-mydroid-rootfs)/etc && ln -s ../system/etc/* .
 	rsync -r --exclude='.svn' $(PRJROOT)/$(call path-for,rootfs-overwrite-android)/* $(PRJROOT)/$(call path-for,target-mydroid-rootfs)
 	chmod -R a+rwx $(PRJROOT)/$(call path-for,target-mydroid-rootfs)
-endif
 
 clean_mydroid:
-ifneq "$(MYDROID_SRC)" ""
 	$(MAKE) -C $(PRJROOT)/$(call path-for,mydroid) clean
+
 endif

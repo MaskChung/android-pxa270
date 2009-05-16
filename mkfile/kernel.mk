@@ -1,3 +1,4 @@
+ifdef KERNEL_SRC
 
 KERNEL_SRC := $(PRJROOT)/$(call path-for,kernel)/$(patsubst "%",%,$(KERNEL_SRC))
 
@@ -26,3 +27,4 @@ install_kernel:
 clean_kernel:
 	$(MAKE) -C $(KERNEL_SRC) distclean
 
+endif

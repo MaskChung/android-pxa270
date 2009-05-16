@@ -1,3 +1,4 @@
+ifdef BASE_ROOTFS
 
 BASE_ROOTFS := $(PRJROOT)/$(call path-for,rootfs)/$(patsubst "%",%,$(BASE_ROOTFS))
 
@@ -13,3 +14,4 @@ install_rootfs:
 
 clean_rootfs:
 
+endif

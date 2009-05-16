@@ -1,3 +1,4 @@
+ifdef TOOLCHAIN
 
 TOOLCHAIN := $(PRJROOT)/$(call path-for,toolchain)/$(patsubst "%",%,$(TOOLCHAIN))
 
@@ -34,3 +35,4 @@ build_toolchain:
 		echo "$$new" > $(OLD_CHKSUM); \
 	fi
 
+endif
