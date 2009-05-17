@@ -7,7 +7,8 @@ MODULES += android_demo
 .PHONY: build_android_demo install_android_demo clean_android_demo
 build_android_demo:
 install_android_demo:
-	rm -rf $(PRJROOT)/$(call path-for,target-android-demo-rootfs)
+	-rm -f $(PRJROOT)/$(call path-for,target-bin)/demo.tgz
+	-rm -rf $(PRJROOT)/$(call path-for,target-android-demo-rootfs)
 	mkdir -p $(PRJROOT)/$(call path-for,target-android-demo-rootfs)
 	file -b $(DEMO_ROOTFS) | awk '{print $$1 " -d -c -v $(DEMO_ROOTFS)"}' | sh - | tar xvf - --strip-components=1 -C $(PRJROOT)/$(call path-for,target-android-demo-rootfs)
 	chmod -R a+rwx $(PRJROOT)/$(call path-for,target-android-demo-rootfs)
