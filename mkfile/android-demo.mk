@@ -13,7 +13,7 @@ install_android_demo:
 	file -b $(DEMO_ROOTFS) | awk '{print $$1 " -d -c -v $(DEMO_ROOTFS)"}' | sh - | tar xvf - --strip-components=1 -C $(PRJROOT)/$(call path-for,target-android-demo-rootfs)
 	chmod -R a+rwx $(PRJROOT)/$(call path-for,target-android-demo-rootfs)
 #	tar cvzf $(PRJROOT)/$(call path-for,target-bin)/demo.tgz $(PRJROOT)/$(call path-for,target-android-demo-rootfs)
-	cd $(PRJROOT)/$(call path-for,target) && tar cvzf $(PRJROOT)/$(call path-for,target-bin)/demo.tgz $(patsubst ($call path-for,target)/%,%,$(call path-for,target-android-demo-rootfs))
+	cd $(PRJROOT)/$(call path-for,target) && tar cvzf $(PRJROOT)/$(call path-for,target-bin)/demo.tgz $(patsubst $(call path-for,target)/%,%,$(call path-for,target-android-demo-rootfs))
 
 clean_android_demo:
 
