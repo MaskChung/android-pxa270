@@ -15,5 +15,6 @@ install_android_demo:
 	cd $(PRJROOT)/$(call path-for,target) && tar cvzf $(PRJROOT)/$(call path-for,target-bin)/demo.tgz $(patsubst $(call path-for,target)/%,%,$(call path-for,target-android-demo-rootfs))
 
 clean_android_demo:
+	-rm -rf $(PRJROOT)/$(call path-for,target-android-demo-rootfs)
 
 endif
