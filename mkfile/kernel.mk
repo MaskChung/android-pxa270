@@ -25,6 +25,13 @@ install_kernel:
 	rm -f $(PRJROOT)/$(call path-for,target-bin)/zImage.gz
 
 clean_kernel:
+	if [ -e $(KERNEL_SRC)/.config ]; then \
+		cp $(KERNEL_SRC)/.config $(call path-for,config)/kernel.conf; \
+	fi
 	$(MAKE) -C $(KERNEL_SRC) distclean
+	if [ -e $(call path-for,config)/kernel.conf ] ; then \
+		cp $(call path-for,config)/kernel.conf $(KERNEL_SRC)/.config; \
+		rm -f $(call path-for,config)/kernel.conf; \
+	fi
 
 endif
