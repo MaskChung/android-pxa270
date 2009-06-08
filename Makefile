@@ -40,6 +40,9 @@ all:
 	if [ ! -e $(PRJROOT)/.config ] ; then \
 		cp $(TOP_CONF) $(PRJROOT)/.config; \
 	fi
+ifneq "$(words $(CROSS_COMPILE))" "1"
+	$(MAKE) clean_toolchain
+endif
 	$(MAKE) build_toolchain
 	$(MAKE) $(addprefix build_,$(MODULES))
 	$(MAKE) install
