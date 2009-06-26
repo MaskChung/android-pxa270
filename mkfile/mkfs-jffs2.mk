@@ -5,6 +5,7 @@
 ### cvs -d :pserver:anoncvs@cvs.infradead.org:/home/cvs co mtd
 ### cvs -d :pserver:anoncvs@cvs.infradead.org:/home/cvs logout
 
+ifdef JFFS2
 MODULES += mkfs_jffs2
 
 .PHONY: build_mkfs_jffs2 install_mkfs_jffs2 clean_mkfs_jffs2
@@ -28,3 +29,4 @@ clean_mkfs_jffs2:
 	fi
 	$(MAKE) -C $(PRJROOT)/$(call path-for,mkfs-jffs2) clean
 
+endif
