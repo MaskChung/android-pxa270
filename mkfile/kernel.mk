@@ -1,6 +1,7 @@
 ifdef KERNEL_SRC
 
 KERNEL_SRC := $(PRJROOT)/$(call path-for,kernel)/$(patsubst "%",%,$(KERNEL_SRC))
+KERNEL_CONF := $(PRJROOT)/$(call path-for,config)/kernel.conf
 
 MODULES += kernel
 
@@ -10,7 +11,11 @@ build_kernel:
 		echo Missing kernel source: $(KERNEL_SRC); \
 		exit 1; \
 	elif [ ! -e $(KERNEL_SRC)/.config ]; then \
-		$(MAKE) -C $(KERNEL_SRC) defconfig ARCH=$(ARCH); \
+		if [ ! -e $(KERNEL_CONF) ] ; then \
+			$(MAKE) -C $(KERNEL_SRC) defconfig ARCH=$(ARCH); \
+		else \
+			cp $(KERNEL_CONF) $(KERNEL_SRC)/.config; \
+		fi; \
 	fi
 	$(MAKE) -C $(KERNEL_SRC)
 
@@ -26,12 +31,8 @@ install_kernel:
 
 clean_kernel:
 	if [ -e $(KERNEL_SRC)/.config ]; then \
-		cp $(KERNEL_SRC)/.config $(call path-for,config)/kernel.conf; \
+		cp -f $(KERNEL_SRC)/.config $(KERNEL_CONF); \
 	fi
 	$(MAKE) -C $(KERNEL_SRC) distclean
-	if [ -e $(call path-for,config)/kernel.conf ] ; then \
-		cp $(call path-for,config)/kernel.conf $(KERNEL_SRC)/.config; \
-		rm -f $(call path-for,config)/kernel.conf; \
-	fi
 
 endif

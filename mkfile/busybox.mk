@@ -12,8 +12,8 @@ build_busybox:
 		exit 1; \
 	elif [ ! -e $(BUSYBOX_SRC)/.config ] ; then \
 		if [ ! -e $(BUSYBOX_CONF) ] ; then \
-		echo please svn up $(BUSYBOX_SRC)/.config first; \
-		exit 1; \
+			echo please svn up $(BUSYBOX_SRC)/.config first; \
+			exit 1; \
 		else \
 			cp $(BUSYBOX_CONF) $(BUSYBOX_SRC)/.config; \
 			$(MAKE) -C $(BUSYBOX_SRC) silentoldconfig; \
@@ -33,6 +33,9 @@ install_busybox:
 	fi
 
 clean_busybox:
+	if [ -e $(BUSYBOX_SRC)/.config ]; then \
+		cp -f $(BUSYBOX_SRC)/.config $(BUSYBOX_CONF); \
+	fi
 	$(MAKE) -C $(BUSYBOX_SRC) distclean
 
 endif
