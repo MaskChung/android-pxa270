@@ -13,7 +13,7 @@ install_mydroid:
 	-rm -rf $(PRJROOT)/$(call path-for,target-mydroid-rootfs)
 	mkdir -p $(PRJROOT)/$(call path-for,target-mydroid-rootfs)
 ifneq "$(BASE_ROOTFS)" ""
-	cp -af $(PRJROOT)/$(call path-for,target-rootfs) $(PRJROOT)/$(call path-for,target-mydroid-rootfs)
+	cp -af $(PRJROOT)/$(call path-for,target-rootfs)/* $(PRJROOT)/$(call path-for,target-mydroid-rootfs)
 endif
 	cp -af $(MYDROID_BIN)/system $(PRJROOT)/$(call path-for,target-mydroid-rootfs)
 	cp -af $(MYDROID_BIN)/data $(PRJROOT)/$(call path-for,target-mydroid-rootfs)
