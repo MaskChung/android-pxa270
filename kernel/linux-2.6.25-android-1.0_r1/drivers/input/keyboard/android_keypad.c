@@ -29,6 +29,7 @@
 #include <linux/platform_device.h>
 #include <linux/clk.h>
 #include <linux/err.h>
+#include <linux/delay.h>
 
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
@@ -46,13 +47,13 @@
 struct android_keypad {
 	struct android_keypad_platform_data *pdata;// maybe take off
 	struct input_dev *input_dev;
-	unsigned long jiffy;
-	unsigned long jiffy_diff;
+	unsigned long jiffy_start_polling;
 	struct task_struct *polling_thread;
 	wait_queue_head_t keypad_wq;
 	struct mutex mutex;
 	spinlock_t spinlock;
 	unsigned long idle_period;
+	int polling;
 };
 
 static DEFINE_MUTEX(mutex_io_reg2);
@@ -78,15 +79,15 @@ unsigned short io_reg1_read(void)
 	val = IO_REG1;
 	mutex_unlock(&mutex_io_reg1);
 	//printk("%s: IO_REG1 = %x\n",__func__,val);
-	if(val != 0xfff)
-	printk("%s: IO_REG1 = %x\n",__func__,val);
+	//if(val != 0xfff)
+	//printk("%s: IO_REG1 = %x\n",__func__,val);
 	return val;
 }
 
-/*	1(KEY_BACK)	2(KEY_UP)	3(KEY_RESERVED)	A(KEY_MENU)
+/*	1(KEY_BACK)	2(KEY_UP)	3(KEY_H)	A(KEY_MENU)
  *	4(KEY_LEFT)	5(KEY_RESERVED)	6(KEY_RIGHT)	B(KEY_HOME)
- *	7(KEY_RESERVED)	8(KEY_DOWN)	9(KEY_RESERVED)	C(KEY_BACKSPACE)
- *	*(KEY_LEFTSHIFT)0(KEY_RESERVED)	#(KEY_RESERVED)	D(KEY_SPACE)
+ *	7(KEY_T)	8(KEY_DOWN)	9(KEY_P)	C(KEY_BACKSPACE)
+ *	*(KEY_LEFTSHIFT)0(KEY_DOT)	#(KEY_SLASH)	D(KEY_SPACE)
 */
 struct android_keymap {
 	unsigned int hw_key;
@@ -98,19 +99,20 @@ struct android_keymap {
 static struct android_keymap keymap[] = {
 {KEY(1,1,1,0, 1,1,1,0),		KEY_1,		KEY_BACK},
 {KEY(1,1,1,0, 1,1,0,1),		KEY_2,		KEY_UP},
-{KEY(1,1,1,0, 1,0,1,1),		KEY_3,		KEY_RESERVED},
+{KEY(1,1,1,0, 1,0,1,1),		KEY_3,		KEY_H},
 {KEY(1,1,1,0, 0,1,1,1),		KEY_A,		KEY_MENU},
 {KEY(1,1,0,1, 1,1,1,0),		KEY_4,		KEY_LEFT},
 {KEY(1,1,0,1, 1,1,0,1),		KEY_5,		KEY_RESERVED},
 {KEY(1,1,0,1, 1,0,1,1),		KEY_6,		KEY_RIGHT},
 {KEY(1,1,0,1, 0,1,1,1),		KEY_B,		KEY_HOME},
-{KEY(1,0,1,1, 1,1,1,0),		KEY_7,		KEY_RESERVED},
+{KEY(1,0,1,1, 1,1,1,0),		KEY_7,		KEY_T},
 {KEY(1,0,1,1, 1,1,0,1),		KEY_8,		KEY_DOWN},
-{KEY(1,0,1,1, 1,0,1,1),		KEY_9,		KEY_RESERVED},
+{KEY(1,0,1,1, 1,0,1,1),		KEY_9,		KEY_P},
 {KEY(1,0,1,1, 0,1,1,1),		KEY_C,		KEY_BACKSPACE},
 {KEY(0,1,1,1, 1,1,1,0),		KEY_LEFTSHIFT,	KEY_LEFTSHIFT},
-{KEY(0,1,1,1, 1,1,0,1),		KEY_0,		KEY_RESERVED},
-{KEY(0,1,1,1, 1,0,1,1),		KEY_D,		KEY_SPACE},
+{KEY(0,1,1,1, 1,1,0,1),		KEY_0,		KEY_DOT},
+{KEY(0,1,1,1, 1,0,1,1),		KEY_0,		KEY_SLASH},
+{KEY(0,1,1,1, 0,1,1,1),		KEY_D,		KEY_SPACE},
 {0,KEY_UNKNOWN, KEY_UNKNOWN },
 };
 
@@ -141,13 +143,17 @@ static unsigned int lookup_keycode(unsigned int hw_key)
 	return keymap[i].keycode;
 }
 
-#define MAX_IDLE_MSEC (1*300) // 0.5 sec
-//#define MAX_IDLE_MSEC (1*1000) // 1 sec
-#define MIN_IDLE_MSEC (1*100) // 0.1 sec
+//#define MAX_IDLE_MSEC (1*100) // 0.5 sec
+//#define MAX_IDLE_MSEC (1*300) // 0.5 sec
+#define MAX_IDLE_MSEC (1*1000) // 1 sec
+#define MIN_IDLE_MSEC (1*300) // 0.1 sec
+//#define IDLE_STEPS 1
 #define IDLE_STEPS 3
-static unsigned int min_idle_msec = MAX_IDLE_MSEC;
-static unsigned int max_idle_msec = MIN_IDLE_MSEC;
+#define POLLING_PERIOD (5*1000)
+static unsigned int min_idle_msec = MIN_IDLE_MSEC;
+static unsigned int max_idle_msec = MAX_IDLE_MSEC;
 static unsigned int idle_steps = IDLE_STEPS;
+static unsigned int polling_period = POLLING_PERIOD;
 #define SCAN(r3,r2,r1,r0) ( (r3<<3)|(r2<<2)|(r1<<1)|r0 )
 unsigned short scan_key[] = {
 SCAN(1,1,1,0),
@@ -164,46 +170,48 @@ static int android_keypad_thread(void * data)
 	int i;
 
 	keypad->idle_period = min_idle_msec;
-	//keypad->idle_period = msecs_to_jiffies(min_idle_msec);
 	sched_setscheduler(current, SCHED_FIFO, &param);
 	current->flags |= PF_NOFREEZE;
+	keypad->polling = 0;
 	do {
-//		scan = SCAN(1,1,1,0);
 		i = 0;
-		//scan = scan_key[i];
-		spin_lock(&keypad->spinlock);
 		do
 		{
-		scan = scan_key[i];
-			io_reg2_write(scan); // maybe change to 0xe because bit 4~7 don't care
+			scan = scan_key[i];
+			io_reg2_write(scan); // maybe change to 0xe because bit 4~7 are don't care
 			keycode = lookup_keycode( (scan << 4) | ((io_reg1_read() & 0x0f00) >> 8));
 			if(keycode != KEY_UNKNOWN)
 				break;
-//			scan = ((scan << 1) | (scan >> 3)) & 0xf;
 			++i;
 		} while(i < ARRAY_SIZE(scan_key));
-		//} while(scan != SCAN(1,1,1,0));
-		spin_unlock(&keypad->spinlock);
 		if(keycode == KEY_UNKNOWN) // no input --- need to modify
 		{
-			if(keypad->idle_period < max_idle_msec)
-				keypad->idle_period += (max_idle_msec - min_idle_msec)/idle_steps;
-			if(keypad->idle_period > max_idle_msec)
-				keypad->idle_period = max_idle_msec;
+			if(!keypad->polling){
+				if(keypad->idle_period < max_idle_msec)
+					keypad->idle_period += (max_idle_msec - min_idle_msec)/idle_steps;
+				if(keypad->idle_period > max_idle_msec)
+					keypad->idle_period = max_idle_msec;
+			}
+			if(jiffies_to_msecs(jiffies-keypad->jiffy_start_polling) > polling_period)
+				keypad->polling=0;
 		}
 		else
 		{
+			if(!keypad->polling){
+				keypad->polling=1;
+				keypad->jiffy_start_polling=jiffies;
+			}
 			// calculate jiffies to cancel fast continuing key
-			keypad->jiffy_diff = jiffies - keypad->jiffy;
-			keypad->jiffy = jiffies;
 			input_report_key(keypad->input_dev,keycode,1);
 			input_sync(keypad->input_dev);
 			input_report_key(keypad->input_dev,keycode,0);
 			input_sync(keypad->input_dev);
 			keypad->idle_period = min_idle_msec;
-			printk(LOG_LEVEL "%s: jiffy_diff = %lu\n", __func__,keypad->jiffy_diff);
 			printk(LOG_LEVEL "%s: keycode = %d\n",__func__,keycode);
+			msleep(100);
 		}
+		if(jiffies_to_msecs(jiffies-keypad->jiffy_start_polling) < polling_period)
+			continue;
 		set_task_state(current, TASK_INTERRUPTIBLE);
 		if (!kthread_should_stop())
 			schedule_timeout(msecs_to_jiffies(keypad->idle_period));
