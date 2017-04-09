@@ -28,6 +28,6 @@ License:
 ----------------
 GNU General Public License version 2.0 (GPLv2)
 
-Author: Mask Chung(http://www.mask.org.tw)
+Author: Mask Chung(http://www.mask.org.tw), Ai Chung(krad1969@gmail.com)
 
 [1]: https://github.com/MaskChung/android-pxa270
