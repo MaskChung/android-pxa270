@@ -8,14 +8,19 @@ It was open sourcefor anyone but no responsibility for any damage resulting from
 Demo:
 ----------------
 http://www.youtube.com/watch?v=3Ine1k4Hzy8 
+
 http://www.youtube.com/watch?v=3Xp5zMPOI1c 
+
 http://www.youtube.com/watch?v=lYzRSNuUsIw 
+
 http://www.youtube.com/watch?v=1lmmld7LjGM 
+
 http://www.youtube.com/watch?v=CNGhFmCwaxw 
 
 Documents:
 ----------------
 http://sourceforge.net/projects/android-pxa270/files/BringUp_Android_on_PXA270.pdf
+
 http://sourceforge.net/projects/android-pxa270/files/Android_Porting_on_PXA270.pdf
 
 
