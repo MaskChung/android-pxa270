@@ -7,15 +7,13 @@ It was open sourcefor anyone but no responsibility for any damage resulting from
 
 Demo:
 ----------------
-http://www.youtube.com/watch?v=3Ine1k4Hzy8 
+[![Alt text](https://img.youtube.com/vi/3Ine1k4Hzy8/0.jpg)](https://www.youtube.com/watch?v=3Ine1k4Hzy8)
+[![Alt text](https://img.youtube.com/vi/3Xp5zMPOI1c/0.jpg)](https://www.youtube.com/watch?v=3Xp5zMPOI1c)
+[![Alt text](https://img.youtube.com/vi/lYzRSNuUsIw/0.jpg)](https://www.youtube.com/watch?v=lYzRSNuUsIw)
+[![Alt text](https://img.youtube.com/vi/1lmmld7LjGM/0.jpg)](https://www.youtube.com/watch?v=1lmmld7LjGM)
+[![Alt text](https://img.youtube.com/vi/CNGhFmCwaxw/0.jpg)](https://www.youtube.com/watch?v=CNGhFmCwaxw)
 
-http://www.youtube.com/watch?v=3Xp5zMPOI1c 
 
-http://www.youtube.com/watch?v=lYzRSNuUsIw 
-
-http://www.youtube.com/watch?v=1lmmld7LjGM 
-
-http://www.youtube.com/watch?v=CNGhFmCwaxw 
 
 Documents:
 ----------------
