@@ -1,0 +1,3 @@
+# ATTENTION! This does not handle 'depends', just 'select'! 
+# See package/config/util.c write_make_deps()
+#
