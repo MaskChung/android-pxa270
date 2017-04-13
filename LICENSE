@@ -3,16 +3,14 @@ Copyright (C) 2009 by Mask <cycdisk@gmail.com>. All rights reserved.
 
 Its License Agreement for the Android developing system of PXA270:
 
-This is NOT FREE software for anyone except you obtain my permission. Anyone who want to use this software could contact me <cycdisk@gmail.com>.
+This is FREE software and under GPL for anyone.
 
 You must agree all of this software original LICENSE AGREEMENT if you want to use any part of this software. LICENSE AGREEMENT include GPL of Linux kernel, JDK of Sun Microsystems and so on.
-
-No pert of this software may be reproduced, translated into another language, store in a retrieval system, or transmitted, in any form or by any means, electronic, mechanical, photocopying, or otherwise without the prior written consent of Mask <cycdisk@gmail.com>.
 
 DISCLAIMER. I have no responsibility for any damage resulting from any usage of this software.
 
 DEFINITIONS. "Software" means the identified above in binary form, any other machine readable materials (including, but not limited to, libraries, source files, header files, and data files).
 
-My contribution is I integrate the complete building system for Android run-time environment of PXA270.
+My contribution is I integrate the complete building environment for Android developing system of PXA270.
 
 If anyone have any question, please contact me <cycdisk@gmail.com>. You can write in chinese as possible as you could.
