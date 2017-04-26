@@ -35,7 +35,7 @@ It was a complete build system for both embedded Linux and Android on PXA270, an
 ## Donate
 
 ![Alt text](http://www.mask.org.tw/image/alipay.png "Alipay")
-<img src="http://www.mask.org.tw/image/wechat_pay.png" alt="WeChat" width="170">
+<img src="http://www.mask.org.tw/image/wechat_pay.png" alt="WeChat" width="172">
 
 ## License
 
